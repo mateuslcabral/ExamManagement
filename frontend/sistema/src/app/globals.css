@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/*
+ * Identidade visual Cligen — extraída de cligen.com.br (Elementor global colors) em 22/08/2026.
+ * Fonte: Montserrat (600 títulos, 400 corpo). Botões pill (raio 30px).
+ */
+@theme {
+  --color-primaria: #234c5a;        /* header, botões, títulos */
+  --color-primaria-clara: #2f6070;
+  --color-primaria-escura: #1a3a45;
+  --color-teal: #006c7f;            /* destaque / links */
+  --color-secundaria: #738373;      /* acento verde-acinzentado */
+  --color-texto: #272727;
+  --color-texto-suave: #5c6b6b;
+  --color-fundo: #fafafa;
+  --color-fundo-alt: #eeeeee;
+  --color-bege: #e3ded7;
+  --color-borda: #d5d8dc;
+  --color-sucesso: #2e8b57;
+  --color-alerta: #b8860b;
+  --color-erro: #b3261e;
+
+  --font-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+
+  --radius-pill: 30px;
+}
+
+body {
+  background: var(--color-fundo);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fundo com ondas sutis (inspirado nas seções claras do site) */
+.fundo-ondas {
+  background-color: var(--color-fundo-alt);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 120%, rgba(35, 76, 90, 0.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% -10%, rgba(0, 108, 127, 0.10), transparent 60%);
+}
+
+/* Fundo escuro do hero (tela de login) */
+.fundo-hero {
+  background-color: #0b1418;
+  background-image:
+    radial-gradient(ellipse 60% 70% at 25% 30%, rgba(0, 108, 127, 0.45), transparent 65%),
+    radial-gradient(ellipse 50% 50% at 40% 90%, rgba(115, 131, 115, 0.25), transparent 60%),
+    radial-gradient(circle at 70% 40%, rgba(255,255,255,0.06) 1px, transparent 1.5px),
+    radial-gradient(circle at 30% 70%, rgba(255,255,255,0.05) 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 80%, rgba(255,255,255,0.06) 1px, transparent 1.5px);
+  background-size: auto, auto, 160px 160px, 220px 220px, 190px 190px;
+}
