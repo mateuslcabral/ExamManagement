@@ -28,6 +28,15 @@
 
 O responsável legal é atribuído no momento do cadastro (Q7). O e-mail e o telefone registrados são os do responsável, e é para ele que vão todos os disparos e o acesso ao portal (**P9**).
 
+## Exclusão, edição e contato (premissas P16–P21)
+
+- **Exclusão lógica** com autor, data e motivo obrigatório; restaurável. Bloqueada se houver exame ativo (regra entra com o módulo de exames). Ver **P16**.
+- Documento editável para correção, mantendo unicidade; CPF validado por dígitos verificadores (**P18**).
+- Maioridade aos 18 anos; o responsável legal registra nome, documento e parentesco — o contato (e-mail/telefone) do cadastro já é o do responsável (**P19**).
+- Boas-vindas disparadas por e-mail/WhatsApp com texto provisório até C7 (**P20**); telefone guardado só com dígitos (**P21**).
+
+Detalhes em [`06-pendencias/premissas.md`](../06-pendencias/premissas.md).
+
 ## Pendente
 
 - **D2.1** — número de cadastro sequencial curto e legível (ex. `2026-000123`) ao lado do GUID interno, para uso da recepção e do paciente (proposta aguardando aprovação do cliente). Ver [`06-pendencias/decisoes-e-conflitos.md`](../06-pendencias/decisoes-e-conflitos.md).

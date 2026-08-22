@@ -10,6 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Camadas (composition root — único lugar que conhece a Infraestrutura).
 builder.Services.AdicionarInfraestrutura(builder.Configuration);
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<PacienteService>();
+builder.Services.AddScoped<ExameCatalogoService>();
+builder.Services.AddScoped<ExameService>();
+builder.Services.AddScoped<AcolhimentoService>();
+builder.Services.AddScoped<LaudoService>();
 builder.Services.AddScoped<AutenticacaoService>();
 builder.Services.AddSingleton<IUrlDefinicaoSenha, UrlDefinicaoSenha>();
 
@@ -33,5 +38,6 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapControllers();
 
 await SeedUsuarioInicial.ExecutarAsync(app.Services, app.Configuration, app.Logger);
+await SeedCatalogoInicial.ExecutarAsync(app.Services, app.Logger);
 
 app.Run();

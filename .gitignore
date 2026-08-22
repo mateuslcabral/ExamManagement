@@ -36,3 +36,6 @@ Thumbs.db
 # ---- Logs ----
 *.log
 logs/
+
+# Anexos gravados em disco local (provisorio, P27)
+backend/src/Cligen.Api/dados/

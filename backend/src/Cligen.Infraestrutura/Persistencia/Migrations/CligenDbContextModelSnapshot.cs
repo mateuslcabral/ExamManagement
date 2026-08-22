@@ -22,6 +22,409 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Amostra", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("DataAcolhimento")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("ExameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MotivoRejeicao")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("RegistradoPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("RejeitadaEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("RejeitadaPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Situacao")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("ExameId");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("ExameId"));
+
+                    b.ToTable("Amostra", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Anexo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Caminho")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("EnviadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ExameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("HashSha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("NomeOriginal")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<long>("TamanhoBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TipoConteudo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("ExameId");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("ExameId"));
+
+                    b.ToTable("Anexo", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.EtapaAndamento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ArquivoSubstituidoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Caminho")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ExameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("HashSha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("NomeOriginal")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("RegistradoPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Substituicoes")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TamanhoBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("ExameId", "Tipo")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("ExameId", "Tipo"));
+
+                    b.ToTable("EtapaAndamento", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Exame", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("DataEntrada")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("DataLiberacaoEfetiva")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly?>("DataLiberacaoPrevista")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Destino")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ExameCatalogoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ExcluidoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ExcluidoPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MotivoExclusao")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("NomeMedico")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("Origem")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PacienteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Preco")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<long>("Seq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Seq"));
+
+                    b.Property<int>("TipoMedico")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("ExameCatalogoId");
+
+                    b.HasIndex("PacienteId");
+
+                    b.HasIndex("Seq")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
+
+                    b.ToTable("Exame", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.ExameCatalogo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PrazoExecucaoDias")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PrecoReferencia")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<long>("Seq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Seq"));
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.HasIndex("Seq")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
+
+                    b.ToTable("ExameCatalogo", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Paciente", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("DataNascimento")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
+
+                    b.Property<DateTime?>("ExcluidoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ExcluidoPorUsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MotivoExclusao")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NumeroDocumento")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<long>("Seq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Seq"));
+
+                    b.Property<string>("Telefone")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<int>("TipoDocumento")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("Seq")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
+
+                    b.HasIndex("TipoDocumento", "NumeroDocumento")
+                        .IsUnique();
+
+                    b.ToTable("Paciente", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Parametro", b =>
+                {
+                    b.Property<string>("Chave")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Valor")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Chave");
+
+                    b.ToTable("Parametro", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Chave = "DiasRevisao",
+                            Descricao = "Dias de revisão da Cligen somados ao prazo de execução de todo exame (dias corridos).",
+                            Valor = "3"
+                        });
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.ResponsavelLegal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NumeroDocumento")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("PacienteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Parentesco")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("TipoDocumento")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("PacienteId")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("PacienteId"));
+
+                    b.ToTable("ResponsavelLegal", (string)null);
+                });
+
             modelBuilder.Entity("Cligen.Dominio.Entidades.Usuario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -81,6 +484,75 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
 
                     b.ToTable("Usuario", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Amostra", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Exame", null)
+                        .WithMany("Amostras")
+                        .HasForeignKey("ExameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Anexo", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Exame", null)
+                        .WithMany("Anexos")
+                        .HasForeignKey("ExameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.EtapaAndamento", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Exame", null)
+                        .WithMany("Etapas")
+                        .HasForeignKey("ExameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Exame", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.ExameCatalogo", "ExameCatalogo")
+                        .WithMany()
+                        .HasForeignKey("ExameCatalogoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Cligen.Dominio.Entidades.Paciente", "Paciente")
+                        .WithMany()
+                        .HasForeignKey("PacienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ExameCatalogo");
+
+                    b.Navigation("Paciente");
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.ResponsavelLegal", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Paciente", null)
+                        .WithOne("ResponsavelLegal")
+                        .HasForeignKey("Cligen.Dominio.Entidades.ResponsavelLegal", "PacienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Exame", b =>
+                {
+                    b.Navigation("Amostras");
+
+                    b.Navigation("Anexos");
+
+                    b.Navigation("Etapas");
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Paciente", b =>
+                {
+                    b.Navigation("ResponsavelLegal");
                 });
 #pragma warning restore 612, 618
         }

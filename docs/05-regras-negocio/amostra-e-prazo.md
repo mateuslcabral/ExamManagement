@@ -47,3 +47,7 @@ A rejeição da amostra zera o prazo, e o exame retorna à condição de aguarda
 | Q1.7 | Na recoleta, o novo acolhimento recalcula a data de liberação do zero, reescrevendo a previsão que o paciente já viu? | Regra de negócio |
 
 Premissa vigente enquanto essas não são respondidas: **P7** (dias corridos, sem horário de corte), **P8** (um acolhimento por exame).
+
+## Implementação (premissas P29–P31)
+
+Acolhimento na tela do exame com data digitável (padrão hoje); `Amostra` como histórico 1‑N com uma ativa; rejeição só no estado 2, recoleta = novo acolhimento. Ver [`06-pendencias/premissas.md`](../06-pendencias/premissas.md).

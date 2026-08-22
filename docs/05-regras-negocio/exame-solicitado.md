@@ -36,3 +36,7 @@ O exame pode ser excluído em qualquer etapa, por qualquer funcionário Cligen (
 Isso decorre da natureza de prontuário do registro (Q45): apagar fisicamente contrariaria a obrigação de guarda e esvaziaria o log de acesso.
 
 > Nota: como os perfis internos foram diferidos, na v1 qualquer um dos 4 usuários da equipe pode excluir qualquer exame — ver risco **R3** em [pendências](../06-pendencias/riscos-aceitos.md).
+
+## Implementação (premissas P22–P28)
+
+Origem como enum; médico interno com nome fixo; preço herdado e editável; estado inicial 1 sem transições; anexos em disco local provisório (P27). Ver [`06-pendencias/premissas.md`](../06-pendencias/premissas.md).

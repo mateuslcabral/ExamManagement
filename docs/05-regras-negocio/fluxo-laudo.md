@@ -30,3 +30,7 @@ Ao acionar o botão, o sistema:
 ## Fora de escopo (v1)
 
 Laudo retificado e laudo complementar (Q17). Sem esse tratamento, corrigir um laudo já liberado significa substituir o arquivo — o paciente não é notificado da troca e não fica histórico da versão anterior. Ver risco **R2** em [pendências](../06-pendencias/riscos-aceitos.md).
+
+## Implementação (premissas P32–P34)
+
+Matriz de transições 1→2→3→4→5→6 (+ 2→1 por rejeição), substituição de arquivo sem mudar estado, somente PDF nas etapas, notificação de disponibilização em log até definir provedores. Ver [`06-pendencias/premissas.md`](../06-pendencias/premissas.md).

@@ -34,7 +34,7 @@ Ver detalhamento em [amostra-e-prazo.md](../05-regras-negocio/amostra-e-prazo.md
 
 Identificado na revisão da especificação — não é pendência do cliente, é lacuna de planejamento de engenharia a fechar durante o desenho técnico.
 
-**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno e Gestão de Usuários (`frontend/sistema`, `backend/`). Resíduos que ainda faltam fechar:
+**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno, Gestão de Usuários, Pacientes (P16–P21), Catálogo de exames, Exames com anexos (P22–P28), acolhimento de amostra e fluxo do laudo (P29–P34) em `frontend/sistema` e `backend/`. Resíduos que ainda faltam fechar:
 
 | Item | Nota |
 |---|---|
@@ -43,7 +43,7 @@ Identificado na revisão da especificação — não é pendência do cliente, �
 | Política de senha das contas locais | Tamanho mínimo, expiração, bloqueio por tentativas |
 | Validade do link de definição de senha (primeiro acesso) | Implementado como parâmetro (`TokenDefinicaoSenha:ValidadeHoras`, padrão 24 h) — confirmar o valor com o cliente |
 | 2FA para o sistema interno | Não decidido — considerar para v2, dado que é prontuário |
-| Provedor de object storage | Azure Blob, S3, ou outro — decorre da escolha de hospedagem |
+| Provedor de object storage | Azure Blob, S3, ou outro — decorre da escolha de hospedagem. **Provisório (P27):** anexos gravados em disco local do servidor da API, atrás de `IArmazenamentoArquivos` (`Cligen.Infraestrutura/Integracoes/ArmazenamentoArquivos/ArmazenamentoArquivosDisco.cs`). Não serve para produção: sem redundância, sem backup, preso a uma máquina. Ao definir o provedor, migrar os arquivos já gravados e trocar a implementação |
 | Provedor de e-mail transacional | SendGrid, SES, Brevo, etc. |
 | Regras finas do código de uso único do portal | Formato, validade, tentativas, rate limit, expiração de sessão (entidade `TokenAcesso` existe, regras não) |
 | Escopo do log de acesso | Só portal ou também equipe interna; quais eventos; retenção do próprio log |
@@ -53,7 +53,7 @@ Identificado na revisão da especificação — não é pendência do cliente, �
 | Testes e critério de aceite | Estratégia de testes, quem homologa cada funcionalidade |
 | LGPD operacional | Texto do termo de aceite, base legal, atendimento a pedido de titular, criptografia em repouso/trânsito |
 | Plano de releases | Ordem de construção dos módulos, prazos |
-| Matriz de transições de estado do laudo | Formalizar quais transições são permitidas em cada estado |
+| Matriz de transições de estado do laudo | Matriz mínima adotada em **P32** (1→2→3→4→5→6, 2→1 por rejeição). Falta o cliente validar — em especial rejeição após início do laudo e notificação em substituição pós‑liberação |
 | Aprovação de templates WhatsApp | Depende dos textos (C7); tem lead time junto à Meta |
 
 ## Encaminhamento (herdado de CLG-PEND-2026-001 §7)

@@ -17,6 +17,15 @@ public sealed class ExcecaoDeDominioMiddleware(RequestDelegate next, ILogger<Exc
             var status = ex switch
             {
                 EmailJaCadastradoException => StatusCodes.Status409Conflict,
+                DocumentoJaCadastradoException => StatusCodes.Status409Conflict,
+                PacienteExcluidoException => StatusCodes.Status409Conflict,
+                ExameExcluidoException => StatusCodes.Status409Conflict,
+                PacienteComExamesAtivosException => StatusCodes.Status409Conflict,
+                NomeDeExameJaCadastradoException => StatusCodes.Status409Conflict,
+                LimiteDeAnexosException => StatusCodes.Status409Conflict,
+                EstadoInvalidoException => StatusCodes.Status409Conflict,
+                AmostraNaoAcolhidaException => StatusCodes.Status409Conflict,
+                RegistroNaoEncontradoException => StatusCodes.Status404NotFound,
                 UsuarioInativoException => StatusCodes.Status403Forbidden,
                 OperacaoInvalidaParaTipoLoginException => StatusCodes.Status409Conflict,
                 _ => StatusCodes.Status400BadRequest
