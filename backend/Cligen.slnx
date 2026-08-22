@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Cligen.Api/Cligen.Api.csproj" />
+    <Project Path="src/Cligen.Aplicacao/Cligen.Aplicacao.csproj" />
+    <Project Path="src/Cligen.Dominio/Cligen.Dominio.csproj" />
+    <Project Path="src/Cligen.Infraestrutura/Cligen.Infraestrutura.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Cligen.Dominio.Tests/Cligen.Dominio.Tests.csproj" />
+  </Folder>
+</Solution>
