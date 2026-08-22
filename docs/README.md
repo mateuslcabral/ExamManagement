@@ -13,6 +13,7 @@
 | [`04-schema/`](04-schema/) | Modelo de dados / entidades. |
 | [`05-regras-negocio/`](05-regras-negocio/) | Regras de negócio já definidas, uma pasta por módulo. |
 | [`06-pendencias/`](06-pendencias/) | O que ainda está em aberto: decisões de conflito, pendências, premissas assumidas, riscos aceitos, itens diferidos. |
+| [`07-roadmap/`](07-roadmap/) | Próximos passos de desenvolvimento: fases, dependências e dívidas técnicas. |
 
 ## Documentos de origem
 
