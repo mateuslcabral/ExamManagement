@@ -8,12 +8,12 @@ export const metadata = { title: "Entrar — Cligen" };
 export default async function PaginaLogin({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string; sessaoEncerrada?: string }>;
 }) {
   const sessao = await auth();
   if (sessao?.user) redirect("/");
 
-  const { callbackUrl, error } = await searchParams;
+  const { callbackUrl, error, sessaoEncerrada } = await searchParams;
 
   return (
     <main className="fundo-hero flex min-h-screen items-center justify-center p-6">
@@ -26,7 +26,14 @@ export default async function PaginaLogin({
           <h1 className="text-2xl font-semibold text-primaria">Sistema interno</h1>
           <p className="mt-1 text-sm text-texto-suave">Acesso restrito à equipe Cligen.</p>
 
-          <FormularioLogin callbackUrl={callbackUrl} erroInicial={error} />
+          <FormularioLogin
+            callbackUrl={callbackUrl}
+            erroInicial={
+              sessaoEncerrada
+                ? "Sua sessão foi encerrada porque seu acesso não está mais ativo."
+                : error && "Não foi possível entrar. Tente novamente."
+            }
+          />
         </section>
 
         <p className="mt-6 text-center text-xs text-white/60">

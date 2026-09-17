@@ -1,4 +1,4 @@
-using System.Net.Mail;
+using Cligen.Dominio.Comum;
 using Cligen.Dominio.Enums;
 using Cligen.Dominio.Excecoes;
 
@@ -105,17 +105,5 @@ public class Usuario
 
     private void Tocar() => AtualizadoEm = DateTime.UtcNow;
 
-    public static string NormalizarEmail(string email)
-    {
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ValidacaoException("O e-mail é obrigatório.");
-        email = email.Trim().ToLowerInvariant();
-        bool valido;
-        try { valido = new MailAddress(email).Address == email; }
-        catch { valido = false; }
-        // MailAddress aceita "a@b" (RFC); para uso real exigimos domínio com ponto.
-        if (!valido || !email[(email.LastIndexOf('@') + 1)..].Contains('.'))
-            throw new ValidacaoException($"O e-mail '{email}' não é válido.");
-        return email;
-    }
+    public static string NormalizarEmail(string email) => Contato.NormalizarEmail(email);
 }

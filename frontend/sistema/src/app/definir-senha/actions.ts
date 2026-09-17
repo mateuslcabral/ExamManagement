@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { api, ApiError } from "@/lib/api";
+import { apiPublica, ApiError } from "@/lib/api";
 
 export type EstadoDefinirSenha = { erro?: string };
 
@@ -14,7 +14,7 @@ export async function definirSenha(_anterior: EstadoDefinirSenha, dados: FormDat
   if (senha !== confirmacao) return { erro: "As senhas não conferem." };
 
   try {
-    await api("/api/auth/definir-senha", { method: "POST", body: { token, senha } });
+    await apiPublica("/api/auth/definir-senha", { method: "POST", body: { token, senha } });
   } catch (e) {
     if (e instanceof ApiError) return { erro: e.message };
     throw e;

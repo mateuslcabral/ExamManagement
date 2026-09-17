@@ -16,4 +16,12 @@ public sealed class EnvioEmailLog(ILogger<EnvioEmailLog> logger) : IEnvioEmail
             destinatario, nome, linkDefinicao);
         return Task.CompletedTask;
     }
+
+    public Task EnviarBoasVindasPacienteAsync(BoasVindasPaciente mensagem, CancellationToken ct = default)
+    {
+        logger.LogWarning(
+            "[E-MAIL NÃO ENVIADO — provedor não configurado] Para: {Destinatario} ({Nome}). Boas-vindas do paciente {Paciente}; portal: {Portal}",
+            mensagem.Email, mensagem.NomeDestinatario, mensagem.NomePaciente, mensagem.UrlPortal);
+        return Task.CompletedTask;
+    }
 }

@@ -47,7 +47,9 @@ dotnet ef migrations add <Nome> --project src/Cligen.Infraestrutura --startup-pr
 dotnet test
 ```
 
-## Endpoints (todos exigem header `X-Api-Key`)
+## Endpoints
+
+Todos exigem o header `X-Api-Key`. Fora de `/api/auth`, exigem também `X-Usuario-Id` com o id de um usuário **ativo** (repassado pelo BFF a partir da sessão; 401 caso contrário).
 
 | Método | Rota | Uso |
 |---|---|---|
@@ -57,8 +59,23 @@ dotnet test
 | `POST` | `/api/usuarios` | Criar — tipo decidido pelo e-mail (`@gmail.com` → Google ativo; demais → Local, envia e-mail) |
 | `PUT` | `/api/usuarios/{id}` | Renomear |
 | `POST` | `/api/usuarios/{id}/desativar` · `/reativar` · `/reenviar-definicao-senha` | Ações |
+| `GET` | `/api/catalogo-exames?apenasAtivos=` | Listar catálogo — cada item traz `prazoEntregaDias` (execução + dias de revisão) |
+| `POST` · `PUT` | `/api/catalogo-exames` · `/api/catalogo-exames/{id}` | Criar / editar (nome único, prazo ≥ 1 dia, preço ≥ 0 com 2 casas) |
+| `POST` | `/api/catalogo-exames/{id}/desativar` · `/reativar` | Sem exclusão: exame aposentado é desativado |
+| `GET` | `/api/pacientes?busca=&pagina=&tamanhoPagina=` | Buscar por parte do nome ou início do documento (paginado) |
+| `GET` · `POST` · `PUT` | `/api/pacientes/{id}` · `/api/pacientes` | Obter / cadastrar (dispara boas-vindas) / editar. Sem exclusão |
+| `GET` | `/api/exames?busca=&pacienteId=&estado=&pagina=&tamanhoPagina=` | Buscar (paciente, documento ou nome do exame). Excluídos não aparecem |
+| `GET` · `POST` · `PUT` | `/api/exames/{id}` · `/api/exames` | Obter / cadastrar / editar |
+| `POST` | `/api/exames/{id}/excluir` | Exclusão lógica — corpo `{ motivo }` obrigatório |
+| `POST` | `/api/exames/{id}/amostra/acolher` | Corpo `{ dataAcolhimento }`. Grava a previsão (acolhimento + execução + revisão) e avança o estado |
+| `POST` | `/api/exames/{id}/amostra/rejeitar` | Corpo `{ motivo }`. Zera a previsão; exame volta a aguardar amostra |
+| `POST` | `/api/exames/{id}/anexos` | Upload multipart (campo `arquivo`), PDF/JPG/PNG até 50 MB, máx. 3 ativos |
+| `GET` · `POST` | `/api/exames/{id}/anexos/{anexoId}` · `…/remover` | Download / remoção lógica |
+| `GET` · `PUT` | `/api/parametros/dias-revisao` | Dias de revisão globais (P13), semeados com 3 pela migration |
 
 ## Provisório (trocar sem tocar na Aplicação)
 
-- `IEnvioEmail` → `EnvioEmailLog`: **não envia**, só registra o link no log (provedor pendente — Q37).
-- Autenticação BFF→API por chave de serviço estática (`X-Api-Key`).
+- `IEnvioEmail` → `EnvioEmailLog`: **não envia**, só registra no log (provedor pendente — Q37).
+- `IEnvioWhatsApp` → `EnvioWhatsAppLog`: **não envia**, só registra no log (textos C7 e templates Meta pendentes).
+- `IArmazenamentoArquivos` → `ArmazenamentoArquivosLocal`: anexos em disco, em `ArmazenamentoLocal:Diretorio` (padrão `src/Cligen.Api/App_Data/arquivos`, ignorado pelo git). Sem redundância — faça backup se houver dado real.
+- Autenticação BFF→API por chave de serviço estática (`X-Api-Key`) + identidade do usuário em `X-Usuario-Id`.

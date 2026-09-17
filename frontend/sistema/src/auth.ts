@@ -1,6 +1,6 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { api, ApiError, type Identidade, type TipoLogin } from "@/lib/api";
+import { apiPublica, ApiError, type Identidade, type TipoLogin } from "@/lib/api";
 
 /**
  * Auth.js (NextAuth v5) no papel de BFF. Provider de credenciais delega a validação à API;
@@ -29,7 +29,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!email || !senha) return null;
 
         try {
-          const id = await api<Identidade>("/api/auth/validar", {
+          const id = await apiPublica<Identidade>("/api/auth/validar", {
             method: "POST",
             body: { email, senha },
           });

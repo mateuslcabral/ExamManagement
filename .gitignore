@@ -8,6 +8,8 @@ appsettings.Development.json
 appsettings.*.local.json
 *.db
 *.dbmdl
+# Armazenamento local de anexos/laudos (provisório — dado de paciente, nunca versionar)
+App_Data/
 
 # ---- Frontend (Node) ----
 node_modules/

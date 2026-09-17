@@ -7,7 +7,7 @@ import { Campo } from "@/components/ui/campo";
 
 export function FormularioLogin({ callbackUrl, erroInicial }: { callbackUrl?: string; erroInicial?: string }) {
   const [estado, acao, pendente] = useActionState<EstadoLogin, FormData>(entrar, {
-    erro: erroInicial ? "Não foi possível entrar. Tente novamente." : undefined,
+    erro: erroInicial || undefined,
   });
 
   return (

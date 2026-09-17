@@ -6,6 +6,10 @@ namespace Cligen.Infraestrutura.Persistencia;
 public sealed class CligenDbContext(DbContextOptions<CligenDbContext> options) : DbContext(options)
 {
     public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<ExameCatalogo> ExamesCatalogo => Set<ExameCatalogo>();
+    public DbSet<Parametro> Parametros => Set<Parametro>();
+    public DbSet<Paciente> Pacientes => Set<Paciente>();
+    public DbSet<Exame> Exames => Set<Exame>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

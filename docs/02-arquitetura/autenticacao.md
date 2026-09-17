@@ -75,7 +75,9 @@ A entidade `Usuario` (ver [schema](../04-schema/modelo-de-dados.md)) precisa de:
 1. Usuário autentica no Next.js (credenciais ou Google).
 2. Auth.js confirma a identidade e verifica que existe `Usuario` ativo correspondente (chamando a API).
 3. Next.js emite cookie de sessão próprio no navegador do usuário.
-4. Em cada requisição, o Next.js (server-side) lê a sessão, resolve a identidade do `Usuario`, e chama a API ASP.NET Core repassando essa identidade (ex. num header assinado ou token interno de curta duração emitido pelo próprio BFF) — mecanismo exato a definir na implementação.
+4. Em cada requisição, o Next.js (server-side) lê a sessão e chama a API repassando o id do `Usuario` no header `X-Usuario-Id` (`api()` em `lib/api.ts`; login e definição de senha usam `apiPublica()`, sem usuário).
+
+**Repasse da identidade (decidido e implementado em 16/09/2026).** O header `X-Usuario-Id` não é assinado: ele só é aceito em requisições que já passaram pela chave de serviço, e apenas o BFF conhece a chave e preenche o header a partir da própria sessão. Um header assinado ou token interno não protegeria contra nada que a chave já não proteja — quem tivesse a chave poderia assinar também. O `UsuarioAtualMiddleware` da API exige o header em toda rota fora de `/api/auth`, confere que o usuário existe e está **ativo** (401 caso contrário) e o expõe à Aplicação como `IUsuarioAtual`, usado para autoria (`CriadoPorId`/`AtualizadoPorId`). Consequência: usuário desativado perde o acesso na hora, mesmo com a sessão de 8 h ainda válida — o BFF recebe 401 e encerra a sessão (`/sair`). Reavaliar para token assinado se a API passar a ter mais de um consumidor.
 
 ## Portal do paciente — sem OAuth
 
@@ -88,7 +90,6 @@ Dois apps Next.js separados — cada superfície com seu próprio perímetro de 
 ## Em aberto
 
 - **Confirmar se o login Google é mesmo Gmail pessoal** (`@gmail.com`) dos 4 funcionários, ou se a Cligen pretende adotar Google Workspace corporativo no futuro (o que permitiria reforçar com restrição de domínio via `hd`).
-- Mecanismo de chamada servidor-a-servidor do BFF para a API (client credentials OAuth2, chave de serviço simples, ou isolamento de rede).
 - Política de senha (tamanho mínimo, expiração, bloqueio por tentativas) para contas `local`.
 - Validade do link de definição de senha enviado na criação de conta `local`.
 - 2FA — não decidido; com só 4 usuários e dados sensíveis (prontuário), vale considerar para uma v2.

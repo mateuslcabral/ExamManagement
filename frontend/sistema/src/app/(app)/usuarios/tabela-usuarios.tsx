@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import type { Usuario } from "@/lib/api";
 import { desativarUsuario, reativarUsuario, reenviarDefinicaoSenha } from "./actions";
 import { Botao } from "@/components/ui/botao";
+import { Etiqueta } from "@/components/ui/etiqueta";
 
 export function TabelaUsuarios({ usuarios, meuId }: { usuarios: Usuario[]; meuId?: string }) {
   const [pendente, iniciar] = useTransition();
@@ -122,15 +123,4 @@ export function TabelaUsuarios({ usuarios, meuId }: { usuarios: Usuario[]; meuId
       </div>
     </div>
   );
-}
-
-function Etiqueta({ cor, children }: { cor: "teal" | "cinza" | "verde" | "amarelo" | "vermelho"; children: React.ReactNode }) {
-  const cores = {
-    teal: "bg-teal/10 text-teal",
-    cinza: "bg-fundo-alt text-texto-suave",
-    verde: "bg-sucesso/10 text-sucesso",
-    amarelo: "bg-alerta/10 text-alerta",
-    vermelho: "bg-erro/10 text-erro",
-  };
-  return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${cores[cor]}`}>{children}</span>;
 }

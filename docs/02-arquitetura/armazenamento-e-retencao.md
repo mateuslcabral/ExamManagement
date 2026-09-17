@@ -26,6 +26,16 @@ O risco real não é financeiro, é de **continuidade**: nenhum contrato de nuve
 - A arquitetura precisa prever **exportação íntegra do acervo** desde o início (formato, verificação de hash, portabilidade entre provedores).
 - Isso deve ser resolvido antes de travar a escolha de provedor de object storage, não depois.
 
+## Implementação provisória — disco local (16/09/2026)
+
+Enquanto o provedor de object storage não é escolhido, `IArmazenamentoArquivos` é implementado em **disco local** (`ArmazenamentoArquivosLocal`, diretório `ArmazenamentoLocal:Diretorio`, padrão `App_Data/arquivos` na Api, fora do git). Trocar de provedor é trocar a implementação, sem tocar em Aplicação ou Domínio.
+
+- Arquivos organizados por ano/mês de envio, com nome aleatório; o nome original fica só no banco.
+- Bytes gravados **sem alteração** (requisito do laudo assinado), primeiro em arquivo temporário e depois movidos — upload interrompido não deixa arquivo parcial.
+- **SHA-256** calculado na gravação e guardado no banco: base para a verificação de integridade e para a futura exportação íntegra do acervo.
+- Nada é apagado pela aplicação.
+- **Sem redundância:** não serve para produção sem backup do diretório.
+
 ## Em aberto
 
 - Provedor de object storage (Azure Blob, S3, outro) e região de hospedagem (preferência por região no Brasil, dado de saúde)

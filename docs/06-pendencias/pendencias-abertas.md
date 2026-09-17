@@ -34,16 +34,17 @@ Ver detalhamento em [amostra-e-prazo.md](../05-regras-negocio/amostra-e-prazo.md
 
 Identificado na revisão da especificação — não é pendência do cliente, é lacuna de planejamento de engenharia a fechar durante o desenho técnico.
 
-**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno e Gestão de Usuários (`frontend/sistema`, `backend/`). Resíduos que ainda faltam fechar:
+**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno, Gestão de Usuários, Catálogo de exames com o parâmetro global de dias de revisão, repasse da identidade do usuário à API, Cadastro de Pacientes, Exame solicitado com anexos e exclusão lógica, e acolhimento de amostra com previsão de liberação, rejeição e recoleta (`frontend/sistema`, `backend/`). Resíduos que ainda faltam fechar:
 
 | Item | Nota |
 |---|---|
 | Confirmar se o login Google é Gmail pessoal ou Workspace corporativo | Gmail pessoal não suporta restrição de domínio (`hd`) — ver [autenticação](../02-arquitetura/autenticacao.md) |
+| Campos do responsável legal | Implementado com nome, documento e parentesco opcional — confirmar com o cliente (ver [paciente.md](../05-regras-negocio/paciente.md)) |
 | Credenciais OAuth do Google (Client ID/Secret) | Criar projeto no Google Cloud — pré-requisito do botão "Entrar com Google", ainda não implementado |
 | Política de senha das contas locais | Tamanho mínimo, expiração, bloqueio por tentativas |
 | Validade do link de definição de senha (primeiro acesso) | Implementado como parâmetro (`TokenDefinicaoSenha:ValidadeHoras`, padrão 24 h) — confirmar o valor com o cliente |
 | 2FA para o sistema interno | Não decidido — considerar para v2, dado que é prontuário |
-| Provedor de object storage | Azure Blob, S3, ou outro — decorre da escolha de hospedagem |
+| Provedor de object storage | Azure Blob, S3, ou outro — decorre da escolha de hospedagem. **Provisório: disco local** (ver [armazenamento](../02-arquitetura/armazenamento-e-retencao.md)) |
 | Provedor de e-mail transacional | SendGrid, SES, Brevo, etc. |
 | Regras finas do código de uso único do portal | Formato, validade, tentativas, rate limit, expiração de sessão (entidade `TokenAcesso` existe, regras não) |
 | Escopo do log de acesso | Só portal ou também equipe interna; quais eventos; retenção do próprio log |

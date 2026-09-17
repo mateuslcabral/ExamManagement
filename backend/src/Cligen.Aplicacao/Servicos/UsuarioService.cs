@@ -12,7 +12,8 @@ public sealed class UsuarioService(
     IEnvioEmail envioEmail,
     ITokenDefinicaoSenha tokens,
     IHashSenha hashSenha,
-    IUrlDefinicaoSenha urlDefinicao)
+    IUrlDefinicaoSenha urlDefinicao,
+    IUsuarioAtual usuarioAtual)
 {
     public async Task<IReadOnlyList<UsuarioDto>> ListarAsync(CancellationToken ct = default)
         => (await repositorio.ListarAsync(ct)).Select(Mapear).ToList();
@@ -52,6 +53,10 @@ public sealed class UsuarioService(
 
     public async Task DesativarAsync(Guid id, CancellationToken ct = default)
     {
+        // Evita que a equipe fique sem ninguém capaz de entrar por um clique acidental.
+        if (id == usuarioAtual.Id)
+            throw new ValidacaoException("Você não pode desativar a si mesmo.");
+
         var usuario = await ObterOuFalharAsync(id, ct);
         usuario.Desativar();
         await repositorio.AtualizarAsync(usuario, ct);

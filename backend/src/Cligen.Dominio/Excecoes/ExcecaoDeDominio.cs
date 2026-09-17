@@ -12,4 +12,11 @@ public sealed class UsuarioInativoException()
 public sealed class OperacaoInvalidaParaTipoLoginException(string operacao)
     : ExcecaoDeDominio($"A operação '{operacao}' não se aplica a este tipo de login.");
 
+public sealed class ExameCatalogoJaCadastradoException(string nome)
+    : ExcecaoDeDominio($"Já existe um exame cadastrado no catálogo com o nome '{nome}'.");
+
+/// <summary>Mensagem definida pelo cliente (Q11, Q12), válida para qualquer tipo de documento.</summary>
+public sealed class DocumentoJaCadastradoException(string descricaoDocumento)
+    : ExcecaoDeDominio($"Esse {descricaoDocumento} já foi utilizado.");
+
 public sealed class ValidacaoException(string mensagem) : ExcecaoDeDominio(mensagem);
