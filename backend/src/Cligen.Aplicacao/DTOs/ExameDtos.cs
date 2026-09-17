@@ -17,6 +17,16 @@ public sealed record AcolherAmostraRequest(DateOnly DataAcolhimento);
 
 public sealed record RejeitarAmostraRequest(string Motivo);
 
+public sealed record EtapaLaudoDto(
+    Guid Id,
+    TipoEtapaLaudo Tipo,
+    DateTime Data,
+    string NomeOriginal,
+    long TamanhoBytes,
+    string HashSha256,
+    int Substituicoes,
+    DateTime? SubstituidoEm);
+
 public sealed record AnexoDto(Guid Id, string NomeOriginal, string TipoConteudo, long TamanhoBytes, string HashSha256, DateTime EnviadoEm);
 
 /// <summary>Linha da listagem: já traz nomes de paciente e exame, resolvidos na consulta.</summary>
@@ -31,7 +41,10 @@ public sealed record ExameResumoDto(
     OrigemExame Origem,
     DateOnly DataEntrada,
     EstadoExame Estado,
-    DateOnly? DataLiberacaoPrevista);
+    DateOnly? DataLiberacaoPrevista,
+    /// <summary>Preenchidos só na listagem de excluídos.</summary>
+    DateTime? ExcluidoEm,
+    string? MotivoExclusao);
 
 public sealed record ExameDto(
     Guid Id,
@@ -51,7 +64,9 @@ public sealed record ExameDto(
     DateOnly DataEntrada,
     EstadoExame Estado,
     DateOnly? DataLiberacaoPrevista,
+    DateTime? DataLiberacaoEfetiva,
     IReadOnlyList<AmostraDto> Amostras,
+    IReadOnlyList<EtapaLaudoDto> Etapas,
     IReadOnlyList<AnexoDto> Anexos,
     DateTime CriadoEm,
     DateTime? AtualizadoEm);

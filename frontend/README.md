@@ -4,7 +4,7 @@ React + **Next.js** (App Router), um app por superfície, cada um atuando como *
 
 ```
 frontend/
-├── sistema/       # Sistema interno (equipe Cligen) — IMPLEMENTADO: login, shell, Gestão de Usuários, Catálogo de exames, Pacientes
+├── sistema/       # Sistema interno (equipe Cligen) — IMPLEMENTADO: login, shell, Gestão de Usuários, Catálogo, Pacientes, Exames, Amostras, Laudos
 └── portal/        # Portal do paciente (resultados.cligen.com.br) — ainda não iniciado
 ```
 
@@ -24,6 +24,9 @@ Next.js 16 · React 19 · TypeScript · Tailwind 4 · Auth.js v5 (`next-auth@bet
 | `/exames` | Busca e listagem (filtro por paciente com `?pacienteId=`) |
 | `/exames/novo` · `/exames/[id]` | Cadastro (com busca de paciente) · detalhe com anexos, edição e exclusão com motivo |
 | `/exames/[id]/anexos` · `/exames/[id]/anexos/[anexoId]` | Route handlers de upload e download em stream. Ficam **fora do `proxy.ts`**, que bufferiza e trunca corpos acima de 10 MB; server actions também não servem (limite de 1 MB) |
+| `/laudos` | Fila do laudo: exames dos estados 2 a 5 agrupados pela próxima ação |
+| `/exames?excluidos=1` | Exames excluídos, com motivo e botão Restaurar |
+| `/exames/[id]/laudo/[etapa]` | Route handler de upload/download do PDF da etapa (fora do proxy, em stream) |
 | `/amostras` | Fila de exames aguardando amostra, com registro do acolhimento na própria linha |
 | `/catalogo` | Catálogo de exames — criar, editar, desativar/reativar; mostra a entrega ao paciente (execução + revisão) e edita os dias de revisão |
 
@@ -51,6 +54,7 @@ src/
         ├── catalogo/
         ├── exames/
         ├── amostras/
+        ├── laudos/
         └── pacientes/
 ```
 

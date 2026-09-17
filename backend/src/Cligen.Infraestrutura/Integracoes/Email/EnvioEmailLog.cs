@@ -24,4 +24,13 @@ public sealed class EnvioEmailLog(ILogger<EnvioEmailLog> logger) : IEnvioEmail
             mensagem.Email, mensagem.NomeDestinatario, mensagem.NomePaciente, mensagem.UrlPortal);
         return Task.CompletedTask;
     }
+
+    public Task EnviarLaudoDisponivelAsync(LaudoDisponivel mensagem, CancellationToken ct = default)
+    {
+        logger.LogWarning(
+            "[E-MAIL NÃO ENVIADO — provedor não configurado] Para: {Destinatario} ({Nome}). Laudo disponível: {Exame} de {Paciente}, modelo {Modelo}; portal: {Portal}",
+            mensagem.Email, mensagem.NomeDestinatario, mensagem.NomeExame, mensagem.NomePaciente,
+            mensagem.MedicoInterno ? "médico interno" : "médico externo", mensagem.UrlPortal);
+        return Task.CompletedTask;
+    }
 }

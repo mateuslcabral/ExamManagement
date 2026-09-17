@@ -34,7 +34,7 @@ Ver detalhamento em [amostra-e-prazo.md](../05-regras-negocio/amostra-e-prazo.md
 
 Identificado na revisão da especificação — não é pendência do cliente, é lacuna de planejamento de engenharia a fechar durante o desenho técnico.
 
-**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno, Gestão de Usuários, Catálogo de exames com o parâmetro global de dias de revisão, repasse da identidade do usuário à API, Cadastro de Pacientes, Exame solicitado com anexos e exclusão lógica, e acolhimento de amostra com previsão de liberação, rejeição e recoleta (`frontend/sistema`, `backend/`). Resíduos que ainda faltam fechar:
+**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno, Gestão de Usuários, Catálogo de exames com o parâmetro global de dias de revisão, repasse da identidade do usuário à API, Cadastro de Pacientes, Exame solicitado com anexos e exclusão lógica, acolhimento de amostra com previsão de liberação, rejeição e recoleta, fluxo do laudo até a disponibilização (notificação em log), restauração de exame excluído e filas Amostras/Laudos (`frontend/sistema`, `backend/`). Faltam: financeiro, portal do paciente, log de acesso, login Google e provedores reais. Resíduos que ainda faltam fechar:
 
 | Item | Nota |
 |---|---|
@@ -54,7 +54,7 @@ Identificado na revisão da especificação — não é pendência do cliente, �
 | Testes e critério de aceite | Estratégia de testes, quem homologa cada funcionalidade |
 | LGPD operacional | Texto do termo de aceite, base legal, atendimento a pedido de titular, criptografia em repouso/trânsito |
 | Plano de releases | Ordem de construção dos módulos, prazos |
-| Matriz de transições de estado do laudo | Formalizar quais transições são permitidas em cada estado |
+| Matriz de transições de estado do laudo | Implementada uma matriz (ver [fluxo do laudo](../05-regras-negocio/fluxo-laudo.md)) — **confirmar com o cliente** |
 | Aprovação de templates WhatsApp | Depende dos textos (C7); tem lead time junto à Meta |
 
 ## Encaminhamento (herdado de CLG-PEND-2026-001 §7)

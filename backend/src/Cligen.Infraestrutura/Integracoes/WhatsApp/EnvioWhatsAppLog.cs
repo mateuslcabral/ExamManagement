@@ -16,4 +16,13 @@ public sealed class EnvioWhatsAppLog(ILogger<EnvioWhatsAppLog> logger) : IEnvioW
             mensagem.Telefone, mensagem.NomeDestinatario, mensagem.NomePaciente, mensagem.UrlPortal);
         return Task.CompletedTask;
     }
+
+    public Task EnviarLaudoDisponivelAsync(LaudoDisponivel mensagem, CancellationToken ct = default)
+    {
+        logger.LogWarning(
+            "[WHATSAPP NÃO ENVIADO — provedor não configurado] Para: {Telefone} ({Destinatario}). Laudo disponível: {Exame} de {Paciente}, modelo {Modelo}; portal: {Portal}",
+            mensagem.Telefone, mensagem.NomeDestinatario, mensagem.NomeExame, mensagem.NomePaciente,
+            mensagem.MedicoInterno ? "médico interno" : "médico externo", mensagem.UrlPortal);
+        return Task.CompletedTask;
+    }
 }

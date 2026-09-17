@@ -19,11 +19,11 @@ public sealed class ExameService(
     IUsuarioAtual usuarioAtual)
 {
     public async Task<PaginaDto<ExameResumoDto>> BuscarAsync(
-        string? busca, Guid? pacienteId, EstadoExame? estado, int pagina, int tamanhoPagina, CancellationToken ct = default)
+        string? busca, Guid? pacienteId, EstadoExame? estado, bool excluidos, int pagina, int tamanhoPagina, CancellationToken ct = default)
     {
         pagina = Math.Max(1, pagina);
         tamanhoPagina = Math.Clamp(tamanhoPagina, 1, PacienteService.TamanhoPaginaMaximo);
-        var (itens, total) = await repositorio.BuscarAsync(busca?.Trim(), pacienteId, estado, pagina, tamanhoPagina, ct);
+        var (itens, total) = await repositorio.BuscarAsync(busca?.Trim(), pacienteId, estado, excluidos, pagina, tamanhoPagina, ct);
         return new(itens, total, pagina, tamanhoPagina);
     }
 
@@ -65,6 +65,15 @@ public sealed class ExameService(
         var exame = await ObterOuFalharAsync(id, ct);
         exame.Excluir(req.Motivo, usuarioAtual.Id);
         await repositorio.AtualizarAsync(exame, ct);
+    }
+
+    /// <summary>Desfaz a exclusão lógica (C2: reversível).</summary>
+    public async Task<ExameDto> RestaurarAsync(Guid id, CancellationToken ct = default)
+    {
+        var exame = await repositorio.ObterExcluidoPorIdAsync(id, ct) ?? throw new ValidacaoException("Exame excluído não encontrado.");
+        exame.Restaurar(usuarioAtual.Id);
+        await repositorio.AtualizarAsync(exame, ct);
+        return await MapearAsync(exame, ct);
     }
 
     /// <summary>Acolhimento: o prazo vem do catálogo e os dias de revisão do parâmetro vigentes neste momento.</summary>
@@ -132,7 +141,7 @@ public sealed class ExameService(
     private async Task<ExameCatalogo> ObterCatalogoOuFalharAsync(Guid id, CancellationToken ct)
         => await catalogo.ObterPorIdAsync(id, ct) ?? throw new ValidacaoException("Exame não encontrado no catálogo.");
 
-    private async Task<ExameDto> MapearAsync(Exame e, CancellationToken ct)
+    internal async Task<ExameDto> MapearAsync(Exame e, CancellationToken ct)
     {
         var paciente = await pacientes.ObterPorIdAsync(e.PacienteId, ct)
                        ?? throw new InvalidOperationException($"Paciente {e.PacienteId} do exame {e.Id} não existe.");
@@ -144,7 +153,9 @@ public sealed class ExameService(
             e.Id, paciente.Id, paciente.Nome, paciente.TipoDocumento, paciente.NumeroDocumento,
             itemCatalogo.Id, itemCatalogo.Nome, itemCatalogo.PrazoExecucaoDias, itemCatalogo.PrazoEntregaDias(diasRevisao),
             e.Origem, e.Destino, e.TipoMedico, e.NomeMedico, e.Preco, e.DataEntrada, e.Estado, e.DataLiberacaoPrevista,
+            e.DataLiberacaoEfetiva,
             e.Amostras.OrderByDescending(a => a.RegistradoEm).Select(Mapear).ToList(),
+            e.Etapas.OrderBy(t => t.Tipo).Select(Mapear).ToList(),
             e.Anexos.Where(a => a.Ativo).OrderBy(a => a.EnviadoEm).Select(Mapear).ToList(),
             e.CriadoEm, e.AtualizadoEm);
     }
@@ -152,6 +163,9 @@ public sealed class ExameService(
     private static AmostraDto Mapear(Amostra a) => new(
         a.Id, a.DataAcolhimento, a.PrazoExecucaoDias, a.DiasRevisao, a.DataLiberacaoPrevista, a.Recoleta,
         a.RegistradoEm, a.RejeitadaEm, a.MotivoRejeicao);
+
+    internal static EtapaLaudoDto Mapear(EtapaAndamento t) => new(
+        t.Id, t.Tipo, t.Data, t.NomeOriginal, t.TamanhoBytes, t.HashSha256, t.Substituicoes, t.SubstituidoEm);
 
     private static AnexoDto Mapear(Anexo a) => new(a.Id, a.NomeOriginal, a.TipoConteudo, a.TamanhoBytes, a.HashSha256, a.EnviadoEm);
 }

@@ -130,6 +130,30 @@ export async function rejeitarAmostra(_anterior: EstadoAmostra, dados: FormData)
   }
 }
 
+/** 5→6 (D10): grava a data efetiva e dispara e-mail e WhatsApp (em log até haver provedores). */
+export async function disponibilizarLaudo(exameId: string) {
+  try {
+    await api(`/api/exames/${exameId}/laudo/disponibilizar`, { method: "POST" });
+    revalidarAmostra(exameId);
+    revalidatePath("/laudos");
+    return { ok: true as const };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false as const, erro: e.message };
+    throw e;
+  }
+}
+
+export async function restaurarExame(exameId: string) {
+  try {
+    await api(`/api/exames/${exameId}/restaurar`, { method: "POST" });
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false as const, erro: e.message };
+    throw e;
+  }
+  revalidatePath("/exames");
+  redirect(`/exames/${exameId}?salvo=restaurado`);
+}
+
 export async function removerAnexo(exameId: string, anexoId: string) {
   try {
     await api(`/api/exames/${exameId}/anexos/${anexoId}/remover`, { method: "POST" });

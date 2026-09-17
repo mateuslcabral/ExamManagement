@@ -1,4 +1,4 @@
-import type { EstadoExame, OrigemExame, TipoDocumento } from "./api";
+import type { EstadoExame, OrigemExame, TipoDocumento, TipoEtapaLaudo } from "./api";
 
 /** Formatação para exibição. Os dados trafegam normalizados pela API (CPF só dígitos, telefone +DDI). */
 
@@ -85,3 +85,14 @@ export const ROTULOS_ORIGEM: Record<OrigemExame, string> = {
   SiteCligen: "Site Cligen",
   Plataforma: "Plataforma",
 };
+
+export const ETAPAS_LAUDO: { tipo: TipoEtapaLaudo; numero: number; rotulo: string; estadoAnterior: EstadoExame }[] = [
+  { tipo: "LaudoParceiroPronto", numero: 3, rotulo: "Laudo parceiro pronto", estadoAnterior: "AmostraAcolhida" },
+  { tipo: "LaudoCligenParaRevisao", numero: 4, rotulo: "Laudo Cligen para revisão", estadoAnterior: "LaudoParceiroPronto" },
+  { tipo: "LaudoRevisado", numero: 5, rotulo: "Laudo revisado", estadoAnterior: "LaudoCligenParaRevisao" },
+];
+
+/** Data e hora de um instante ISO (UTC) no fuso de Brasília. */
+export function formatarDataHora(iso: string) {
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(iso));
+}

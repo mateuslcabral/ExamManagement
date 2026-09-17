@@ -15,6 +15,7 @@ builder.Services.AddScoped<ParametroService>();
 builder.Services.AddScoped<ExameCatalogoService>();
 builder.Services.AddScoped<PacienteService>();
 builder.Services.AddScoped<ExameService>();
+builder.Services.AddScoped<LaudoService>();
 builder.Services.AddSingleton<IUrlPortalPaciente, UrlPortalPaciente>();
 builder.Services.AddSingleton<IUrlDefinicaoSenha, UrlDefinicaoSenha>();
 builder.Services.AddScoped<UsuarioAtual>();
@@ -41,5 +42,6 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapControllers();
 
 await SeedUsuarioInicial.ExecutarAsync(app.Services, app.Configuration, app.Logger);
+await SeedCatalogoInicial.ExecutarAsync(app.Services, app.Configuration, app.Logger);
 
 app.Run();

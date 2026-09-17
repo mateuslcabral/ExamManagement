@@ -30,6 +30,7 @@ public sealed class ExameConfiguracao : IEntityTypeConfiguration<Exame>
         b.Property(e => e.Estado).HasConversion<int>().IsRequired();
         b.HasIndex(e => e.Estado);
         b.Property(e => e.DataLiberacaoPrevista);
+        b.Property(e => e.DataLiberacaoEfetiva);
         b.Ignore(e => e.AmostraVigente);
         b.Ignore(e => e.Excluido);
         b.Ignore(e => e.NomeMedico);
@@ -71,6 +72,25 @@ public sealed class ExameConfiguracao : IEntityTypeConfiguration<Exame>
             a.Ignore(x => x.Rejeitada);
         });
         b.Navigation(e => e.Amostras).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        b.OwnsMany(e => e.Etapas, a =>
+        {
+            a.ToTable("EtapaAndamento");
+            a.WithOwner().HasForeignKey("ExameId");
+            a.HasKey(x => x.Id);
+            a.Property(x => x.Id).ValueGeneratedNever();
+            a.Property(x => x.Tipo).HasConversion<int>().IsRequired();
+            a.HasIndex("ExameId", nameof(EtapaAndamento.Tipo)).IsUnique(); // uma etapa de cada tipo por exame
+            a.Property(x => x.Data).IsRequired();
+            a.Property(x => x.NomeOriginal).HasMaxLength(Anexo.TamanhoMaximoNomeOriginal).IsRequired();
+            a.Property(x => x.Caminho).HasMaxLength(500).IsRequired();
+            a.Property(x => x.TamanhoBytes).IsRequired();
+            a.Property(x => x.HashSha256).HasMaxLength(64).IsFixedLength().IsUnicode(false).IsRequired();
+            a.HasOne<Usuario>().WithMany().HasForeignKey(x => x.RegistradoPorId).OnDelete(DeleteBehavior.Restrict);
+            a.Property(x => x.Substituicoes).IsRequired();
+            a.HasOne<Usuario>().WithMany().HasForeignKey(x => x.SubstituidoPorId).OnDelete(DeleteBehavior.Restrict);
+        });
+        b.Navigation(e => e.Etapas).UsePropertyAccessMode(PropertyAccessMode.Field);
 
         b.Property(e => e.CriadoEm).IsRequired();
         b.HasOne<Usuario>().WithMany().HasForeignKey(e => e.CriadoPorId).OnDelete(DeleteBehavior.Restrict);

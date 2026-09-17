@@ -190,6 +190,23 @@ export interface ExameResumo {
   estado: EstadoExame;
   /** yyyy-MM-dd. Nula até o acolhimento da amostra. */
   dataLiberacaoPrevista: string | null;
+  /** Preenchidos só na listagem de excluídos (`?excluidos=true`). */
+  excluidoEm: string | null;
+  motivoExclusao: string | null;
+}
+
+export type TipoEtapaLaudo = "LaudoParceiroPronto" | "LaudoCligenParaRevisao" | "LaudoRevisado";
+
+export interface EtapaLaudo {
+  id: string;
+  tipo: TipoEtapaLaudo;
+  /** Do primeiro upload; não muda na substituição. */
+  data: string;
+  nomeOriginal: string;
+  tamanhoBytes: number;
+  hashSha256: string;
+  substituicoes: number;
+  substituidoEm: string | null;
 }
 
 export interface Amostra {
@@ -224,8 +241,12 @@ export interface Exame {
   estado: EstadoExame;
   /** Fixa desde o acolhimento (P14); nula enquanto aguarda amostra. */
   dataLiberacaoPrevista: string | null;
+  /** Gravada ao disponibilizar ao paciente. */
+  dataLiberacaoEfetiva: string | null;
   /** Histórico, da mais recente para a mais antiga; inclui rejeitadas. */
   amostras: Amostra[];
+  /** Na ordem do fluxo (3, 4, 5); só as já registradas. */
+  etapas: EtapaLaudo[];
   anexos: Anexo[];
   criadoEm: string;
   atualizadoEm: string | null;

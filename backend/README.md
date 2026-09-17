@@ -64,14 +64,23 @@ Todos exigem o header `X-Api-Key`. Fora de `/api/auth`, exigem também `X-Usuari
 | `POST` | `/api/catalogo-exames/{id}/desativar` · `/reativar` | Sem exclusão: exame aposentado é desativado |
 | `GET` | `/api/pacientes?busca=&pagina=&tamanhoPagina=` | Buscar por parte do nome ou início do documento (paginado) |
 | `GET` · `POST` · `PUT` | `/api/pacientes/{id}` · `/api/pacientes` | Obter / cadastrar (dispara boas-vindas) / editar. Sem exclusão |
-| `GET` | `/api/exames?busca=&pacienteId=&estado=&pagina=&tamanhoPagina=` | Buscar (paciente, documento ou nome do exame). Excluídos não aparecem |
+| `GET` | `/api/exames?busca=&pacienteId=&estado=&excluidos=&pagina=&tamanhoPagina=` | Buscar (paciente, documento ou nome do exame). Excluídos não aparecem |
 | `GET` · `POST` · `PUT` | `/api/exames/{id}` · `/api/exames` | Obter / cadastrar / editar |
 | `POST` | `/api/exames/{id}/excluir` | Exclusão lógica — corpo `{ motivo }` obrigatório |
 | `POST` | `/api/exames/{id}/amostra/acolher` | Corpo `{ dataAcolhimento }`. Grava a previsão (acolhimento + execução + revisão) e avança o estado |
 | `POST` | `/api/exames/{id}/amostra/rejeitar` | Corpo `{ motivo }`. Zera a previsão; exame volta a aguardar amostra |
 | `POST` | `/api/exames/{id}/anexos` | Upload multipart (campo `arquivo`), PDF/JPG/PNG até 50 MB, máx. 3 ativos |
 | `GET` · `POST` | `/api/exames/{id}/anexos/{anexoId}` · `…/remover` | Download / remoção lógica |
+| `POST` | `/api/exames/{id}/restaurar` | Desfaz a exclusão lógica |
+| `POST` | `/api/exames/{id}/laudo/{etapa}` | Multipart `arquivo` (só PDF). Registra a etapa (`LaudoParceiroPronto` → `LaudoCligenParaRevisao` → `LaudoRevisado`, sem pular) ou substitui o arquivo dela |
+| `GET` | `/api/exames/{id}/laudo/{etapa}/arquivo` | Download do PDF da etapa |
+| `POST` | `/api/exames/{id}/laudo/disponibilizar` | 5→6: grava a data efetiva e dispara e-mail + WhatsApp (log) |
 | `GET` · `PUT` | `/api/parametros/dias-revisao` | Dias de revisão globais (P13), semeados com 3 pela migration |
+
+## Seeds
+
+- `SeedAdmin` — primeiro usuário (ver acima).
+- `SeedCatalogo:Exemplos` (padrão `true`) — 3 exames de exemplo quando o catálogo está vazio, até a lista oficial.
 
 ## Provisório (trocar sem tocar na Aplicação)
 

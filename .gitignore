@@ -38,3 +38,7 @@ Thumbs.db
 # ---- Logs ----
 *.log
 logs/
+
+# ---- Next.js (gerados) ----
+*.tsbuildinfo
+frontend/sistema/next-env.d.ts

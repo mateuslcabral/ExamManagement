@@ -41,8 +41,15 @@ public class Exame
     /// </summary>
     public DateOnly? DataLiberacaoPrevista { get; private set; }
 
+    /// <summary>Gravada ao disponibilizar ao paciente (D10). A diferença para a prevista mede o atraso (A7).</summary>
+    public DateTime? DataLiberacaoEfetiva { get; private set; }
+
     private readonly List<Anexo> _anexos = [];
     public IReadOnlyCollection<Anexo> Anexos => _anexos.AsReadOnly();
+
+    private readonly List<EtapaAndamento> _etapas = [];
+    public IReadOnlyCollection<EtapaAndamento> Etapas => _etapas.AsReadOnly();
+    public EtapaAndamento? Etapa(TipoEtapaLaudo tipo) => _etapas.FirstOrDefault(e => e.Tipo == tipo);
 
     private readonly List<Amostra> _amostras = [];
     /// <summary>Histórico completo: amostras rejeitadas permanecem.</summary>
@@ -174,6 +181,65 @@ public class Exame
         Estado = EstadoExame.AguardandoAmostra;
     }
 
+    // ---- Fluxo do laudo (docs/05-regras-negocio/fluxo-laudo.md) ----
+
+    /// <summary>
+    /// Permite conferir antes de gravar o arquivo no armazenamento. Uma etapa nova só pode ser registrada quando o
+    /// exame está no estado imediatamente anterior (2→3→4→5, sem pular); uma etapa já registrada aceita substituição
+    /// em qualquer estado posterior, inclusive após a disponibilização (R2: sem versão nem aviso ao paciente).
+    /// </summary>
+    public void GarantirPodeReceberEtapa(TipoEtapaLaudo tipo)
+    {
+        GarantirNaoExcluido();
+        if (!Enum.IsDefined(tipo))
+            throw new ValidacaoException("Etapa inválida.");
+        if (Etapa(tipo) is null && Estado != (EstadoExame)((int)tipo - 1))
+            throw new EstadoInvalidoException($"registrar '{DescreverEstado((EstadoExame)tipo)}'", DescreverEstado(Estado));
+    }
+
+    /// <summary>Registra a etapa (data automática, avança o estado) ou substitui o arquivo de etapa já registrada (Q20).</summary>
+    /// <returns>true se foi substituição.</returns>
+    public bool RegistrarOuSubstituirEtapa(TipoEtapaLaudo tipo, ArquivoLaudo arquivo, Guid autorId)
+    {
+        GarantirPodeReceberEtapa(tipo);
+
+        if (Etapa(tipo) is { } existente)
+        {
+            existente.SubstituirArquivo(arquivo, autorId);
+            return true;
+        }
+
+        _etapas.Add(EtapaAndamento.Registrar(tipo, arquivo, autorId));
+        Estado = (EstadoExame)tipo;
+        return false;
+    }
+
+    /// <summary>Ato manual (D10): só com o laudo revisado. Grava a data efetiva; a notificação é da Aplicação.</summary>
+    public void Disponibilizar()
+    {
+        GarantirNaoExcluido();
+        if (Estado != EstadoExame.LaudoRevisado)
+            throw new EstadoInvalidoException("disponibilizar ao paciente", DescreverEstado(Estado));
+        if (Etapa(TipoEtapaLaudo.LaudoRevisado) is null)
+            throw new ValidacaoException("O laudo revisado não foi enviado.");
+
+        DataLiberacaoEfetiva = DateTime.UtcNow;
+        Estado = EstadoExame.Disponibilizado;
+    }
+
+    public static string DescreverEstado(EstadoExame estado) => estado switch
+    {
+        EstadoExame.AguardandoAmostra => "Aguardando amostra",
+        EstadoExame.AmostraAcolhida => "Amostra acolhida",
+        EstadoExame.LaudoParceiroPronto => "Laudo parceiro pronto",
+        EstadoExame.LaudoCligenParaRevisao => "Laudo Cligen para revisão",
+        EstadoExame.LaudoRevisado => "Laudo revisado",
+        EstadoExame.Disponibilizado => "Disponibilizado ao paciente",
+        _ => estado.ToString()
+    };
+
+    // ---- Exclusão lógica ----
+
     /// <summary>Qualquer funcionário, em qualquer etapa (Q18). Motivo obrigatório (P10).</summary>
     public void Excluir(string? motivo, Guid autorId)
     {
@@ -187,6 +253,17 @@ public class Exame
         ExcluidoEm = DateTime.UtcNow;
         ExcluidoPorId = autorId;
         MotivoExclusao = motivo;
+    }
+
+    /// <summary>A exclusão é reversível (C2). Autor, data e motivo da exclusão desfeita não são preservados na entidade.</summary>
+    public void Restaurar(Guid autorId)
+    {
+        if (!Excluido) throw new ValidacaoException("Este exame não está excluído.");
+        ExcluidoEm = null;
+        ExcluidoPorId = null;
+        MotivoExclusao = null;
+        AtualizadoEm = DateTime.UtcNow;
+        AtualizadoPorId = autorId;
     }
 
     private void GarantirNaoExcluido()

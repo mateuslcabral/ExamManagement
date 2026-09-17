@@ -19,4 +19,8 @@ public sealed class ExameCatalogoJaCadastradoException(string nome)
 public sealed class DocumentoJaCadastradoException(string descricaoDocumento)
     : ExcecaoDeDominio($"Esse {descricaoDocumento} já foi utilizado.");
 
+/// <summary>Transição não permitida no estado atual do exame (matriz do fluxo do laudo). A Api traduz para 409.</summary>
+public sealed class EstadoInvalidoException(string operacao, string estadoAtual)
+    : ExcecaoDeDominio($"Não é possível {operacao} com o exame em '{estadoAtual}'.");
+
 public sealed class ValidacaoException(string mensagem) : ExcecaoDeDominio(mensagem);

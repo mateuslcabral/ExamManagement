@@ -33,4 +33,4 @@ Sem essa distinção, um exame cadastrado com 30 dias seria anunciado como 30 qu
 ## Pendente
 
 - **Q1.6.1** — os 3 dias de revisão são iguais para todos os exames, ou algum tipo tem revisão mais longa? Se variar por exame, vira campo do catálogo em vez de parâmetro global (assumido global por ora — **P13**).
-- **Lista de exames pré-carregados** — precisa ser fornecida/confirmada antes do seed inicial.
+- **Lista de exames pré-carregados** — precisa ser fornecida. Enquanto isso, a API semeia 3 exames de exemplo com prazos e preços ilustrativos quando o catálogo está vazio (`SeedCatalogo:Exemplos`, desligável).

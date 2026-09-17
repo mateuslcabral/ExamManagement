@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import type { Anexo } from "@/lib/api";
-import { formatarTamanho } from "@/lib/formatos";
+import { formatarDataHora, formatarTamanho } from "@/lib/formatos";
 import { removerAnexo } from "../actions";
 import { Botao } from "@/components/ui/botao";
 
@@ -88,7 +88,7 @@ export function AnexosExame({ exameId, anexos }: { exameId: string; anexos: Anex
                   {a.nomeOriginal}
                 </a>
                 <p className="text-xs text-texto-suave">
-                  {formatarTamanho(a.tamanhoBytes)} · enviado em {new Date(a.enviadoEm).toLocaleString("pt-BR")}
+                  {formatarTamanho(a.tamanhoBytes)} · enviado em {formatarDataHora(a.enviadoEm)}
                 </p>
               </div>
               <Botao variante="fantasma" tamanho="sm" disabled={removendo || enviando} onClick={() => remover(a)}>

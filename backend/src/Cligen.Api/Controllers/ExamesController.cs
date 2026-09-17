@@ -16,9 +16,9 @@ public sealed class ExamesController(ExameService service) : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PaginaDto<ExameResumoDto>>> Buscar(
-        [FromQuery] string? busca, [FromQuery] Guid? pacienteId, [FromQuery] EstadoExame? estado,
+        [FromQuery] string? busca, [FromQuery] Guid? pacienteId, [FromQuery] EstadoExame? estado, [FromQuery] bool excluidos = false,
         [FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 20, CancellationToken ct = default)
-        => Ok(await service.BuscarAsync(busca, pacienteId, estado, pagina, tamanhoPagina, ct));
+        => Ok(await service.BuscarAsync(busca, pacienteId, estado, excluidos, pagina, tamanhoPagina, ct));
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ExameDto>> Obter(Guid id, CancellationToken ct)
@@ -41,6 +41,10 @@ public sealed class ExamesController(ExameService service) : ControllerBase
         await service.ExcluirAsync(id, req, ct);
         return NoContent();
     }
+
+    [HttpPost("{id:guid}/restaurar")]
+    public async Task<ActionResult<ExameDto>> Restaurar(Guid id, CancellationToken ct)
+        => Ok(await service.RestaurarAsync(id, ct));
 
     [HttpPost("{id:guid}/amostra/acolher")]
     public async Task<ActionResult<ExameDto>> AcolherAmostra(Guid id, [FromBody] AcolherAmostraRequest req, CancellationToken ct)

@@ -1,6 +1,6 @@
 # Para Rafael — decisões tomadas, dúvidas e dilemas
 
-> Situação em 17/09/2026. Escrito por Mateus.
+> Situação em 17/09/2026 (atualizado após a unificação com o repositório do GitHub — ver a última seção). Escrito por Mateus.
 
 Rafael, este documento reúne tudo que foi decidido durante a construção do sistema da Cligen nos pontos em que a especificação não dizia o que fazer, e tudo que continua em aberto. Preciso que você leia e me diga onde concorda, onde discorda e quem responde o que eu não sei responder.
 
@@ -16,7 +16,7 @@ Os códigos entre parênteses (Q1.2, C4.5, P14…) são os mesmos dos documentos
 
 ## O que já está pronto
 
-Login por e-mail e senha, gestão de usuários, catálogo de exames, cadastro de pacientes, cadastro de exame solicitado com anexos e exclusão, e acolhimento de amostra com cálculo da data prevista. Ainda não existem o fluxo do laudo, o financeiro e o portal do paciente.
+Login por e-mail e senha, gestão de usuários, catálogo de exames, cadastro de pacientes, cadastro de exame solicitado com anexos e exclusão (com restauração), acolhimento de amostra com cálculo da data prevista, e o fluxo do laudo até a disponibilização ao paciente. Ainda não existem o financeiro, o portal do paciente, o log de acesso e o login com Google.
 
 Tudo foi testado por mim na API e nas telas, mas ninguém da Cligen usou o sistema ainda.
 
@@ -58,7 +58,7 @@ Tudo foi testado por mim na API e nas telas, mas ninguém da Cligen usou o siste
 | 1.18 | "Destino" é opcional. Médico externo exige o nome digitado. | A especificação trata o destino como descritivo. | — |
 | 1.19 | Anexos: o sistema confere o formato pelo conteúdo do arquivo. Um arquivo renomeado para ".pdf" é recusado. | O nome do arquivo é controlado por quem envia. | — |
 | 1.20 | "Remover" um anexo só o tira da tela e libera a vaga. O arquivo continua guardado. | Nada do prontuário é apagado. | — |
-| 1.21 | Exame excluído some de todas as telas. **Ainda não existe tela para desfazer a exclusão nem para consultar os excluídos.** | Não deu tempo. O documento C2 diz que a exclusão é reversível. | **Dilema 4.5.** |
+| 1.21 | Exame excluído some das telas. A lista "Exames excluídos" mostra motivo e data e tem o botão Restaurar. | O documento C2 diz que a exclusão é reversível. | — |
 
 ### Acolhimento de amostra
 
@@ -71,8 +71,19 @@ Estas são as mais importantes, porque respondem por conta própria perguntas qu
 | 1.24 | Q1.3 — há horário de corte? | Não. Vale a data informada (P7). | Com horário de corte, passamos a pedir hora também. Mudança média. |
 | 1.25 | Q1.4 e Q1.5 — várias amostras por exame, ou uma coleta para vários exames? | Uma amostra por exame (P8). O banco já foi desenhado para aceitar mais de uma sem perda de dados. | Mudança de tela e de cálculo, sem retrabalho no banco. |
 | 1.26 | Q1.7 e Q19.1 — o que acontece na rejeição e na recoleta? | A rejeição exige motivo, apaga a data prevista e o exame volta a aguardar amostra. A amostra rejeitada fica no histórico. O acolhimento seguinte aparece marcado como "recoleta" e gera data nova. | Se a data original tiver de ser mantida, é outra regra. **Dilema 4.4.** |
-| 1.27 | (sem código) — até quando se pode rejeitar? | Só enquanto o exame está em "amostra acolhida", antes de qualquer laudo. | Depende da matriz de transições, que ainda não existe (dúvida 3.7). |
+| 1.27 | (sem código) — até quando se pode rejeitar? | Só enquanto o exame está em "amostra acolhida", antes de qualquer laudo. | Coerente com a matriz implementada (dúvida 3.7, a confirmar). |
 | 1.28 | P14 — a data prevista muda? | Nunca. É gravada uma vez no acolhimento. Mudar o catálogo ou os dias de revisão depois não a altera. A amostra guarda os números usados no cálculo. | Não recomendo mudar: sem isso nenhum exame apareceria atrasado. |
+
+### Fluxo do laudo
+
+| # | Decisão | Por quê | Se a resposta for outra |
+|---|---|---|---|
+| 1.32 | As três etapas seguem a ordem, sem pular: parceiro → Cligen para revisão → revisado. A etapa do parceiro existe mesmo em exame interno. | Q21 e a ordem da especificação. | Permitir pular é simples, mas a data de cada etapa perde o sentido. |
+| 1.33 | O arquivo de uma etapa pode ser substituído a qualquer momento, sem mudar a data nem o estado. O sistema conta as substituições e guarda quem fez a última. | Q20 (enviado por engano). | — |
+| 1.34 | Substituir o laudo **depois de disponibilizado** é permitido, não avisa o paciente e não guarda a versão anterior na tela. A tela pede confirmação. | Risco R2, aceito pelo cliente. O arquivo antigo continua no disco, sem referência. | Se o cliente quiser histórico, vira o "laudo retificado" que ficou para a v2. |
+| 1.35 | Só PDF nas etapas, conferido pelo conteúdo. Anexos comuns aceitam PDF, JPG e PNG. | Laudo assinado é PDF. | — |
+| 1.36 | Disponibilizar exige o laudo revisado e é um botão com confirmação. Não há como "desdisponibilizar". | D10. | Voltar de 6 para 5 depende da matriz de transições (dúvida 3.7). |
+| 1.37 | A fila "Laudos" destaca em vermelho a data prevista que já passou. Não é o alarme de atraso (A7, fora da v1), é só exibição. | Custo zero e ajuda a equipe. | Basta tirar o destaque. |
 
 ### Usuários
 
@@ -118,7 +129,7 @@ Estas são as mais importantes, porque respondem por conta própria perguntas qu
 |---|---|---|
 | 3.5 | Política de senha: tamanho, expiração, bloqueio por tentativas. Validade do link de primeiro acesso (hoje 24 h). | Hoje não há bloqueio por tentativas. |
 | 3.6 | O login com Google é com Gmail pessoal dos funcionários ou com conta corporativa? | Com Gmail pessoal não dá para restringir por domínio. **Atenção:** hoje um usuário cadastrado com e-mail `@gmail.com` nasce ativo e não consegue entrar, porque o botão do Google ainda não existe. Até lá, cadastrem só e-mails que não sejam Gmail. |
-| 3.7 | Matriz de transições do exame: em que estados se pode rejeitar amostra, substituir laudo, voltar etapa? Trocar um laudo já disponibilizado avisa o paciente? | Preciso disso para o fluxo do laudo, que é o próximo módulo. |
+| 3.7 | Matriz de transições do exame. Implementei uma (itens 1.27 e 1.32 a 1.36, e a tabela em `docs/05-regras-negocio/fluxo-laudo.md`). Falta o cliente confirmar, em especial: dá para voltar uma etapa? Dá para voltar de "disponibilizado"? | Hoje nenhuma volta é possível depois da etapa 3. |
 | 3.8 | Hospedagem: qual nuvem, qual região, quem contrata. | Define onde os arquivos ficam de verdade e o plano de backup. |
 | 3.9 | O que fazer com paciente cadastrado por engano ou em duplicidade, com documentos diferentes? | Hoje não há saída. |
 | 3.10 | Log de acesso a laudos: só o portal, ou também a equipe? Quais eventos? Por quanto tempo o log fica guardado? | Exigência de prontuário (Q45), ainda não implementada. |
@@ -160,11 +171,11 @@ Se a Cligen disser "fica pronto dia 20" e a amostra for rejeitada, a nova data s
 
 **Minha posição:** está coerente com a resposta Q19, mas é exatamente o que a Q19.1 pede para confirmar. Quero que o cliente leia esta frase antes de dizer sim.
 
-### 4.5 Exclusão sem volta na tela
+### 4.5 Restaurar apaga o rastro da exclusão
 
-O motivo, o autor e a data ficam guardados e nada é apagado do banco. Mas hoje só eu consigo reverter uma exclusão, mexendo direto no banco de dados.
+A lista "Exames excluídos" permite restaurar. Ao restaurar, o exame volta como se nunca tivesse sido excluído: o motivo, o autor e a data da exclusão desfeita não ficam guardados em lugar nenhum. Num prontuário, isso pode importar.
 
-**Minha posição:** fazer uma tela "Exames excluídos", com botão de restaurar, antes da entrega. É pequeno. Só não fiz porque não estava na especificação e eu queria sua opinião antes.
+**Minha posição:** aceitável na v1. Quando o log de acesso existir (dúvida 3.10), exclusão e restauração entram nele com autor e motivo.
 
 ### 4.6 Data de acolhimento digitável
 
@@ -183,10 +194,16 @@ Testei tudo por chamadas à API e abrindo as telas, mas não cliquei em cada bot
 ## Parte 5 — O que eu preciso de você
 
 1. **Urgente, trava o financeiro:** respostas de C4.5 e C4.2 (dúvidas 3.1 e 3.2).
-2. **Urgente, trava o fluxo do laudo:** a matriz de transições (3.7) e os textos das mensagens (3.4). Posso propor os dois; preciso saber quem aprova.
+2. **Urgente, trava as mensagens reais:** os textos (3.4) e o provedor de e-mail (3.3). A matriz de transições (3.7) já está implementada; precisa só de confirmação.
 3. **Confirmar com o cliente:** os itens 1.5, 1.22 a 1.27 e o dilema 4.4.
-4. **Sua opinião:** dilemas 4.1, 4.5 e 4.7.
+4. **Sua opinião:** dilemas 4.1, 4.5 e 4.7, e o item 1.34 (substituir laudo já liberado).
 5. **Decidir juntos:** hospedagem (3.8), porque dela dependem arquivos, backup e e-mail.
 6. **Sem pressa:** o restante da Parte 3.
 
 Tudo que está neste documento também está detalhado, por módulo, em `docs/05-regras-negocio/` e em `docs/06-pendencias/pendencias-abertas.md`.
+
+---
+
+## Nota sobre o repositório no GitHub
+
+Em 22/08 existia no GitHub uma outra implementação destes mesmos módulos (commit "Módulos de pacientes, catálogo, exames, amostra e fluxo do laudo"), feita a partir do seu "First Commit". A cópia local em que trabalhei nas últimas semanas partiu de um clone anterior e evoluiu separadamente, com desenho diferente. Em 17/09 as duas foram unificadas: **prevaleceu a versão local** (validação do usuário na API, upload em stream, paginação, mais testes), e o que só existia no GitHub — fluxo do laudo, restauração de exame, exemplos no catálogo, roadmap — foi reimplementado nela. O histórico do GitHub foi preservado no merge, então nada se perdeu; só deixou de ser a versão vigente. Os documentos de premissas P16–P36 daquela versão foram substituídos pelas seções "Implementação" de cada módulo em `docs/05-regras-negocio/`.

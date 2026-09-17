@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import type { Exame } from "@/lib/api";
-import { formatarData } from "@/lib/formatos";
+import { formatarData, formatarDataHora } from "@/lib/formatos";
 import { rejeitarAmostra, type EstadoAmostra } from "../actions";
 import { FormularioAcolhimento } from "../formulario-acolhimento";
 import { Botao } from "@/components/ui/botao";
@@ -57,7 +57,7 @@ export function AmostraExame({ exame, hoje }: { exame: Exame; hoje: string }) {
             </p>
             <p className="text-xs text-texto-suave">
               Previsão calculada com {vigente.prazoExecucaoDias} dias de execução + {vigente.diasRevisao} de revisão,
-              vigentes no acolhimento. Lançado em {new Date(vigente.registradoEm).toLocaleString("pt-BR")}.
+              vigentes no acolhimento. Lançado em {formatarDataHora(vigente.registradoEm)}.
             </p>
             {exame.estado === "AmostraAcolhida" && <RejeicaoAmostra exameId={exame.id} />}
           </div>
@@ -71,7 +71,7 @@ export function AmostraExame({ exame, hoje }: { exame: Exame; hoje: string }) {
             {rejeitadas.map((a) => (
               <li key={a.id} className="text-sm text-texto">
                 Acolhida em {formatarData(a.dataAcolhimento)}, rejeitada em{" "}
-                {new Date(a.rejeitadaEm!).toLocaleDateString("pt-BR")}
+                {formatarDataHora(a.rejeitadaEm!)}
                 <span className="text-texto-suave"> — {a.motivoRejeicao}</span>
               </li>
             ))}

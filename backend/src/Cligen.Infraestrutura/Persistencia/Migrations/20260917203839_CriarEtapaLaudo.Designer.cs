@@ -4,6 +4,7 @@ using Cligen.Infraestrutura.Persistencia;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cligen.Infraestrutura.Persistencia.Migrations
 {
     [DbContext(typeof(CligenDbContext))]
-    partial class CligenDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260917203839_CriarEtapaLaudo")]
+    partial class CriarEtapaLaudo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

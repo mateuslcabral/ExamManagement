@@ -17,6 +17,9 @@ public interface IEnvioEmail
 
     /// <summary>Boas-vindas com endereço e instruções do portal (Q32). Texto final pendente (C7).</summary>
     Task EnviarBoasVindasPacienteAsync(BoasVindasPaciente mensagem, CancellationToken ct = default);
+
+    /// <summary>Aviso de laudo disponível (D10), no modelo interno ou externo (D13). Texto final pendente.</summary>
+    Task EnviarLaudoDisponivelAsync(LaudoDisponivel mensagem, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -26,7 +29,12 @@ public interface IEnvioEmail
 public interface IEnvioWhatsApp
 {
     Task EnviarBoasVindasPacienteAsync(BoasVindasPaciente mensagem, CancellationToken ct = default);
+    Task EnviarLaudoDisponivelAsync(LaudoDisponivel mensagem, CancellationToken ct = default);
 }
+
+/// <param name="MedicoInterno">Modelo interno inclui convite de retorno com o Dr. Arsonval e menção ao aconselhamento genético (D13).</param>
+public sealed record LaudoDisponivel(
+    string Email, string Telefone, string NomeDestinatario, string NomePaciente, string NomeExame, bool MedicoInterno, string UrlPortal);
 
 /// <param name="NomeDestinatario">Responsável legal, quando houver (P9); senão, o próprio paciente.</param>
 public sealed record BoasVindasPaciente(

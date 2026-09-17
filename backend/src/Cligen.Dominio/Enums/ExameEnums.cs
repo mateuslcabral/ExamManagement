@@ -11,6 +11,14 @@ public enum EstadoExame
     Disponibilizado = 6
 }
 
+/// <summary>As três etapas do laudo (D9). O valor numérico é o do estado que a etapa produz.</summary>
+public enum TipoEtapaLaudo
+{
+    LaudoParceiroPronto = 3,
+    LaudoCligenParaRevisao = 4,
+    LaudoRevisado = 5
+}
+
 /// <summary>Canal de entrada do exame — atributo do exame, não do paciente (D4).</summary>
 public enum OrigemExame
 {

@@ -14,7 +14,7 @@ export const MENU: ItemMenu[] = [
   { rotulo: "Pacientes", href: "/pacientes", icone: "pacientes", grupo: "Operação" },
   { rotulo: "Exames", href: "/exames", icone: "exames", grupo: "Operação" },
   { rotulo: "Amostras", href: "/amostras", icone: "amostras", grupo: "Operação" },
-  { rotulo: "Laudos", icone: "laudos", grupo: "Operação" },
+  { rotulo: "Laudos", href: "/laudos", icone: "laudos", grupo: "Operação" },
   { rotulo: "Financeiro", icone: "financeiro", grupo: "Operação" },
   { rotulo: "Catálogo de exames", href: "/catalogo", icone: "catalogo", grupo: "Cadastros" },
   { rotulo: "Gestão de Usuários", href: "/usuarios", icone: "usuarios", grupo: "Cadastros" },

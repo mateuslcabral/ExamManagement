@@ -17,12 +17,12 @@
 
 ## Implementação (16/09/2026)
 
-- O exame nasce em **Cadastrado — aguardando amostra**, com data de entrada automática (data de Brasília). O acolhimento da amostra já está implementado (ver [amostra e prazo](amostra-e-prazo.md)); as etapas do laudo ainda não.
+- O exame nasce em **Cadastrado — aguardando amostra**, com data de entrada automática (data de Brasília). Acolhimento da amostra e fluxo do laudo implementados — ver [amostra e prazo](amostra-e-prazo.md) e [fluxo do laudo](fluxo-laudo.md).
 - **Preço** herdado do preço de referência do catálogo ao escolher o exame, editável. Só exames **ativos** do catálogo podem ser escolhidos.
 - **Destino** opcional (texto livre). **Médico externo** exige nome; para o interno, o nome é fixo.
 - **Edição:** o paciente não muda — exame lançado no paciente errado se exclui (com motivo) e se cadastra de novo, preservando o rastro. O exame do catálogo só pode ser trocado **antes do acolhimento**, porque o prazo dele alimenta a data prevista (P14).
 - **Anexos:** até 3 ativos; formato conferido pelos **primeiros bytes** do arquivo (não pelo nome), 50 MB cada. Guardam nome original, tipo, tamanho, SHA-256, quem enviou e quando. "Remover" é lógico: libera a vaga, mas o arquivo e o registro permanecem.
-- **Exclusão:** lógica, com autor, data e motivo obrigatório; o exame some das listas e das consultas da API (404). Não há ainda tela para reverter uma exclusão.
+- **Exclusão:** lógica, com autor, data e motivo obrigatório; o exame some das listas e das consultas da API (404). A lista **Exames excluídos** (`/exames?excluidos=1`) mostra motivo e data e permite **restaurar** (C2: reversível). Ao restaurar, autor, data e motivo da exclusão desfeita não ficam guardados.
 
 ## Médico solicitante
 

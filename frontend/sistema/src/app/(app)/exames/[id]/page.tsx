@@ -6,6 +6,7 @@ import { EtiquetaEstado } from "../etiqueta-estado";
 import { FormularioExame } from "../formulario-exame";
 import { AmostraExame } from "./amostra-exame";
 import { AnexosExame } from "./anexos-exame";
+import { PainelLaudo } from "./painel-laudo";
 import { ExclusaoExame } from "./exclusao-exame";
 
 export const metadata = { title: "Exame — Cligen" };
@@ -13,6 +14,7 @@ export const metadata = { title: "Exame — Cligen" };
 const mensagensSalvo: Record<string, string> = {
   criado: "Exame cadastrado. Registre o acolhimento quando a amostra chegar e anexe os arquivos da solicitação, se houver.",
   editado: "Alterações salvas.",
+  restaurado: "Exame restaurado. Ele volta às listas e ao fluxo normal.",
 };
 
 export default async function PaginaExame({
@@ -63,6 +65,7 @@ export default async function PaginaExame({
 
       <div className="mt-6 space-y-6">
         <AmostraExame exame={exame} hoje={hojeEmBrasilia()} />
+        <PainelLaudo exame={exame} />
         <AnexosExame exameId={exame.id} anexos={exame.anexos} />
         <FormularioExame exame={exame} catalogo={catalogo} />
         <ExclusaoExame exameId={exame.id} />
