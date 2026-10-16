@@ -14,6 +14,7 @@
 | [`05-regras-negocio/`](05-regras-negocio/) | Regras de negócio já definidas, uma pasta por módulo. |
 | [`06-pendencias/`](06-pendencias/) | O que ainda está em aberto: decisões de conflito, pendências, premissas assumidas, riscos aceitos, itens diferidos. |
 | [`07-roadmap/`](07-roadmap/) | Situação atual dos módulos e ordem sugerida do que falta. |
+| [`08-apresentacao/`](08-apresentacao/) | Inventário do que existe, pendências por área (o que falta fazer e o que falta ver com o cliente) e roteiro de apresentação. |
 | [`para-rafael.md`](para-rafael.md) | Todas as decisões tomadas na implementação, dúvidas e dilemas, consolidadas para validação. |
 
 ## Documentos de origem
