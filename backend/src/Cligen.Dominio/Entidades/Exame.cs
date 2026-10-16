@@ -32,6 +32,13 @@ public class Exame
     /// <summary>Herdado do preço de referência do catálogo e editável.</summary>
     public decimal Preco { get; private set; }
 
+    /// <summary>Sempre em reais, nunca percentual (C5). Motivo livre e opcional (P12).</summary>
+    public decimal Desconto { get; private set; }
+    public string? MotivoDesconto { get; private set; }
+
+    /// <summary>valor pago = valor do exame − desconto (C5).</summary>
+    public decimal ValorAPagar => Preco - Desconto;
+
     public DateOnly DataEntrada { get; private set; }
     public EstadoExame Estado { get; private set; }
 
@@ -179,6 +186,31 @@ public class Exame
         AmostraVigente!.Rejeitar(motivo, autorId);
         DataLiberacaoPrevista = null;
         Estado = EstadoExame.AguardandoAmostra;
+    }
+
+    // ---- Financeiro (docs/05-regras-negocio/financeiro.md) ----
+
+    public const int TamanhoMaximoMotivoDesconto = 300;
+
+    /// <summary>Desconto em reais (C5). Zero remove o desconto. Não pode exceder o preço.</summary>
+    public void AplicarDesconto(decimal desconto, string? motivo, Guid autorId)
+    {
+        GarantirNaoExcluido();
+        if (desconto < 0)
+            throw new ValidacaoException("O desconto não pode ser negativo.");
+        if (decimal.Round(desconto, 2) != desconto)
+            throw new ValidacaoException("O desconto deve ter no máximo 2 casas decimais.");
+        if (desconto > Preco)
+            throw new ValidacaoException("O desconto não pode ser maior que o preço do exame.");
+
+        motivo = string.IsNullOrWhiteSpace(motivo) ? null : motivo.Trim();
+        if (motivo?.Length > TamanhoMaximoMotivoDesconto)
+            throw new ValidacaoException($"O motivo do desconto deve ter no máximo {TamanhoMaximoMotivoDesconto} caracteres.");
+
+        Desconto = desconto;
+        MotivoDesconto = desconto == 0 ? null : motivo;
+        AtualizadoEm = DateTime.UtcNow;
+        AtualizadoPorId = autorId;
     }
 
     // ---- Fluxo do laudo (docs/05-regras-negocio/fluxo-laudo.md) ----

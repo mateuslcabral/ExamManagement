@@ -10,6 +10,7 @@ public sealed class CligenDbContext(DbContextOptions<CligenDbContext> options) :
     public DbSet<Parametro> Parametros => Set<Parametro>();
     public DbSet<Paciente> Pacientes => Set<Paciente>();
     public DbSet<Exame> Exames => Set<Exame>();
+    public DbSet<Pagamento> Pagamentos => Set<Pagamento>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {

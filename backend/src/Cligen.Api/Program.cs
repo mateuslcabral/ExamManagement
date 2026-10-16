@@ -16,6 +16,7 @@ builder.Services.AddScoped<ExameCatalogoService>();
 builder.Services.AddScoped<PacienteService>();
 builder.Services.AddScoped<ExameService>();
 builder.Services.AddScoped<LaudoService>();
+builder.Services.AddScoped<PagamentoService>();
 builder.Services.AddSingleton<IUrlPortalPaciente, UrlPortalPaciente>();
 builder.Services.AddSingleton<IUrlDefinicaoSenha, UrlDefinicaoSenha>();
 builder.Services.AddScoped<UsuarioAtual>();

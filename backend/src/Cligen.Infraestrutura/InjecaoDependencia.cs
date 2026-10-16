@@ -30,6 +30,7 @@ public static class InjecaoDependencia
         services.AddScoped<IParametroRepositorio, ParametroRepositorio>();
         services.AddScoped<IPacienteRepositorio, PacienteRepositorio>();
         services.AddScoped<IExameRepositorio, ExameRepositorio>();
+        services.AddScoped<IPagamentoRepositorio, PagamentoRepositorio>();
 
         services.AddSingleton<IHashSenha, HashSenhaIdentity>();
         services.Configure<OpcoesTokenDefinicaoSenha>(config.GetSection(OpcoesTokenDefinicaoSenha.Secao));

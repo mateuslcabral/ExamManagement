@@ -4,7 +4,7 @@ React + **Next.js** (App Router), um app por superfície, cada um atuando como *
 
 ```
 frontend/
-├── sistema/       # Sistema interno (equipe Cligen) — IMPLEMENTADO: login, shell, Gestão de Usuários, Catálogo, Pacientes, Exames, Amostras, Laudos
+├── sistema/       # Sistema interno (equipe Cligen) — IMPLEMENTADO: login, shell, Gestão de Usuários, Catálogo, Pacientes, Exames, Amostras, Laudos, Financeiro
 └── portal/        # Portal do paciente (resultados.cligen.com.br) — ainda não iniciado
 ```
 
@@ -27,6 +27,7 @@ Next.js 16 · React 19 · TypeScript · Tailwind 4 · Auth.js v5 (`next-auth@bet
 | `/laudos` | Fila do laudo: exames dos estados 2 a 5 agrupados pela próxima ação |
 | `/exames?excluidos=1` | Exames excluídos, com motivo e botão Restaurar |
 | `/exames/[id]/laudo/[etapa]` | Route handler de upload/download do PDF da etapa (fora do proxy, em stream) |
+| `/financeiro` | Relatório por regime de caixa com período; a receber de convênio. Lançamentos ficam na tela do exame |
 | `/amostras` | Fila de exames aguardando amostra, com registro do acolhimento na própria linha |
 | `/catalogo` | Catálogo de exames — criar, editar, desativar/reativar; mostra a entrega ao paciente (execução + revisão) e edita os dias de revisão |
 
@@ -55,6 +56,7 @@ src/
         ├── exames/
         ├── amostras/
         ├── laudos/
+        ├── financeiro/
         └── pacientes/
 ```
 

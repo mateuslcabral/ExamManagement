@@ -1,4 +1,4 @@
-import type { EstadoExame, OrigemExame, TipoDocumento, TipoEtapaLaudo } from "./api";
+import type { EstadoExame, MetodoPagamento, OrigemExame, StatusPagamento, TipoDocumento, TipoEtapaLaudo } from "./api";
 
 /** Formatação para exibição. Os dados trafegam normalizados pela API (CPF só dígitos, telefone +DDI). */
 
@@ -96,3 +96,19 @@ export const ETAPAS_LAUDO: { tipo: TipoEtapaLaudo; numero: number; rotulo: strin
 export function formatarDataHora(iso: string) {
   return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(iso));
 }
+
+export const ROTULOS_METODO: Record<MetodoPagamento, string> = {
+  Pix: "Pix",
+  CartaoCredito: "Cartão de crédito",
+  CartaoDebito: "Cartão de débito",
+  Dinheiro: "Dinheiro",
+  Boleto: "Boleto",
+  Transferencia: "Transferência",
+  Convenio: "Convênio",
+};
+
+export const ROTULOS_STATUS_PAGAMENTO: Record<StatusPagamento, string> = {
+  AReceber: "A receber",
+  Recebido: "Recebido",
+  Glosado: "Glosado",
+};

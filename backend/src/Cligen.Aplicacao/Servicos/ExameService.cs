@@ -152,7 +152,7 @@ public sealed class ExameService(
         return new ExameDto(
             e.Id, paciente.Id, paciente.Nome, paciente.TipoDocumento, paciente.NumeroDocumento,
             itemCatalogo.Id, itemCatalogo.Nome, itemCatalogo.PrazoExecucaoDias, itemCatalogo.PrazoEntregaDias(diasRevisao),
-            e.Origem, e.Destino, e.TipoMedico, e.NomeMedico, e.Preco, e.DataEntrada, e.Estado, e.DataLiberacaoPrevista,
+            e.Origem, e.Destino, e.TipoMedico, e.NomeMedico, e.Preco, e.Desconto, e.MotivoDesconto, e.ValorAPagar, e.DataEntrada, e.Estado, e.DataLiberacaoPrevista,
             e.DataLiberacaoEfetiva,
             e.Amostras.OrderByDescending(a => a.RegistradoEm).Select(Mapear).ToList(),
             e.Etapas.OrderBy(t => t.Tipo).Select(Mapear).ToList(),

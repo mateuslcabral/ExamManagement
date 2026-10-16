@@ -13,13 +13,13 @@
 | Exames + anexos (storage em disco, provisório) + exclusão lógica com restauração | ✅ |
 | Acolhimento de amostra, rejeição, recoleta + fila Amostras | ✅ |
 | Fluxo do laudo + disponibilização (notificações em log) + fila Laudos | ✅ |
-| Financeiro | ⬜ trava em C4.5 / C4.2 |
+| Financeiro: desconto, lançamentos, convênio (texto livre) a receber/glosa, relatório por regime de caixa | ✅ (convênio vira cadastro quando C4.5 responder) |
 | Portal do paciente | ⬜ regras do código de uso único |
 | Log de acesso / LGPD | ⬜ escopo do log |
 | Login Google | ⬜ credenciais OAuth; Gmail pessoal × Workspace |
 | Provedores reais (e-mail, WhatsApp, storage) | ⬜ Q36, Q37, hospedagem |
 
-**Testes:** 101 de domínio (`dotnet test`). Não há testes de Aplicação/Infraestrutura nem de frontend. Todos os módulos foram validados por chamadas à API e abrindo as telas; **ninguém da Cligen usou o sistema ainda.**
+**Testes:** 114 de domínio (`dotnet test`). Não há testes de Aplicação/Infraestrutura nem de frontend. Todos os módulos foram validados por chamadas à API e abrindo as telas; **ninguém da Cligen usou o sistema ainda.**
 
 ---
 
@@ -28,12 +28,8 @@
 ### 1.1 Demonstração com a Cligen
 Antes do financeiro: uma sessão com alguém da recepção e alguém do laboratório usando as telas de paciente, exame, amostra e laudo. É a única forma de validar as decisões de tela.
 
-### 1.2 Financeiro
-Tudo especificado em [`financeiro.md`](../05-regras-negocio/financeiro.md), exceto convênio.
-- `Pagamento` (N por exame; método, valor, status `a receber`/`recebido`/`glosado`, data de recebimento, desconto em R$ + motivo opcional) e `ParcelaPagamento` (informativa — P3). Agregado próprio, com repositório próprio: relatórios cruzam exames.
-- Convênio provisório como **texto livre** + campo opcional "guia/autorização" até C4.5/C4.2; promover a cadastro `Convenio` depois (migration simples).
-- Relatório por regime de caixa (só `recebido`, pela data de recebimento) com filtro por período.
-- Tela: seção "Pagamentos" no exame + página `/financeiro` com o relatório.
+### 1.2 Financeiro — feito em 16/10
+Falta só o que depende do cliente: promover convênio a cadastro (C4.5) e decidir se a guia é obrigatória (C4.2). Pedidos prováveis depois do uso: exportar o relatório (CSV/Excel) e relatório por paciente.
 
 ### 1.3 Rodada de pendências com o cliente
 Levar de uma vez: **C4.5, C4.2** (convênio) · **Q19.1 / Q1.7** (rejeição e recoleta) · **Q1.2 / Q1.3** (data de acolhimento digitável, sem corte) · matriz de transições do laudo · campos do responsável legal · **D2.1** · lista oficial do catálogo · **Q13.1**. Lista completa em [`para-rafael.md`](../para-rafael.md).

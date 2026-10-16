@@ -75,6 +75,11 @@ Todos exigem o header `X-Api-Key`. Fora de `/api/auth`, exigem também `X-Usuari
 | `POST` | `/api/exames/{id}/laudo/{etapa}` | Multipart `arquivo` (só PDF). Registra a etapa (`LaudoParceiroPronto` → `LaudoCligenParaRevisao` → `LaudoRevisado`, sem pular) ou substitui o arquivo dela |
 | `GET` | `/api/exames/{id}/laudo/{etapa}/arquivo` | Download do PDF da etapa |
 | `POST` | `/api/exames/{id}/laudo/disponibilizar` | 5→6: grava a data efetiva e dispara e-mail + WhatsApp (log) |
+| `GET` | `/api/exames/{id}/financeiro` | Preço, desconto, a pagar, recebido, a receber, saldo e lançamentos |
+| `POST` | `/api/exames/{id}/pagamentos` | Lançar (particular nasce recebido; convênio nasce a receber). Total lançado ≤ valor a pagar |
+| `PUT` | `/api/exames/{id}/desconto` | Desconto em R$ + motivo opcional |
+| `POST` | `/api/pagamentos/{id}/receber` · `/glosar` · `/excluir` | Convênio pago (data) · glosa (motivo) · exclusão lógica (motivo) |
+| `GET` | `/api/financeiro/relatorio?de=&ate=` | Regime de caixa; sem período, mês corrente |
 | `GET` · `PUT` | `/api/parametros/dias-revisao` | Dias de revisão globais (P13), semeados com 3 pela migration |
 
 ## Seeds

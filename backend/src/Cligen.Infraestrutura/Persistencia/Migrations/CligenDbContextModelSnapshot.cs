@@ -49,6 +49,9 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     b.Property<DateOnly?>("DataLiberacaoPrevista")
                         .HasColumnType("date");
 
+                    b.Property<decimal>("Desconto")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Destino")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -64,6 +67,9 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
 
                     b.Property<Guid?>("ExcluidoPorId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MotivoDesconto")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MotivoExclusao")
                         .HasMaxLength(500)
@@ -233,6 +239,101 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                         .IsUnique();
 
                     b.ToTable("Paciente", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Pagamento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("AtualizadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Convenio")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CriadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("DataRecebimento")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("ExameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ExcluidoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ExcluidoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Metodo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MotivoExclusao")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MotivoGlosa")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("NumeroGuia")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int?>("Parcelas")
+                        .HasColumnType("int");
+
+                    b.Property<long>("Seq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Seq"));
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("ValorParcela")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("AtualizadoPorId");
+
+                    b.HasIndex("CriadoPorId");
+
+                    b.HasIndex("ExameId");
+
+                    b.HasIndex("ExcluidoPorId");
+
+                    b.HasIndex("Seq")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
+
+                    b.HasIndex("Status", "DataRecebimento");
+
+                    b.ToTable("Pagamento", (string)null);
                 });
 
             modelBuilder.Entity("Cligen.Dominio.Entidades.Parametro", b =>
@@ -609,6 +710,31 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                         });
 
                     b.Navigation("ResponsavelLegal");
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Pagamento", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Cligen.Dominio.Entidades.Exame", null)
+                        .WithMany()
+                        .HasForeignKey("ExameId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("ExcluidoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

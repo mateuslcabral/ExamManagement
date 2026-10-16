@@ -6,8 +6,8 @@
 
 | ID | Pergunta | O que trava |
 |---|---|---|
-| **C4.5** | Convênio será um **cadastro** (lista de operadoras, permitindo saber quanto cada uma deve) ou apenas texto digitado no pagamento? Recomendação: cadastro. | [Modelo financeiro](../05-regras-negocio/financeiro.md) / entidade `Convenio` no [schema](../04-schema/modelo-de-dados.md) |
-| **C4.2** | É necessário registrar número de guia ou autorização do convênio? | Campo da tela de pagamento |
+| **C4.5** | Convênio será um **cadastro** (lista de operadoras, permitindo saber quanto cada uma deve) ou apenas texto digitado no pagamento? Recomendação: cadastro. **Implementado como texto livre, provisoriamente.** | [Modelo financeiro](../05-regras-negocio/financeiro.md) / entidade `Convenio` no [schema](../04-schema/modelo-de-dados.md) |
+| **C4.2** | É necessário registrar número de guia ou autorização do convênio? **Implementado como campo opcional.** | Campo da tela de pagamento |
 | **Q1.6.1** | Os 3 dias de revisão são iguais para todos os exames, ou algum tipo tem revisão mais longa? | Se variar por exame, vira campo do catálogo em vez de parâmetro global (assumido global — **P13**) |
 | **Q1.6.3** | O paciente vê a data prevista no portal, ou ela é interna à equipe? | Tela do portal (recomendado não exibir — **P15**) |
 
@@ -34,7 +34,7 @@ Ver detalhamento em [amostra-e-prazo.md](../05-regras-negocio/amostra-e-prazo.md
 
 Identificado na revisão da especificação — não é pendência do cliente, é lacuna de planejamento de engenharia a fechar durante o desenho técnico.
 
-**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno, Gestão de Usuários, Catálogo de exames com o parâmetro global de dias de revisão, repasse da identidade do usuário à API, Cadastro de Pacientes, Exame solicitado com anexos e exclusão lógica, acolhimento de amostra com previsão de liberação, rejeição e recoleta, fluxo do laudo até a disponibilização (notificação em log), restauração de exame excluído e filas Amostras/Laudos (`frontend/sistema`, `backend/`). Faltam: financeiro, portal do paciente, log de acesso, login Google e provedores reais. Resíduos que ainda faltam fechar:
+**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno, Gestão de Usuários, Catálogo de exames com o parâmetro global de dias de revisão, repasse da identidade do usuário à API, Cadastro de Pacientes, Exame solicitado com anexos e exclusão lógica, acolhimento de amostra com previsão de liberação, rejeição e recoleta, fluxo do laudo até a disponibilização (notificação em log), restauração de exame excluído, filas Amostras/Laudos e financeiro (desconto, lançamentos, convênio a receber/glosa, relatório por regime de caixa) (`frontend/sistema`, `backend/`). Faltam: portal do paciente, log de acesso, login Google e provedores reais. Resíduos que ainda faltam fechar:
 
 | Item | Nota |
 |---|---|

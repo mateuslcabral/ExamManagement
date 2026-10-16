@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { api, ApiError, type Exame, type ExameCatalogo } from "@/lib/api";
+import { api, ApiError, type Exame, type ExameCatalogo, type FinanceiroExame as DadosFinanceiros } from "@/lib/api";
 import { formatarData, formatarDocumento, formatarMoeda, hojeEmBrasilia } from "@/lib/formatos";
 import { EtiquetaEstado } from "../etiqueta-estado";
 import { FormularioExame } from "../formulario-exame";
@@ -8,6 +8,7 @@ import { AmostraExame } from "./amostra-exame";
 import { AnexosExame } from "./anexos-exame";
 import { PainelLaudo } from "./painel-laudo";
 import { ExclusaoExame } from "./exclusao-exame";
+import { FinanceiroExame } from "./financeiro-exame";
 
 export const metadata = { title: "Exame — Cligen" };
 
@@ -34,7 +35,10 @@ export default async function PaginaExame({
     throw e;
   }
 
-  const ativos = await api<ExameCatalogo[]>("/api/catalogo-exames?apenasAtivos=true");
+  const [ativos, financeiro] = await Promise.all([
+    api<ExameCatalogo[]>("/api/catalogo-exames?apenasAtivos=true"),
+    api<DadosFinanceiros>(`/api/exames/${exame.id}/financeiro`),
+  ]);
   // Se o exame do catálogo foi desativado depois, ele continua aparecendo como opção para este exame.
   const catalogo = ativos.some((c) => c.id === exame.exameCatalogoId)
     ? ativos
@@ -68,6 +72,7 @@ export default async function PaginaExame({
         <PainelLaudo exame={exame} />
         <AnexosExame exameId={exame.id} anexos={exame.anexos} />
         <FormularioExame exame={exame} catalogo={catalogo} />
+        <FinanceiroExame financeiro={financeiro} hoje={hojeEmBrasilia()} />
         <ExclusaoExame exameId={exame.id} />
       </div>
     </div>

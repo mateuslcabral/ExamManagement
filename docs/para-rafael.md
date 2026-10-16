@@ -16,7 +16,7 @@ Os códigos entre parênteses (Q1.2, C4.5, P14…) são os mesmos dos documentos
 
 ## O que já está pronto
 
-Login por e-mail e senha, gestão de usuários, catálogo de exames, cadastro de pacientes, cadastro de exame solicitado com anexos e exclusão (com restauração), acolhimento de amostra com cálculo da data prevista, e o fluxo do laudo até a disponibilização ao paciente. Ainda não existem o financeiro, o portal do paciente, o log de acesso e o login com Google.
+Login por e-mail e senha, gestão de usuários, catálogo de exames, cadastro de pacientes, cadastro de exame solicitado com anexos e exclusão (com restauração), acolhimento de amostra com cálculo da data prevista, o fluxo do laudo até a disponibilização ao paciente, e o financeiro. Ainda não existem o portal do paciente, o log de acesso e o login com Google.
 
 Tudo foi testado por mim na API e nas telas, mas ninguém da Cligen usou o sistema ainda.
 
@@ -85,6 +85,18 @@ Estas são as mais importantes, porque respondem por conta própria perguntas qu
 | 1.36 | Disponibilizar exige o laudo revisado e é um botão com confirmação. Não há como "desdisponibilizar". | D10. | Voltar de 6 para 5 depende da matriz de transições (dúvida 3.7). |
 | 1.37 | A fila "Laudos" destaca em vermelho a data prevista que já passou. Não é o alarme de atraso (A7, fora da v1), é só exibição. | Custo zero e ajuda a equipe. | Basta tirar o destaque. |
 
+### Financeiro
+
+| # | Decisão | Por quê | Se a resposta for outra |
+|---|---|---|---|
+| 1.38 | Convênio é digitado como texto (ex.: "Unimed"), com um campo opcional para número de guia. O relatório agrupa pelo texto digitado. | C4.5 e C4.2 continuam sem resposta e eu não quis travar o módulo. | Virar cadastro é uma migration simples; os nomes já digitados precisariam ser padronizados. |
+| 1.39 | Pagamento particular (Pix, cartão, dinheiro...) já nasce como **recebido**, na data informada (hoje por padrão). Convênio nasce **a receber** e só entra no caixa quando alguém marca "Receber" com a data em que o dinheiro chegou. | Q26 ("o paciente quita no ato") e C4. | — |
+| 1.40 | O total lançado não pode passar do valor a pagar (preço − desconto). A tela mostra "Falta lançar R$ X" até fechar. | Q26: não existe saldo em aberto do paciente; lançar a mais é erro. | Se houver caso legítimo de receber a mais (ex.: taxa), vira só aviso. |
+| 1.41 | Glosa só em convênio a receber, com motivo; o valor sai da previsão e o lançamento fica. | P11. | — |
+| 1.42 | Cartão parcelado guarda parcelas e valor de cada uma só como informação; o valor entra integral na data. | C6 e P3. | — |
+| 1.43 | Lançamento errado se exclui com motivo (fica guardado, fora dos totais). Não há edição de lançamento: exclui e lança de novo. | P4: nada é apagado; editar valor de pagamento sem rastro é ruim num registro financeiro. | Edição com histórico é possível, mas é mais código. |
+| 1.44 | O relatório é só o regime de caixa: recebidos por data de recebimento no período, e o que está a receber de convênio. Sem exportação, sem emissão fiscal. | Q29, Q30. | Exportar para Excel é pequeno; aviso que vai ser pedido. |
+
 ### Usuários
 
 | # | Decisão | Por quê |
@@ -118,8 +130,8 @@ Estas são as mais importantes, porque respondem por conta própria perguntas qu
 
 | # | Dúvida | O que trava | Quem responde |
 |---|---|---|---|
-| 3.1 | **C4.5** — convênio é um cadastro de operadoras ou um texto digitado? Recomendo cadastro: sem ele não dá para saber quanto cada operadora deve. | O módulo financeiro inteiro. | Cliente |
-| 3.2 | **C4.2** — é preciso registrar número de guia ou de autorização? | Tela de pagamento. | Cliente |
+| 3.1 | **C4.5** — convênio é um cadastro de operadoras ou um texto digitado? Recomendo cadastro: sem ele não dá para saber quanto cada operadora deve. | Implementei como texto (item 1.38); a resposta define se vira cadastro. | Cliente |
+| 3.2 | **C4.2** — é preciso registrar número de guia ou de autorização? | Implementei como opcional; a resposta define se vira obrigatório. | Cliente |
 | 3.3 | **Q37** — qual e-mail e domínio de envio, e quem tem acesso ao DNS de `cligen.com.br`? Qual provedor de e-mail? | Nenhuma mensagem sai do sistema até isso existir. | Eu levanto o DNS. A escolha do provedor é nossa. |
 | 3.4 | **C7** — texto da mensagem de boas-vindas e dos dois avisos de laudo. Os modelos de WhatsApp precisam ser aprovados pela Meta, e isso demora. | Disponibilização do laudo. | Eu proponho o rascunho; o cliente aprova. |
 
@@ -193,7 +205,7 @@ Testei tudo por chamadas à API e abrindo as telas, mas não cliquei em cada bot
 
 ## Parte 5 — O que eu preciso de você
 
-1. **Urgente, trava o financeiro:** respostas de C4.5 e C4.2 (dúvidas 3.1 e 3.2).
+1. **Confirmar o financeiro:** C4.5 e C4.2 (dúvidas 3.1 e 3.2) e os itens 1.38 a 1.44.
 2. **Urgente, trava as mensagens reais:** os textos (3.4) e o provedor de e-mail (3.3). A matriz de transições (3.7) já está implementada; precisa só de confirmação.
 3. **Confirmar com o cliente:** os itens 1.5, 1.22 a 1.27 e o dilema 4.4.
 4. **Sua opinião:** dilemas 4.1, 4.5 e 4.7, e o item 1.34 (substituir laudo já liberado).

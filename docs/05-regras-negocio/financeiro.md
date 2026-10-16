@@ -44,6 +44,18 @@ A recusa de pagamento pelo convênio é tratada pelo status `glosado`, que retir
 >
 > **Pendente — C4.2:** é necessário registrar número de guia ou autorização do convênio?
 
+## Implementação (16/10/2026)
+
+- **Desconto** fica no exame, em reais, com motivo opcional; não pode exceder o preço. `valor a pagar = preço − desconto`.
+- **Lançamentos** (`Pagamento`) são agregado próprio, N por exame, com autoria. Particular (Pix, cartões, dinheiro, boleto, transferência) **nasce recebido** na data informada (hoje por padrão) — o paciente quita no ato (Q26). **Convênio nasce a receber** (C4) e só entra no caixa quando marcado como recebido, na data em que o dinheiro chegou.
+- **Convênio como texto livre** + campo opcional de guia/autorização, até C4.5/C4.2. O relatório agrupa pelo nome digitado — grafias diferentes viram convênios diferentes; promover a cadastro depois é migration simples.
+- **Glosa** (P11): só em lançamento de convênio a receber, com motivo; sai da previsão, lançamento permanece.
+- **Cartão parcelado** (Q27, C6): guarda número de parcelas e valor de cada uma (calculado se não informado), só como informação; o valor entra integral na data.
+- **Limite:** o total lançado (recebido + a receber) não pode passar do valor a pagar; aumentar o desconto também respeita isso. Não existe saldo em aberto do paciente (Q26): a tela mostra "Falta lançar" até o saldo zerar.
+- **Exclusão** de lançamento errado é lógica, com motivo (P4). Lançamentos de exame excluído somem do relatório e voltam ao restaurar.
+- **Relatório `/financeiro`** por regime de caixa (Q29): recebidos pela data de recebimento no período (padrão: mês corrente), totais por método; a receber de convênio sem corte de data, totais por convênio. Sem emissão fiscal nem exportação.
+- **Não implementado:** relatório por exame/paciente, exportação (CSV/Excel), caixa diário, baixa em lote de convênio.
+
 ## Reconhecimento de receita
 
 O faturamento é apurado por **regime de caixa** — considera a data em que o dinheiro entrou, não a data do exame (Q29). Somente lançamentos com status `recebido` compõem o faturamento.

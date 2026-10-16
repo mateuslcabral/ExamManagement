@@ -237,6 +237,11 @@ export interface Exame {
   /** Já resolvido: nome do médico interno ou o digitado para o externo. */
   nomeMedico: string;
   preco: number;
+  /** Em reais (C5). */
+  desconto: number;
+  motivoDesconto: string | null;
+  /** preco − desconto. */
+  valorAPagar: number;
   dataEntrada: string;
   estado: EstadoExame;
   /** Fixa desde o acolhimento (P14); nula enquanto aguarda amostra. */
@@ -250,6 +255,70 @@ export interface Exame {
   anexos: Anexo[];
   criadoEm: string;
   atualizadoEm: string | null;
+}
+
+export type MetodoPagamento = "Pix" | "CartaoCredito" | "CartaoDebito" | "Dinheiro" | "Boleto" | "Transferencia" | "Convenio";
+export type StatusPagamento = "AReceber" | "Recebido" | "Glosado";
+
+export interface Pagamento {
+  id: string;
+  exameId: string;
+  metodo: MetodoPagamento;
+  valor: number;
+  status: StatusPagamento;
+  dataRecebimento: string | null;
+  convenio: string | null;
+  numeroGuia: string | null;
+  parcelas: number | null;
+  valorParcela: number | null;
+  observacao: string | null;
+  motivoGlosa: string | null;
+  criadoEm: string;
+}
+
+export interface FinanceiroExame {
+  exameId: string;
+  preco: number;
+  desconto: number;
+  motivoDesconto: string | null;
+  valorAPagar: number;
+  recebido: number;
+  aReceber: number;
+  /** valorAPagar − recebido − aReceber. */
+  saldo: number;
+  pagamentos: Pagamento[];
+}
+
+export interface LinhaFinanceira {
+  pagamentoId: string;
+  exameId: string;
+  exameNome: string;
+  pacienteNome: string;
+  pacienteTipoDocumento: TipoDocumento;
+  pacienteNumeroDocumento: string;
+  metodo: MetodoPagamento;
+  convenio: string | null;
+  numeroGuia: string | null;
+  valor: number;
+  dataRecebimento: string | null;
+  dataEntradaExame: string;
+}
+
+export interface TotalPorChave {
+  chave: string;
+  total: number;
+  quantidade: number;
+}
+
+export interface RelatorioFinanceiro {
+  de: string;
+  ate: string;
+  totalRecebido: number;
+  recebidoPorMetodo: TotalPorChave[];
+  recebidos: LinhaFinanceira[];
+  totalAReceber: number;
+  aReceberPorConvenio: TotalPorChave[];
+  aReceber: LinhaFinanceira[];
 }
 
 export interface Identidade {
