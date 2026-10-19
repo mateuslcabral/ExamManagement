@@ -3,11 +3,12 @@ import type { SelectHTMLAttributes } from "react";
 export function Selecao({
   label,
   erro,
+  dica,
   id,
   className = "",
   children,
   ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; erro?: string }) {
+}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; erro?: string; dica?: string }) {
   const selectId = id ?? props.name;
   return (
     <div className={className}>
@@ -17,7 +18,7 @@ export function Selecao({
       <select
         id={selectId}
         aria-invalid={!!erro}
-        aria-describedby={erro ? `${selectId}-erro` : undefined}
+        aria-describedby={erro ? `${selectId}-erro` : dica ? `${selectId}-dica` : undefined}
         className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-texto outline-none transition focus:ring-2 focus:ring-primaria/40 ${
           erro ? "border-erro" : "border-borda focus:border-primaria"
         }`}
@@ -25,11 +26,15 @@ export function Selecao({
       >
         {children}
       </select>
-      {erro && (
+      {erro ? (
         <p id={`${selectId}-erro`} className="mt-1 text-xs text-erro">
           {erro}
         </p>
-      )}
+      ) : dica ? (
+        <p id={`${selectId}-dica`} className="mt-1 text-xs text-texto-suave">
+          {dica}
+        </p>
+      ) : null}
     </div>
   );
 }

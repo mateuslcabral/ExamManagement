@@ -18,8 +18,7 @@ export function AmostraExame({ exame, hoje }: { exame: Exame; hoje: string }) {
         <div>
           <h2 className="font-semibold text-texto">Amostra</h2>
           <p className="mt-1 text-xs text-texto-suave">
-            O prazo conta a partir do acolhimento no laboratório, em dias corridos: {exame.prazoExecucaoDias} de execução
-            mais a revisão Cligen.
+            O prazo conta a partir do acolhimento no laboratório: {exame.prazoDias} dias corridos, já incluindo a revisão.
           </p>
         </div>
         {exame.dataLiberacaoPrevista && (
@@ -41,7 +40,7 @@ export function AmostraExame({ exame, hoje }: { exame: Exame; hoje: string }) {
             <FormularioAcolhimento
               exameId={exame.id}
               dataEntrada={exame.dataEntrada}
-              prazoEntregaDias={exame.prazoEntregaDias}
+              prazoDias={exame.prazoDias}
               hoje={hoje}
             />
           </>
@@ -56,8 +55,8 @@ export function AmostraExame({ exame, hoje }: { exame: Exame; hoje: string }) {
               )}
             </p>
             <p className="text-xs text-texto-suave">
-              Previsão calculada com {vigente.prazoExecucaoDias} dias de execução + {vigente.diasRevisao} de revisão,
-              vigentes no acolhimento. Lançado em {formatarDataHora(vigente.registradoEm)}.
+              Previsão calculada com o prazo de {vigente.prazoDias} dias vigente no acolhimento. Lançado em{" "}
+              {formatarDataHora(vigente.registradoEm)}.
             </p>
             {exame.estado === "AmostraAcolhida" && <RejeicaoAmostra exameId={exame.id} />}
           </div>

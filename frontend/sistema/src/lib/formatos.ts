@@ -1,4 +1,4 @@
-import type { EstadoExame, MetodoPagamento, OrigemExame, StatusPagamento, TipoDocumento, TipoEtapaLaudo } from "./api";
+import type { CampoDataExame, EstadoExame, MetodoPagamento, StatusPagamento, TipoAnexo, TipoDocumento, TipoEtapaLaudo } from "./api";
 
 /** Formatação para exibição. Os dados trafegam normalizados pela API (CPF só dígitos, telefone +DDI). */
 
@@ -79,12 +79,19 @@ export const ROTULOS_ESTADO: Record<EstadoExame, string> = {
   Disponibilizado: "Disponibilizado",
 };
 
-export const ROTULOS_ORIGEM: Record<OrigemExame, string> = {
-  Cligen: "Cligen",
-  ClinicaParceira: "Clínica parceira",
-  SiteCligen: "Site Cligen",
-  Plataforma: "Plataforma",
+export const ROTULOS_TIPO_ANEXO: Record<TipoAnexo, string> = {
+  PedidoMedico: "Pedido médico",
+  TermoConsentimento: "Termo de consentimento",
+  Outro: "Outro",
 };
+
+export const ROTULOS_CAMPO_DATA: Record<CampoDataExame, string> = {
+  Acolhimento: "Data de acolhimento",
+  Prevista: "Data prevista de entrega",
+  Disponibilizado: "Data de disponibilização",
+};
+
+export const UFS = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
 
 export const ETAPAS_LAUDO: { tipo: TipoEtapaLaudo; numero: number; rotulo: string; estadoAnterior: EstadoExame }[] = [
   { tipo: "LaudoParceiroPronto", numero: 3, rotulo: "Laudo parceiro pronto", estadoAnterior: "AmostraAcolhida" },

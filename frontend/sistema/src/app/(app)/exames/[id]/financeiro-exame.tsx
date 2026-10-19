@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import type { FinanceiroExame, MetodoPagamento, Pagamento } from "@/lib/api";
+import type { Cadastro, FinanceiroExame, MetodoPagamento, Pagamento } from "@/lib/api";
 import { formatarData, formatarMoeda, ROTULOS_METODO, ROTULOS_STATUS_PAGAMENTO, valorParaCampo } from "@/lib/formatos";
 import {
   aplicarDesconto,
@@ -19,7 +19,7 @@ import { Selecao } from "@/components/ui/selecao";
 const METODOS = Object.keys(ROTULOS_METODO) as MetodoPagamento[];
 
 /** Financeiro do exame (docs/05-regras-negocio/financeiro.md): desconto, lançamentos e saldo. */
-export function FinanceiroExame({ financeiro, hoje }: { financeiro: FinanceiroExame; hoje: string }) {
+export function FinanceiroExame({ financeiro, convenios, hoje }: { financeiro: FinanceiroExame; convenios: Cadastro[]; hoje: string }) {
   const f = financeiro;
   return (
     <section className="rounded-2xl border border-borda bg-white p-5 shadow-sm">
@@ -27,7 +27,8 @@ export function FinanceiroExame({ financeiro, hoje }: { financeiro: FinanceiroEx
         <div>
           <h2 className="font-semibold text-texto">Financeiro</h2>
           <p className="mt-1 text-xs text-texto-suave">
-            Registro interno, sem emissão fiscal. Particular quita no ato; convênio entra no caixa quando o dinheiro chega.
+            Registro interno, sem emissão fiscal. Particular quita no ato; convênio entra no caixa quando o dinheiro chega. Pode combinar meios
+            (ex.: parte no Pix, parte no cartão): lance cada parte separadamente.
           </p>
         </div>
         <Etiqueta cor={f.saldo === 0 ? "verde" : f.saldo > 0 ? "amarelo" : "vermelho"}>
@@ -53,7 +54,7 @@ export function FinanceiroExame({ financeiro, hoje }: { financeiro: FinanceiroEx
         </ul>
       )}
 
-      <NovoLancamento exameId={f.exameId} hoje={hoje} saldo={f.saldo} />
+      <NovoLancamento exameId={f.exameId} hoje={hoje} saldo={f.saldo} convenios={convenios} />
     </section>
   );
 }
@@ -85,6 +86,7 @@ function Desconto({ financeiro }: { financeiro: FinanceiroExame }) {
         ) : (
           <p className="text-texto-suave">Sem desconto.</p>
         )}
+        {financeiro.precoLimite > 0 && <span className="text-xs text-texto-suave">Piso do catálogo: {formatarMoeda(financeiro.precoLimite)}.</span>}
         <Botao variante="fantasma" tamanho="sm" onClick={() => setAberto(true)}>
           {financeiro.desconto > 0 ? "Alterar desconto" : "Aplicar desconto"}
         </Botao>
@@ -103,6 +105,7 @@ function Desconto({ financeiro }: { financeiro: FinanceiroExame }) {
         placeholder="0,00"
         className="w-36"
         erro={estado.campos?.desconto}
+        dica={financeiro.precoLimite > 0 ? `A pagar não pode ficar abaixo de ${formatarMoeda(financeiro.precoLimite)}.` : undefined}
       />
       <Campo label="Motivo (opcional)" name="motivo" defaultValue={financeiro.motivoDesconto ?? ""} maxLength={300} className="min-w-60 flex-1" />
       <Botao type="submit" tamanho="sm" carregando={salvando}>
@@ -147,7 +150,7 @@ function Lancamento({ pagamento: p, exameId, hoje }: { pagamento: Pagamento; exa
         <div className="text-sm">
           <p className="font-medium text-texto">
             {formatarMoeda(p.valor)} · {ROTULOS_METODO[p.metodo]}
-            {p.convenio && ` — ${p.convenio}`}
+            {p.convenioNome && ` — ${p.convenioNome}`}
             {p.numeroGuia && ` (guia ${p.numeroGuia})`}
             {p.parcelas && p.valorParcela && ` · ${p.parcelas}× de ${formatarMoeda(p.valorParcela)}`}
           </p>
@@ -215,7 +218,7 @@ function Lancamento({ pagamento: p, exameId, hoje }: { pagamento: Pagamento; exa
   );
 }
 
-function NovoLancamento({ exameId, hoje, saldo }: { exameId: string; hoje: string; saldo: number }) {
+function NovoLancamento({ exameId, hoje, saldo, convenios }: { exameId: string; hoje: string; saldo: number; convenios: Cadastro[] }) {
   const [aberto, setAberto] = useState(false);
   const [metodo, setMetodo] = useState<MetodoPagamento>("Pix");
   const [estado, acao, salvando] = useActionState<EstadoFinanceiro, FormData>(
@@ -231,8 +234,8 @@ function NovoLancamento({ exameId, hoje, saldo }: { exameId: string; hoje: strin
   if (!aberto)
     return (
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <Botao variante="secundaria" onClick={() => setAberto(true)}>
-          Novo lançamento
+        <Botao variante={saldo > 0 ? "primaria" : "secundaria"} onClick={() => setAberto(true)}>
+          {saldo > 0 ? `Lançar pagamento (falta ${formatarMoeda(saldo)})` : "Novo lançamento"}
         </Botao>
         {estado.sucesso && <span className="text-xs text-sucesso">{estado.sucesso}</span>}
       </div>
@@ -259,7 +262,14 @@ function NovoLancamento({ exameId, hoje, saldo }: { exameId: string; hoje: strin
           erro={erro.valor}
         />
         {metodo === "Convenio" ? (
-          <Campo label="Convênio" name="convenio" required placeholder="Ex.: Unimed" maxLength={150} erro={erro.convenio} dica="Entra como a receber." />
+          <Selecao label="Convênio" name="convenioId" required defaultValue="" erro={erro.convenioId} dica="Entra como a receber.">
+            <option value="">Selecione…</option>
+            {convenios.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </Selecao>
         ) : (
           <Campo label="Data do recebimento" name="dataRecebimento" type="date" max={hoje} defaultValue={hoje} erro={erro.dataRecebimento} />
         )}

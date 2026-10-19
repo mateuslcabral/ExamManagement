@@ -7,19 +7,19 @@ import { Botao } from "@/components/ui/botao";
 
 /**
  * Registro do acolhimento. A data é digitável (hoje por padrão) porque a amostra pode chegar num dia e ser lançada
- * noutro (Q1.2, a confirmar). A previsão mostrada é a que a API vai gravar: prazo atual do catálogo + revisão.
+ * noutro (Q1.2, a confirmar). A previsão mostrada é a que a API vai gravar: data + prazo atual do catálogo.
  */
 export function FormularioAcolhimento({
   exameId,
   dataEntrada,
-  prazoEntregaDias,
+  prazoDias,
   hoje,
   compacto = false,
 }: {
   exameId: string;
   dataEntrada: string;
-  /** Prazo de execução + dias de revisão vigentes. Ausente quando não se conhece (a API calcula de qualquer forma). */
-  prazoEntregaDias?: number;
+  /** Prazo de entrega do catálogo, em dias corridos. Ausente quando não se conhece (a API calcula de qualquer forma). */
+  prazoDias?: number;
   hoje: string;
   compacto?: boolean;
 }) {
@@ -59,10 +59,10 @@ export function FormularioAcolhimento({
         </Botao>
       )}
 
-      {prazoEntregaDias !== undefined && dataValida && !estado.sucesso && (
+      {prazoDias !== undefined && dataValida && !estado.sucesso && (
         <p className={`text-xs text-texto-suave ${compacto ? "w-full text-right" : ""}`}>
-          Liberação prevista: <span className="font-semibold text-texto">{formatarData(somarDias(data, prazoEntregaDias))}</span>
-          {!compacto && ` (${prazoEntregaDias} dias corridos após o acolhimento). Depois de gravada, a data não muda.`}
+          Liberação prevista: <span className="font-semibold text-texto">{formatarData(somarDias(data, prazoDias))}</span>
+          {!compacto && ` (${prazoDias} dias corridos após o acolhimento). Depois de gravada, a data não muda.`}
         </p>
       )}
       {estado.erro && (

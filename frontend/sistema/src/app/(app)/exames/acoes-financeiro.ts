@@ -21,14 +21,14 @@ const esquemaLancamento = z
     metodo: z.enum(["Pix", "CartaoCredito", "CartaoDebito", "Dinheiro", "Boleto", "Transferencia", "Convenio"], "Selecione o método."),
     valor: valorMonetario("Informe o valor."),
     dataRecebimento: z.string().trim().default(""),
-    convenio: z.string().trim().default(""),
+    convenioId: z.string().trim().default(""),
     numeroGuia: z.string().trim().default(""),
     parcelas: z.string().trim().default(""),
     observacao: z.string().trim().max(300, "Use no máximo 300 caracteres.").default(""),
   })
   .superRefine((d, ctx) => {
-    if (d.metodo === "Convenio" && !d.convenio)
-      ctx.addIssue({ code: "custom", path: ["convenio"], message: "Informe o convênio." });
+    if (d.metodo === "Convenio" && !d.convenioId)
+      ctx.addIssue({ code: "custom", path: ["convenioId"], message: "Selecione o convênio." });
     if (d.dataRecebimento && !/^\d{4}-\d{2}-\d{2}$/.test(d.dataRecebimento))
       ctx.addIssue({ code: "custom", path: ["dataRecebimento"], message: "Data inválida." });
     if (d.parcelas && !/^\d{1,2}$/.test(d.parcelas))
@@ -50,7 +50,7 @@ export async function lancarPagamento(_anterior: EstadoFinanceiro, dados: FormDa
         metodo: d.metodo,
         valor: d.valor,
         dataRecebimento: d.metodo !== "Convenio" && d.dataRecebimento ? d.dataRecebimento : null,
-        convenio: d.metodo === "Convenio" ? d.convenio : null,
+        convenioId: d.metodo === "Convenio" ? d.convenioId : null,
         numeroGuia: d.metodo === "Convenio" ? d.numeroGuia || null : null,
         parcelas: d.metodo === "CartaoCredito" && d.parcelas ? Number(d.parcelas) : null,
         valorParcela: null,

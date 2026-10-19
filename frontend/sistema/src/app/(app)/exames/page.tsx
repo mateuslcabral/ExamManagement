@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { api, ApiError, type ExameResumo, type Pagina, type Paciente } from "@/lib/api";
-import { formatarData, formatarDataHora, formatarDocumento, ROTULOS_ORIGEM } from "@/lib/formatos";
+import { formatarData, formatarDataHora, formatarDocumento } from "@/lib/formatos";
 import { BotaoRestaurar } from "./botao-restaurar";
 import { EtiquetaEstado } from "./etiqueta-estado";
 
@@ -97,7 +97,7 @@ export default async function PaginaExames({
             type="search"
             name="busca"
             defaultValue={busca}
-            placeholder="Buscar por paciente, documento ou exame"
+            placeholder="Buscar por paciente, documento, exame ou código (EX-000123)"
             aria-label="Buscar exames"
             className="min-w-60 flex-1 rounded-lg border border-borda bg-white px-3 py-2.5 text-sm outline-none transition focus:border-primaria focus:ring-2 focus:ring-primaria/40"
           />
@@ -146,7 +146,10 @@ export default async function PaginaExames({
                         {e.exameNome}
                       </Link>
                     )}
-                    <p className="text-xs text-texto-suave">{ROTULOS_ORIGEM[e.origem]}</p>
+                    <p className="text-xs text-texto-suave">
+                      {e.codigo} · {e.origemNome}
+                      {e.destinoNome && ` → ${e.destinoNome}`}
+                    </p>
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-texto">{e.pacienteNome}</p>

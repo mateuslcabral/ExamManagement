@@ -1,18 +1,31 @@
 import Link from "next/link";
-import { api, type LinhaFinanceira, type RelatorioFinanceiro } from "@/lib/api";
+import { api, type Cadastro, type LinhaFinanceira, type RelatorioFinanceiro } from "@/lib/api";
 import { formatarData, formatarDocumento, formatarMoeda, hojeEmBrasilia, ROTULOS_METODO } from "@/lib/formatos";
 
 export const metadata = { title: "Financeiro — Cligen" };
 
-/** Relatório por regime de caixa (Q29): só o que foi efetivamente recebido, pela data de recebimento. */
-export default async function PaginaFinanceiro({ searchParams }: { searchParams: Promise<{ de?: string; ate?: string }> }) {
-  const { de, ate } = await searchParams;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Relatório por regime de caixa (Q29): só o que foi efetivamente recebido, pela data de recebimento. Filtros por convênio e origem (pedido do cliente, 17/10/2026). */
+export default async function PaginaFinanceiro({
+  searchParams,
+}: {
+  searchParams: Promise<{ de?: string; ate?: string; convenioId?: string; origemId?: string }>;
+}) {
+  const { de, ate, convenioId, origemId } = await searchParams;
   const hoje = hojeEmBrasilia();
   const q = new URLSearchParams();
   if (de && /^\d{4}-\d{2}-\d{2}$/.test(de)) q.set("de", de);
   if (ate && /^\d{4}-\d{2}-\d{2}$/.test(ate)) q.set("ate", ate);
+  if (convenioId && UUID.test(convenioId)) q.set("convenioId", convenioId);
+  if (origemId && UUID.test(origemId)) q.set("origemId", origemId);
 
-  const r = await api<RelatorioFinanceiro>(`/api/financeiro/relatorio?${q}`);
+  const [r, convenios, origens] = await Promise.all([
+    api<RelatorioFinanceiro>(`/api/financeiro/relatorio?${q}`),
+    api<Cadastro[]>("/api/cadastros/convenios"),
+    api<Cadastro[]>("/api/cadastros/origens"),
+  ]);
+  const filtrado = !!(r.convenioId || r.origemId);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -35,11 +48,45 @@ export default async function PaginaFinanceiro({ searchParams }: { searchParams:
           </label>
           <input id="ate" type="date" name="ate" defaultValue={r.ate} max={hoje} className="rounded-lg border border-borda px-3 py-2 text-sm" />
         </div>
+        <div>
+          <label htmlFor="origemId" className="mb-1 block text-sm font-medium text-texto">
+            Origem
+          </label>
+          <select id="origemId" name="origemId" defaultValue={r.origemId ?? ""} className="min-w-44 rounded-lg border border-borda bg-white px-3 py-2 text-sm">
+            <option value="">Todas</option>
+            {origens.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.nome}
+                {!o.ativo && " (inativa)"}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="convenioId" className="mb-1 block text-sm font-medium text-texto">
+            Convênio
+          </label>
+          <select id="convenioId" name="convenioId" defaultValue={r.convenioId ?? ""} className="min-w-44 rounded-lg border border-borda bg-white px-3 py-2 text-sm">
+            <option value="">Todos</option>
+            {convenios.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+                {!c.ativo && " (inativo)"}
+              </option>
+            ))}
+          </select>
+        </div>
         <button type="submit" className="rounded-pill border border-primaria px-5 py-2.5 text-sm font-semibold text-primaria transition hover:bg-fundo-alt">
-          Aplicar período
+          Aplicar
         </button>
+        {filtrado && (
+          <Link href={`/financeiro?de=${r.de}&ate=${r.ate}`} className="text-sm text-teal hover:underline">
+            Limpar filtros
+          </Link>
+        )}
         <span className="ml-auto text-xs text-texto-suave">
           Período: {formatarData(r.de)} a {formatarData(r.ate)}
+          {r.convenioId && " · só lançamentos de convênio (filtro)"}
         </span>
       </form>
 
@@ -54,6 +101,7 @@ export default async function PaginaFinanceiro({ searchParams }: { searchParams:
 
         <aside className="space-y-6">
           <Totais titulo="Por método" itens={r.recebidoPorMetodo.map((t) => ({ ...t, chave: ROTULOS_METODO[t.chave as keyof typeof ROTULOS_METODO] ?? t.chave }))} />
+          <Totais titulo="Por origem" itens={r.recebidoPorOrigem} />
         </aside>
       </div>
 
@@ -102,10 +150,13 @@ function Tabela({ linhas, vazio, mostrarData }: { linhas: LinhaFinanceira[]; vaz
                 <Link href={`/exames/${l.exameId}`} className="text-teal hover:underline">
                   {l.exameNome}
                 </Link>
+                <p className="text-xs text-texto-suave">
+                  {l.exameCodigo} · {l.origemNome}
+                </p>
               </td>
               <td className="px-4 py-2">
-                {mostrarData ? ROTULOS_METODO[l.metodo] : l.convenio}
-                {l.convenio && mostrarData && ` — ${l.convenio}`}
+                {mostrarData ? ROTULOS_METODO[l.metodo] : l.convenioNome}
+                {l.convenioNome && mostrarData && ` — ${l.convenioNome}`}
                 {l.numeroGuia && <span className="text-xs text-texto-suave"> (guia {l.numeroGuia})</span>}
               </td>
               <td className="px-4 py-2 text-right tabular-nums">{formatarMoeda(l.valor)}</td>

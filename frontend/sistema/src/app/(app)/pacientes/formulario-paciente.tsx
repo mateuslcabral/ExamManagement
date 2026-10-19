@@ -24,6 +24,7 @@ export function FormularioPaciente({ paciente, hoje }: { paciente?: Paciente; ho
     numeroDocumento: paciente?.numeroDocumento ?? "",
     email: paciente?.email ?? "",
     telefone: paciente?.telefone ?? "",
+    cidade: paciente?.cidade ?? "",
     responsavelOpcional: !!r,
     responsavelNome: r?.nome ?? "",
     responsavelTipoDocumento: r?.tipoDocumento ?? ("Cpf" as TipoDocumento),
@@ -99,6 +100,7 @@ export function FormularioPaciente({ paciente, hoje }: { paciente?: Paciente; ho
             erro={erro.telefone}
             {...campo("telefone")}
           />
+          <Campo label="Cidade (opcional)" autoComplete="off" maxLength={100} placeholder="Ex.: Belo Horizonte" erro={erro.cidade} {...campo("cidade")} />
         </div>
       </section>
 

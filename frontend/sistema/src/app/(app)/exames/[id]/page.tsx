@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { api, ApiError, type Exame, type ExameCatalogo, type FinanceiroExame as DadosFinanceiros } from "@/lib/api";
+import { api, ApiError, type Cadastro, type Exame, type ExameCatalogo, type FinanceiroExame as DadosFinanceiros } from "@/lib/api";
 import { formatarData, formatarDocumento, formatarMoeda, hojeEmBrasilia } from "@/lib/formatos";
 import { EtiquetaEstado } from "../etiqueta-estado";
 import { FormularioExame } from "../formulario-exame";
 import { AmostraExame } from "./amostra-exame";
 import { AnexosExame } from "./anexos-exame";
+import { ComentariosExame } from "./comentarios-exame";
 import { PainelLaudo } from "./painel-laudo";
 import { ExclusaoExame } from "./exclusao-exame";
 import { FinanceiroExame } from "./financeiro-exame";
@@ -13,7 +14,7 @@ import { FinanceiroExame } from "./financeiro-exame";
 export const metadata = { title: "Exame — Cligen" };
 
 const mensagensSalvo: Record<string, string> = {
-  criado: "Exame cadastrado. Registre o acolhimento quando a amostra chegar e anexe os arquivos da solicitação, se houver.",
+  criado: "Exame cadastrado. Anexe o pedido médico e o termo de consentimento e registre o acolhimento quando a amostra chegar.",
   editado: "Alterações salvas.",
   restaurado: "Exame restaurado. Ele volta às listas e ao fluxo normal.",
 };
@@ -35,14 +36,20 @@ export default async function PaginaExame({
     throw e;
   }
 
-  const [ativos, financeiro] = await Promise.all([
+  // Cadastros completos (inclusive inativos): o formulário mostra o valor atual mesmo se ele foi desativado depois.
+  const [ativos, financeiro, origens, destinos, convenios] = await Promise.all([
     api<ExameCatalogo[]>("/api/catalogo-exames?apenasAtivos=true"),
     api<DadosFinanceiros>(`/api/exames/${exame.id}/financeiro`),
+    api<Cadastro[]>("/api/cadastros/origens"),
+    api<Cadastro[]>("/api/cadastros/destinos"),
+    api<Cadastro[]>("/api/cadastros/convenios"),
   ]);
   // Se o exame do catálogo foi desativado depois, ele continua aparecendo como opção para este exame.
   const catalogo = ativos.some((c) => c.id === exame.exameCatalogoId)
     ? ativos
     : [await api<ExameCatalogo>(`/api/catalogo-exames/${exame.exameCatalogoId}`), ...ativos];
+
+  const crm = exame.crmMedico ? ` (CRM ${exame.crmMedico}${exame.ufCrm ? `-${exame.ufCrm}` : ""})` : "";
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -51,14 +58,22 @@ export default async function PaginaExame({
       </Link>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold text-primaria">{exame.exameNome}</h1>
+        <span className="rounded-pill bg-fundo px-2.5 py-1 font-mono text-xs font-semibold text-texto-suave" title="Código interno do exame">
+          {exame.codigo}
+        </span>
         <EtiquetaEstado estado={exame.estado} />
       </div>
       <p className="mt-1 text-sm text-texto-suave">
         <Link href={`/exames?pacienteId=${exame.pacienteId}`} className="text-teal hover:underline">
           {exame.pacienteNome}
         </Link>{" "}
-        · {formatarDocumento(exame.pacienteTipoDocumento, exame.pacienteNumeroDocumento)} · entrada em{" "}
-        {formatarData(exame.dataEntrada)} · {formatarMoeda(exame.preco)} · {exame.nomeMedico}
+        · {formatarDocumento(exame.pacienteTipoDocumento, exame.pacienteNumeroDocumento)} · entrada em {formatarData(exame.dataEntrada)} ·{" "}
+        {formatarMoeda(exame.preco)} · {exame.nomeMedico}
+        {crm}
+      </p>
+      <p className="text-xs text-texto-suave">
+        Origem: {exame.origemNome}
+        {exame.destinoNome && ` · Destino: ${exame.destinoNome}`}
       </p>
 
       {salvo && mensagensSalvo[salvo] && (
@@ -71,8 +86,9 @@ export default async function PaginaExame({
         <AmostraExame exame={exame} hoje={hojeEmBrasilia()} />
         <PainelLaudo exame={exame} />
         <AnexosExame exameId={exame.id} anexos={exame.anexos} />
-        <FormularioExame exame={exame} catalogo={catalogo} />
-        <FinanceiroExame financeiro={financeiro} hoje={hojeEmBrasilia()} />
+        <ComentariosExame exameId={exame.id} comentarios={exame.comentarios} />
+        <FormularioExame exame={exame} catalogo={catalogo} origens={origens} destinos={destinos} />
+        <FinanceiroExame financeiro={financeiro} convenios={convenios.filter((c) => c.ativo)} hoje={hojeEmBrasilia()} />
         <ExclusaoExame exameId={exame.id} />
       </div>
     </div>

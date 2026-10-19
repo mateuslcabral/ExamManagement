@@ -4,25 +4,35 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { api, ApiError, type Exame, type Pagina, type Paciente } from "@/lib/api";
-import { lerValorMonetario } from "@/lib/formatos";
+import { lerValorMonetario, UFS } from "@/lib/formatos";
 
-export type CampoExame = "pacienteId" | "exameCatalogoId" | "origem" | "nomeMedicoExterno" | "preco" | "destino";
+export type CampoExame = "pacienteId" | "exameCatalogoId" | "origemId" | "destinoId" | "nomeMedicoExterno" | "crmMedico" | "ufCrm" | "preco";
 export type EstadoSalvarExame = { erro?: string; campos?: Partial<Record<CampoExame, string>> };
 
 const esquema = z
   .object({
     pacienteId: z.uuid("Selecione o paciente."),
     exameCatalogoId: z.uuid("Selecione o exame."),
-    origem: z.enum(["Cligen", "ClinicaParceira", "SiteCligen", "Plataforma"], "Selecione a origem."),
-    destino: z.string().trim().max(200, "Use no máximo 200 caracteres.").default(""),
+    origemId: z.uuid("Selecione a origem."),
+    destinoId: z.string().trim().default(""),
     tipoMedico: z.enum(["Interno", "Externo"]),
     nomeMedicoExterno: z.string().trim().default(""),
+    crmMedico: z.string().trim().max(20, "Use no máximo 20 caracteres.").default(""),
+    ufCrm: z.string().trim().toUpperCase().default(""),
     preco: z.string().trim().min(1, "Informe o preço.").transform(lerValorMonetario).pipe(z.number({ error: "Informe um valor como 1.250,90." })),
   })
   .superRefine((d, ctx) => {
     if (d.tipoMedico === "Externo" && !d.nomeMedicoExterno)
       ctx.addIssue({ code: "custom", path: ["nomeMedicoExterno"], message: "Informe o nome do médico." });
+    if (d.ufCrm && !UFS.includes(d.ufCrm)) ctx.addIssue({ code: "custom", path: ["ufCrm"], message: "UF inválida." });
   });
+
+function revalidarExames(exameId?: string) {
+  revalidatePath("/exames");
+  revalidatePath("/fluxos");
+  revalidatePath("/financeiro");
+  if (exameId) revalidatePath(`/exames/${exameId}`);
+}
 
 export async function salvarExame(_anterior: EstadoSalvarExame, dados: FormData): Promise<EstadoSalvarExame> {
   const id = String(dados.get("id") ?? "");
@@ -34,13 +44,16 @@ export async function salvarExame(_anterior: EstadoSalvarExame, dados: FormData)
   }
 
   const d = parse.data;
+  const externo = d.tipoMedico === "Externo";
   const corpo = {
     pacienteId: d.pacienteId,
     exameCatalogoId: d.exameCatalogoId,
-    origem: d.origem,
-    destino: d.destino || null,
+    origemId: d.origemId,
+    destinoId: d.destinoId || null,
     tipoMedico: d.tipoMedico,
-    nomeMedicoExterno: d.tipoMedico === "Externo" ? d.nomeMedicoExterno : null,
+    nomeMedicoExterno: externo ? d.nomeMedicoExterno : null,
+    crmMedico: externo ? d.crmMedico || null : null,
+    ufCrm: externo ? d.ufCrm || null : null,
     preco: d.preco,
   };
 
@@ -54,7 +67,7 @@ export async function salvarExame(_anterior: EstadoSalvarExame, dados: FormData)
     throw e;
   }
 
-  revalidatePath("/exames");
+  revalidarExames(salvo.id);
   // Após cadastrar, vai para o detalhe: o próximo passo natural é anexar os arquivos.
   redirect(`/exames/${salvo.id}?salvo=${id ? "editado" : "criado"}`);
 }
@@ -84,17 +97,27 @@ export async function excluirExame(_anterior: EstadoExcluirExame, dados: FormDat
     throw e;
   }
 
-  revalidatePath("/exames");
+  revalidarExames();
   redirect("/exames?excluido=1");
 }
 
-export type EstadoAmostra = { erro?: string; sucesso?: string };
+export type EstadoComentario = { erro?: string; sucesso?: string };
 
-function revalidarAmostra(exameId: string) {
-  revalidatePath(`/exames/${exameId}`);
-  revalidatePath("/exames");
-  revalidatePath("/amostras");
+export async function adicionarComentario(_anterior: EstadoComentario, dados: FormData): Promise<EstadoComentario> {
+  const exameId = String(dados.get("exameId") ?? "");
+  const texto = String(dados.get("texto") ?? "").trim();
+  if (!texto) return { erro: "Escreva o comentário." };
+  try {
+    await api(`/api/exames/${exameId}/comentarios`, { method: "POST", body: { texto } });
+    revalidatePath(`/exames/${exameId}`);
+    return { sucesso: "Comentário registrado." };
+  } catch (e) {
+    if (e instanceof ApiError) return { erro: e.message };
+    throw e;
+  }
 }
+
+export type EstadoAmostra = { erro?: string; sucesso?: string };
 
 export async function acolherAmostra(_anterior: EstadoAmostra, dados: FormData): Promise<EstadoAmostra> {
   const exameId = String(dados.get("exameId") ?? "");
@@ -106,7 +129,7 @@ export async function acolherAmostra(_anterior: EstadoAmostra, dados: FormData):
       method: "POST",
       body: { dataAcolhimento: parse.data },
     });
-    revalidarAmostra(exameId);
+    revalidarExames(exameId);
     const [ano, mes, dia] = (exame.dataLiberacaoPrevista ?? "").split("-");
     return { sucesso: `Amostra acolhida. Liberação prevista para ${dia}/${mes}/${ano}.` };
   } catch (e) {
@@ -122,7 +145,7 @@ export async function rejeitarAmostra(_anterior: EstadoAmostra, dados: FormData)
 
   try {
     await api(`/api/exames/${exameId}/amostra/rejeitar`, { method: "POST", body: { motivo } });
-    revalidarAmostra(exameId);
+    revalidarExames(exameId);
     return { sucesso: "Amostra rejeitada. O exame voltou a aguardar amostra." };
   } catch (e) {
     if (e instanceof ApiError) return { erro: e.message };
@@ -134,8 +157,7 @@ export async function rejeitarAmostra(_anterior: EstadoAmostra, dados: FormData)
 export async function disponibilizarLaudo(exameId: string) {
   try {
     await api(`/api/exames/${exameId}/laudo/disponibilizar`, { method: "POST" });
-    revalidarAmostra(exameId);
-    revalidatePath("/laudos");
+    revalidarExames(exameId);
     return { ok: true as const };
   } catch (e) {
     if (e instanceof ApiError) return { ok: false as const, erro: e.message };
@@ -150,7 +172,7 @@ export async function restaurarExame(exameId: string) {
     if (e instanceof ApiError) return { ok: false as const, erro: e.message };
     throw e;
   }
-  revalidatePath("/exames");
+  revalidarExames();
   redirect(`/exames/${exameId}?salvo=restaurado`);
 }
 

@@ -107,20 +107,47 @@ export interface Usuario {
   atualizadoEm: string | null;
 }
 
-export interface ExameCatalogo {
+export interface Identidade {
   id: string;
   nome: string;
-  prazoExecucaoDias: number;
-  /** Prazo de execução + dias de revisão vigentes. */
-  prazoEntregaDias: number;
-  precoReferencia: number;
+  email: string;
+  tipoLogin: TipoLogin;
+}
+
+export interface Pagina<T> {
+  itens: T[];
+  total: number;
+  pagina: number;
+  tamanhoPagina: number;
+}
+
+/** Origem, destino ou convênio — mesma forma para os três. */
+export interface Cadastro {
+  id: string;
+  nome: string;
   ativo: boolean;
   criadoEm: string;
   atualizadoEm: string | null;
 }
 
-export interface DiasRevisao {
-  dias: number;
+export type TipoCadastro = "origens" | "destinos" | "convenios";
+
+export interface ExameCatalogo {
+  id: string;
+  nome: string;
+  /** Prazo de entrega em dias corridos a partir do acolhimento; já inclui a revisão. */
+  prazoDias: number;
+  precoReferencia: number;
+  /** Piso: o valor a pagar de um exame não fica abaixo dele. */
+  precoLimite: number;
+  numeroGenes: number | null;
+  genes: string | null;
+  destinoId: string | null;
+  destinoNome: string | null;
+  informacoesTecnicas: string | null;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string | null;
 }
 
 export type TipoDocumento = "Cpf" | "Passaporte";
@@ -144,16 +171,10 @@ export interface Paciente {
   email: string;
   /** Formato internacional, ex. +5531999998888. */
   telefone: string;
+  cidade: string | null;
   responsavelLegal: ResponsavelLegal | null;
   criadoEm: string;
   atualizadoEm: string | null;
-}
-
-export interface Pagina<T> {
-  itens: T[];
-  total: number;
-  pagina: number;
-  tamanhoPagina: number;
 }
 
 export type EstadoExame =
@@ -164,12 +185,13 @@ export type EstadoExame =
   | "LaudoRevisado"
   | "Disponibilizado";
 
-export type OrigemExame = "Cligen" | "ClinicaParceira" | "SiteCligen" | "Plataforma";
-
 export type TipoMedico = "Interno" | "Externo";
+export type TipoAnexo = "PedidoMedico" | "TermoConsentimento" | "Outro";
+export type CampoDataExame = "Acolhimento" | "Prevista" | "Disponibilizado";
 
 export interface Anexo {
   id: string;
+  tipo: TipoAnexo;
   nomeOriginal: string;
   tipoConteudo: string;
   tamanhoBytes: number;
@@ -177,20 +199,35 @@ export interface Anexo {
   enviadoEm: string;
 }
 
+export interface Comentario {
+  id: string;
+  texto: string;
+  autorId: string;
+  autorNome: string;
+  criadoEm: string;
+}
+
 export interface ExameResumo {
   id: string;
+  /** EX-000123 */
+  codigo: string;
   pacienteId: string;
   pacienteNome: string;
   pacienteTipoDocumento: TipoDocumento;
   pacienteNumeroDocumento: string;
   exameCatalogoId: string;
   exameNome: string;
-  origem: OrigemExame;
+  origemId: string;
+  origemNome: string;
+  destinoId: string | null;
+  destinoNome: string | null;
   dataEntrada: string;
   estado: EstadoExame;
+  dataAcolhimento: string | null;
   /** yyyy-MM-dd. Nula até o acolhimento da amostra. */
   dataLiberacaoPrevista: string | null;
-  /** Preenchidos só na listagem de excluídos (`?excluidos=true`). */
+  dataLiberacaoEfetiva: string | null;
+  /** Preenchidos só na listagem de excluídos (?excluidos=true). */
   excluidoEm: string | null;
   motivoExclusao: string | null;
 }
@@ -212,8 +249,7 @@ export interface EtapaLaudo {
 export interface Amostra {
   id: string;
   dataAcolhimento: string;
-  prazoExecucaoDias: number;
-  diasRevisao: number;
+  prazoDias: number;
   dataLiberacaoPrevista: string;
   recoleta: boolean;
   registradoEm: string;
@@ -223,19 +259,24 @@ export interface Amostra {
 
 export interface Exame {
   id: string;
+  codigo: string;
   pacienteId: string;
   pacienteNome: string;
   pacienteTipoDocumento: TipoDocumento;
   pacienteNumeroDocumento: string;
   exameCatalogoId: string;
   exameNome: string;
-  prazoExecucaoDias: number;
-  prazoEntregaDias: number;
-  origem: OrigemExame;
-  destino: string | null;
+  prazoDias: number;
+  precoLimite: number;
+  origemId: string;
+  origemNome: string;
+  destinoId: string | null;
+  destinoNome: string | null;
   tipoMedico: TipoMedico;
   /** Já resolvido: nome do médico interno ou o digitado para o externo. */
   nomeMedico: string;
+  crmMedico: string | null;
+  ufCrm: string | null;
   preco: number;
   /** Em reais (C5). */
   desconto: number;
@@ -244,6 +285,7 @@ export interface Exame {
   valorAPagar: number;
   dataEntrada: string;
   estado: EstadoExame;
+  dataAcolhimento: string | null;
   /** Fixa desde o acolhimento (P14); nula enquanto aguarda amostra. */
   dataLiberacaoPrevista: string | null;
   /** Gravada ao disponibilizar ao paciente. */
@@ -253,6 +295,8 @@ export interface Exame {
   /** Na ordem do fluxo (3, 4, 5); só as já registradas. */
   etapas: EtapaLaudo[];
   anexos: Anexo[];
+  /** Mais recentes primeiro. */
+  comentarios: Comentario[];
   criadoEm: string;
   atualizadoEm: string | null;
 }
@@ -267,7 +311,8 @@ export interface Pagamento {
   valor: number;
   status: StatusPagamento;
   dataRecebimento: string | null;
-  convenio: string | null;
+  convenioId: string | null;
+  convenioNome: string | null;
   numeroGuia: string | null;
   parcelas: number | null;
   valorParcela: number | null;
@@ -281,6 +326,7 @@ export interface FinanceiroExame {
   preco: number;
   desconto: number;
   motivoDesconto: string | null;
+  precoLimite: number;
   valorAPagar: number;
   recebido: number;
   aReceber: number;
@@ -292,12 +338,16 @@ export interface FinanceiroExame {
 export interface LinhaFinanceira {
   pagamentoId: string;
   exameId: string;
+  exameCodigo: string;
   exameNome: string;
   pacienteNome: string;
   pacienteTipoDocumento: TipoDocumento;
   pacienteNumeroDocumento: string;
+  origemId: string;
+  origemNome: string;
   metodo: MetodoPagamento;
-  convenio: string | null;
+  convenioId: string | null;
+  convenioNome: string | null;
   numeroGuia: string | null;
   valor: number;
   dataRecebimento: string | null;
@@ -313,17 +363,13 @@ export interface TotalPorChave {
 export interface RelatorioFinanceiro {
   de: string;
   ate: string;
+  convenioId: string | null;
+  origemId: string | null;
   totalRecebido: number;
   recebidoPorMetodo: TotalPorChave[];
+  recebidoPorOrigem: TotalPorChave[];
   recebidos: LinhaFinanceira[];
   totalAReceber: number;
   aReceberPorConvenio: TotalPorChave[];
   aReceber: LinhaFinanceira[];
-}
-
-export interface Identidade {
-  id: string;
-  nome: string;
-  email: string;
-  tipoLogin: TipoLogin;
 }

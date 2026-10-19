@@ -109,7 +109,10 @@ export default async function PaginaPacientes({
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-texto-suave">Nascimento: {formatarData(p.dataNascimento)}</p>
+                    <p className="text-xs text-texto-suave">
+                      Nascimento: {formatarData(p.dataNascimento)}
+                      {p.cidade && ` · ${p.cidade}`}
+                    </p>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <p>{formatarDocumento(p.tipoDocumento, p.numeroDocumento)}</p>

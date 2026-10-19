@@ -6,6 +6,7 @@ import type { Exame, TipoEtapaLaudo } from "@/lib/api";
 import { ETAPAS_LAUDO, formatarDataHora, formatarTamanho } from "@/lib/formatos";
 import { disponibilizarLaudo } from "../actions";
 import { Botao } from "@/components/ui/botao";
+import { Dialogo } from "@/components/ui/dialogo";
 import { Etiqueta } from "@/components/ui/etiqueta";
 
 const LIMITE_BYTES = 50 * 1024 * 1024; // P1
@@ -17,14 +18,15 @@ export function PainelLaudo({ exame }: { exame: Exame }) {
   const router = useRouter();
   const [mensagem, setMensagem] = useState<Mensagem | null>(null);
   const [disponibilizando, iniciar] = useTransition();
+  const [confirmando, setConfirmando] = useState(false);
   const disponibilizado = exame.estado === "Disponibilizado";
   const semAmostra = exame.estado === "AguardandoAmostra";
 
   function disponibilizar() {
-    if (!confirm("Disponibilizar o laudo revisado ao paciente? A data de liberação é gravada e as mensagens são disparadas.")) return;
     setMensagem(null);
     iniciar(async () => {
       const r = await disponibilizarLaudo(exame.id);
+      setConfirmando(false);
       setMensagem(r.ok ? { tipo: "ok", texto: "Laudo disponibilizado ao paciente." } : { tipo: "erro", texto: r.erro ?? "Falha." });
     });
   }
@@ -127,7 +129,7 @@ export function PainelLaudo({ exame }: { exame: Exame }) {
           </p>
         </div>
         {exame.estado === "LaudoRevisado" && (
-          <Botao carregando={disponibilizando} onClick={disponibilizar}>
+          <Botao carregando={disponibilizando} onClick={() => setConfirmando(true)}>
             Disponibilizar ao paciente
           </Botao>
         )}
@@ -141,6 +143,17 @@ export function PainelLaudo({ exame }: { exame: Exame }) {
           {mensagem.texto}
         </p>
       )}
+
+      <Dialogo
+        aberto={confirmando}
+        titulo="Disponibilizar o laudo ao paciente?"
+        confirmar="Disponibilizar"
+        carregando={disponibilizando}
+        onCancelar={() => setConfirmando(false)}
+        onConfirmar={disponibilizar}
+      >
+        A data de liberação é gravada e o e-mail e o WhatsApp são disparados ao paciente. Não dá para desfazer.
+      </Dialogo>
     </section>
   );
 }
@@ -161,16 +174,20 @@ function EnvioEtapa({
 }) {
   const entrada = useRef<HTMLInputElement>(null);
   const [enviando, setEnviando] = useState(false);
+  const [aguardandoConfirmacao, setAguardandoConfirmacao] = useState<File | null>(null);
 
-  async function enviar(arquivo: File) {
+  function escolher(arquivo: File) {
     if (arquivo.type !== "application/pdf") return onResultado({ tipo: "erro", texto: "O laudo deve ser um arquivo PDF." });
     if (arquivo.size > LIMITE_BYTES) return onResultado({ tipo: "erro", texto: "O arquivo excede o limite de 50 MB." });
-    if (
-      avisoSubstituicao &&
-      !confirm("O laudo já foi disponibilizado. A substituição troca o arquivo que o paciente vê, sem aviso e sem histórico. Continuar?")
-    )
+    if (avisoSubstituicao) {
+      setAguardandoConfirmacao(arquivo);
       return;
+    }
+    void enviar(arquivo);
+  }
 
+  async function enviar(arquivo: File) {
+    setAguardandoConfirmacao(null);
     setEnviando(true);
     try {
       const corpo = new FormData();
@@ -197,8 +214,21 @@ function EnvioEtapa({
         type="file"
         accept=".pdf,application/pdf"
         className="hidden"
-        onChange={(e) => e.target.files?.[0] && enviar(e.target.files[0])}
+        onChange={(e) => e.target.files?.[0] && escolher(e.target.files[0])}
       />
+      <Dialogo
+        aberto={aguardandoConfirmacao !== null}
+        titulo="Substituir o laudo já disponibilizado?"
+        confirmar="Substituir"
+        perigo
+        onCancelar={() => {
+          setAguardandoConfirmacao(null);
+          if (entrada.current) entrada.current.value = "";
+        }}
+        onConfirmar={() => aguardandoConfirmacao && enviar(aguardandoConfirmacao)}
+      >
+        A substituição troca o arquivo que o paciente vê, sem aviso e sem histórico.
+      </Dialogo>
       <Botao
         variante={substituir ? "fantasma" : "primaria"}
         tamanho="sm"

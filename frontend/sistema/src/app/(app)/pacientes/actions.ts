@@ -11,6 +11,7 @@ export type CampoPaciente =
   | "numeroDocumento"
   | "email"
   | "telefone"
+  | "cidade"
   | "responsavelNome"
   | "responsavelNumeroDocumento";
 
@@ -28,6 +29,7 @@ const esquema = z
     numeroDocumento: obrigatorio("Informe o número do documento."),
     email: z.string().trim().email("Informe um e-mail válido."),
     telefone: obrigatorio("Informe o telefone com DDD."),
+    cidade: z.string().trim().max(100, "Use no máximo 100 caracteres.").default(""),
     temResponsavel: z.enum(["sim", "nao"]),
     // Ausentes quando a seção do responsável está oculta.
     responsavelNome: z.string().trim().default(""),
@@ -60,6 +62,7 @@ export async function salvarPaciente(_anterior: EstadoSalvarPaciente, dados: For
     numeroDocumento: d.numeroDocumento,
     email: d.email,
     telefone: d.telefone,
+    cidade: d.cidade || null,
     responsavelLegal:
       d.temResponsavel === "sim"
         ? {
