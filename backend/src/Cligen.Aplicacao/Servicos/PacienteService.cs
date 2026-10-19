@@ -43,7 +43,7 @@ public sealed class PacienteService(
         var hoje = Relogio.Hoje();
         var paciente = Paciente.Criar(
             req.Nome, req.DataNascimento, documento, req.Email, req.Telefone,
-            CriarResponsavel(req.ResponsavelLegal), usuarioAtual.Id, hoje);
+            CriarResponsavel(req.ResponsavelLegal), req.Cidade, usuarioAtual.Id, hoje);
         await repositorio.AdicionarAsync(paciente, ct);
 
         // Envio síncrono enquanto não há fila com retry (jobs em background seguem pendentes).
@@ -65,7 +65,7 @@ public sealed class PacienteService(
         var hoje = Relogio.Hoje();
         paciente.Atualizar(
             req.Nome, req.DataNascimento, documento, req.Email, req.Telefone,
-            CriarResponsavel(req.ResponsavelLegal), usuarioAtual.Id, hoje);
+            CriarResponsavel(req.ResponsavelLegal), req.Cidade, usuarioAtual.Id, hoje);
         await repositorio.AtualizarAsync(paciente, ct);
 
         return Mapear(paciente, hoje);
@@ -83,7 +83,7 @@ public sealed class PacienteService(
             : ResponsavelLegal.Criar(dto.Nome, Documento.Criar(dto.TipoDocumento, dto.NumeroDocumento), dto.Parentesco);
 
     private static PacienteDto Mapear(Paciente p, DateOnly hoje) => new(
-        p.Id, p.Nome, p.DataNascimento, p.EhMenorDeIdade(hoje), p.TipoDocumento, p.NumeroDocumento, p.Email, p.Telefone,
+        p.Id, p.Nome, p.DataNascimento, p.EhMenorDeIdade(hoje), p.TipoDocumento, p.NumeroDocumento, p.Email, p.Telefone, p.Cidade,
         p.ResponsavelLegal is { } r ? new(r.Nome, r.TipoDocumento, r.NumeroDocumento, r.Parentesco) : null,
         p.CriadoEm, p.AtualizadoEm);
 }

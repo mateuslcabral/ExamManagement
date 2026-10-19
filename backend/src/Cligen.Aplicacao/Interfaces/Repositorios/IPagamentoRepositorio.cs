@@ -11,9 +11,10 @@ public interface IPagamentoRepositorio
     Task AdicionarAsync(Pagamento pagamento, CancellationToken ct = default);
     Task AtualizarAsync(Pagamento pagamento, CancellationToken ct = default);
 
-    /// <summary>Recebidos com data de recebimento no período (inclusive), mais antigos primeiro.</summary>
-    Task<IReadOnlyList<LinhaFinanceiraDto>> RecebidosNoPeriodoAsync(DateOnly de, DateOnly ate, CancellationToken ct = default);
+    /// <summary>Recebidos com data de recebimento no período (inclusive), mais antigos primeiro. Filtros opcionais.</summary>
+    Task<IReadOnlyList<LinhaFinanceiraDto>> RecebidosNoPeriodoAsync(
+        DateOnly de, DateOnly ate, Guid? convenioId, Guid? origemId, CancellationToken ct = default);
 
-    /// <summary>Tudo que está a receber (convênio), sem corte de data, mais antigos primeiro.</summary>
-    Task<IReadOnlyList<LinhaFinanceiraDto>> AReceberAsync(CancellationToken ct = default);
+    /// <summary>Tudo que está a receber (convênio), sem corte de data, mais antigos primeiro. Filtros opcionais.</summary>
+    Task<IReadOnlyList<LinhaFinanceiraDto>> AReceberAsync(Guid? convenioId, Guid? origemId, CancellationToken ct = default);
 }

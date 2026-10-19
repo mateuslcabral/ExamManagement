@@ -3,6 +3,18 @@ using Cligen.Dominio.Excecoes;
 
 namespace Cligen.Dominio.Entidades;
 
+/// <summary>Campos editáveis do exame solicitado.</summary>
+/// <param name="DestinoId">Nulo na criação usa o destino padrão do catálogo.</param>
+/// <param name="Preco">Nulo na criação usa o preço de referência do catálogo.</param>
+public sealed record DadosExame(
+    Guid OrigemId,
+    Guid? DestinoId,
+    TipoMedico TipoMedico,
+    string? NomeMedicoExterno,
+    string? CrmMedico,
+    string? UfCrm,
+    decimal? Preco);
+
 /// <summary>
 /// Exame solicitado — registro de prontuário (Q45). Nasce aguardando amostra; o acolhimento e as etapas do laudo
 /// fazem o estado avançar. Nunca é apagado fisicamente: a exclusão é lógica, com autor, data e motivo (C2, P4, P10).
@@ -12,24 +24,36 @@ public class Exame
     /// <summary>Único médico interno (Q13); nome usado no modelo de mensagem de médico interno (D13).</summary>
     public const string NomeMedicoInterno = "Dr. Arsonval Lamounier Junior";
     public const int MaximoAnexos = 3; // Q22
-    public const int TamanhoMaximoDestino = 200;
     public const int TamanhoMaximoNomeMedico = 200;
+    public const int TamanhoMaximoCrm = 20;
     public const int TamanhoMaximoMotivoExclusao = 500;
+    public const int TamanhoMaximoMotivoDesconto = 300;
+
+    public static readonly IReadOnlySet<string> Ufs = new HashSet<string>
+    {
+        "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
+        "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+    };
 
     public Guid Id { get; private set; }
+
+    /// <summary>Sequencial do banco; base do código interno legível.</summary>
+    public long Numero { get; private set; }
+    public string Codigo => $"EX-{Numero:D6}";
+
     public Guid PacienteId { get; private set; }
     public Guid ExameCatalogoId { get; private set; }
-    public OrigemExame Origem { get; private set; }
-
-    /// <summary>Texto livre nesta versão (D7). Vira lista controlada quando o dashboard entrar (Q38.1).</summary>
-    public string? Destino { get; private set; }
+    public Guid OrigemId { get; private set; }
+    public Guid? DestinoId { get; private set; }
 
     public TipoMedico TipoMedico { get; private set; }
 
     /// <summary>Digitado a cada exame, sem cadastro (Q14, Q15). Nulo para médico interno.</summary>
     public string? NomeMedicoExterno { get; private set; }
+    public string? CrmMedico { get; private set; }
+    public string? UfCrm { get; private set; }
 
-    /// <summary>Herdado do preço de referência do catálogo e editável.</summary>
+    /// <summary>Herdado do preço de referência do catálogo e editável, respeitando o preço limite.</summary>
     public decimal Preco { get; private set; }
 
     /// <summary>Sempre em reais, nunca percentual (C5). Motivo livre e opcional (P12).</summary>
@@ -41,6 +65,9 @@ public class Exame
 
     public DateOnly DataEntrada { get; private set; }
     public EstadoExame Estado { get; private set; }
+
+    /// <summary>Cópia da data da amostra vigente, para filtros das filas. Nula sem amostra ou após rejeição.</summary>
+    public DateOnly? DataAcolhimento { get; private set; }
 
     /// <summary>
     /// Gravada uma única vez no acolhimento e nunca recalculada (P14): é a diferença para a data efetiva que torna
@@ -65,6 +92,9 @@ public class Exame
     /// <summary>Amostra acolhida e não rejeitada. Há no máximo uma (P8).</summary>
     public Amostra? AmostraVigente => _amostras.SingleOrDefault(a => !a.Rejeitada);
 
+    private readonly List<Comentario> _comentarios = [];
+    public IReadOnlyCollection<Comentario> Comentarios => _comentarios.AsReadOnly();
+
     public DateTime CriadoEm { get; private set; }
     public Guid CriadoPorId { get; private set; }
     public DateTime? AtualizadoEm { get; private set; }
@@ -79,10 +109,7 @@ public class Exame
 
     private Exame() { } // EF Core
 
-    /// <param name="preco">Nulo usa o preço de referência do catálogo.</param>
-    public static Exame Criar(
-        Guid pacienteId, ExameCatalogo catalogo, OrigemExame origem, string? destino,
-        TipoMedico tipoMedico, string? nomeMedicoExterno, decimal? preco, Guid autorId, DateOnly hoje)
+    public static Exame Criar(Guid pacienteId, ExameCatalogo catalogo, DadosExame dados, Guid autorId, DateOnly hoje)
     {
         if (pacienteId == Guid.Empty)
             throw new ValidacaoException("O paciente é obrigatório.");
@@ -99,15 +126,17 @@ public class Exame
             CriadoEm = DateTime.UtcNow,
             CriadoPorId = autorId
         };
-        exame.Aplicar(origem, destino, tipoMedico, nomeMedicoExterno, preco ?? catalogo.PrecoReferencia);
+        exame.Aplicar(
+            dados with { DestinoId = dados.DestinoId ?? catalogo.DestinoId, Preco = dados.Preco ?? catalogo.PrecoReferencia },
+            catalogo);
         return exame;
     }
 
-    public void Atualizar(
-        ExameCatalogo catalogo, OrigemExame origem, string? destino,
-        TipoMedico tipoMedico, string? nomeMedicoExterno, decimal preco, Guid autorId)
+    public void Atualizar(ExameCatalogo catalogo, DadosExame dados, Guid autorId)
     {
         GarantirNaoExcluido();
+        if (dados.Preco is null)
+            throw new ValidacaoException("Informe o preço.");
 
         if (catalogo.Id != ExameCatalogoId)
         {
@@ -119,11 +148,12 @@ public class Exame
                 throw new ValidacaoException($"O exame '{catalogo.Nome}' está inativo no catálogo.");
         }
 
-        Aplicar(origem, destino, tipoMedico, nomeMedicoExterno, preco);
+        Aplicar(dados, catalogo);
         ExameCatalogoId = catalogo.Id;
-        AtualizadoEm = DateTime.UtcNow;
-        AtualizadoPorId = autorId;
+        Tocar(autorId);
     }
+
+    // ---- Anexos e comentários ----
 
     public void AdicionarAnexo(Anexo anexo)
     {
@@ -146,13 +176,24 @@ public class Exame
         anexo.Remover(autorId);
     }
 
+    /// <summary>Anotação da equipe; não se edita nem se apaga.</summary>
+    public Comentario AdicionarComentario(string? texto, Guid autorId)
+    {
+        GarantirNaoExcluido();
+        var comentario = Comentario.Criar(texto, autorId);
+        _comentarios.Add(comentario);
+        return comentario;
+    }
+
+    // ---- Amostra (docs/05-regras-negocio/amostra-e-prazo.md) ----
+
     /// <summary>
-    /// Registra a chegada da amostra e fixa a previsão de liberação: acolhimento + prazo de execução + dias de revisão
-    /// (Q1, P13). A data é digitável porque a amostra pode chegar num dia e ser lançada noutro (Q1.2 — a confirmar).
+    /// Registra a chegada da amostra e fixa a previsão de liberação: acolhimento + prazo do catálogo (Q1). A data é
+    /// digitável porque a amostra pode chegar num dia e ser lançada noutro (Q1.2 — a confirmar).
     /// </summary>
-    /// <param name="catalogo">Item do catálogo deste exame, de onde vem o prazo de execução atual.</param>
+    /// <param name="catalogo">Item do catálogo deste exame, de onde vem o prazo atual.</param>
     /// <param name="hoje">Data local da clínica.</param>
-    public void AcolherAmostra(DateOnly dataAcolhimento, ExameCatalogo catalogo, int diasRevisao, Guid autorId, DateOnly hoje)
+    public void AcolherAmostra(DateOnly dataAcolhimento, ExameCatalogo catalogo, Guid autorId, DateOnly hoje)
     {
         GarantirNaoExcluido();
         if (catalogo.Id != ExameCatalogoId)
@@ -163,12 +204,10 @@ public class Exame
             throw new ValidacaoException("A data de acolhimento não pode estar no futuro.");
         if (dataAcolhimento < DataEntrada)
             throw new ValidacaoException("A data de acolhimento não pode ser anterior à entrada do exame.");
-        if (diasRevisao < 0)
-            throw new InvalidOperationException("Dias de revisão negativos.");
 
-        var amostra = Amostra.Acolher(
-            dataAcolhimento, catalogo.PrazoExecucaoDias, diasRevisao, recoleta: _amostras.Count > 0, autorId);
+        var amostra = Amostra.Acolher(dataAcolhimento, catalogo.PrazoDias, recoleta: _amostras.Count > 0, autorId);
         _amostras.Add(amostra);
+        DataAcolhimento = amostra.DataAcolhimento;
         DataLiberacaoPrevista = amostra.DataLiberacaoPrevista;
         Estado = EstadoExame.AmostraAcolhida;
     }
@@ -184,16 +223,15 @@ public class Exame
             throw new ValidacaoException("Só é possível rejeitar a amostra enquanto ela está acolhida, antes das etapas do laudo.");
 
         AmostraVigente!.Rejeitar(motivo, autorId);
+        DataAcolhimento = null;
         DataLiberacaoPrevista = null;
         Estado = EstadoExame.AguardandoAmostra;
     }
 
     // ---- Financeiro (docs/05-regras-negocio/financeiro.md) ----
 
-    public const int TamanhoMaximoMotivoDesconto = 300;
-
-    /// <summary>Desconto em reais (C5). Zero remove o desconto. Não pode exceder o preço.</summary>
-    public void AplicarDesconto(decimal desconto, string? motivo, Guid autorId)
+    /// <summary>Desconto em reais (C5). Zero remove o desconto. O valor a pagar não pode ficar abaixo do preço limite.</summary>
+    public void AplicarDesconto(decimal desconto, string? motivo, decimal precoLimite, Guid autorId)
     {
         GarantirNaoExcluido();
         if (desconto < 0)
@@ -202,6 +240,7 @@ public class Exame
             throw new ValidacaoException("O desconto deve ter no máximo 2 casas decimais.");
         if (desconto > Preco)
             throw new ValidacaoException("O desconto não pode ser maior que o preço do exame.");
+        GarantirPiso(Preco - desconto, precoLimite);
 
         motivo = string.IsNullOrWhiteSpace(motivo) ? null : motivo.Trim();
         if (motivo?.Length > TamanhoMaximoMotivoDesconto)
@@ -209,8 +248,7 @@ public class Exame
 
         Desconto = desconto;
         MotivoDesconto = desconto == 0 ? null : motivo;
-        AtualizadoEm = DateTime.UtcNow;
-        AtualizadoPorId = autorId;
+        Tocar(autorId);
     }
 
     // ---- Fluxo do laudo (docs/05-regras-negocio/fluxo-laudo.md) ----
@@ -294,8 +332,7 @@ public class Exame
         ExcluidoEm = null;
         ExcluidoPorId = null;
         MotivoExclusao = null;
-        AtualizadoEm = DateTime.UtcNow;
-        AtualizadoPorId = autorId;
+        Tocar(autorId);
     }
 
     private void GarantirNaoExcluido()
@@ -303,40 +340,61 @@ public class Exame
         if (Excluido) throw new ValidacaoException("Este exame foi excluído e não pode ser alterado.");
     }
 
-    private void Aplicar(OrigemExame origem, string? destino, TipoMedico tipoMedico, string? nomeMedicoExterno, decimal preco)
+    private void Tocar(Guid autorId)
     {
-        if (!Enum.IsDefined(origem))
-            throw new ValidacaoException("Origem inválida.");
+        AtualizadoEm = DateTime.UtcNow;
+        AtualizadoPorId = autorId;
+    }
 
-        destino = string.IsNullOrWhiteSpace(destino) ? null : destino.Trim();
-        if (destino?.Length > TamanhoMaximoDestino)
-            throw new ValidacaoException($"O destino deve ter no máximo {TamanhoMaximoDestino} caracteres.");
+    private static void GarantirPiso(decimal valorAPagar, decimal precoLimite)
+    {
+        if (valorAPagar < precoLimite)
+            throw new ValidacaoException(
+                $"O valor a pagar não pode ficar abaixo do preço limite do catálogo (R$ {precoLimite:N2}).");
+    }
 
-        switch (tipoMedico)
+    private void Aplicar(DadosExame d, ExameCatalogo catalogo)
+    {
+        if (d.OrigemId == Guid.Empty)
+            throw new ValidacaoException("A origem é obrigatória.");
+
+        string? nomeMedicoExterno = null, crm = null, uf = null;
+        switch (d.TipoMedico)
         {
             case TipoMedico.Interno:
-                nomeMedicoExterno = null;
                 break;
             case TipoMedico.Externo:
-                if (string.IsNullOrWhiteSpace(nomeMedicoExterno))
+                if (string.IsNullOrWhiteSpace(d.NomeMedicoExterno))
                     throw new ValidacaoException("Informe o nome do médico solicitante externo.");
-                nomeMedicoExterno = nomeMedicoExterno.Trim();
+                nomeMedicoExterno = d.NomeMedicoExterno.Trim();
                 if (nomeMedicoExterno.Length > TamanhoMaximoNomeMedico)
                     throw new ValidacaoException($"O nome do médico deve ter no máximo {TamanhoMaximoNomeMedico} caracteres.");
+
+                crm = string.IsNullOrWhiteSpace(d.CrmMedico) ? null : d.CrmMedico.Trim();
+                if (crm?.Length > TamanhoMaximoCrm)
+                    throw new ValidacaoException($"O CRM deve ter no máximo {TamanhoMaximoCrm} caracteres.");
+
+                uf = string.IsNullOrWhiteSpace(d.UfCrm) ? null : d.UfCrm.Trim().ToUpperInvariant();
+                if (uf is not null && !Ufs.Contains(uf))
+                    throw new ValidacaoException("UF do CRM inválida.");
                 break;
             default:
                 throw new ValidacaoException("Tipo de médico solicitante inválido.");
         }
 
+        var preco = d.Preco ?? throw new ValidacaoException("Informe o preço.");
         if (preco < 0)
             throw new ValidacaoException("O preço não pode ser negativo.");
         if (decimal.Round(preco, 2) != preco)
             throw new ValidacaoException("O preço deve ter no máximo 2 casas decimais.");
+        GarantirPiso(preco - Desconto, catalogo.PrecoLimite);
 
-        Origem = origem;
-        Destino = destino;
-        TipoMedico = tipoMedico;
+        OrigemId = d.OrigemId;
+        DestinoId = d.DestinoId;
+        TipoMedico = d.TipoMedico;
         NomeMedicoExterno = nomeMedicoExterno;
+        CrmMedico = crm;
+        UfCrm = uf;
         Preco = preco;
     }
 }

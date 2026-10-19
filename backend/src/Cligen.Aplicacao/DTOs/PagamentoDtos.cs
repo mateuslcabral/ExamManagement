@@ -9,7 +9,8 @@ public sealed record PagamentoDto(
     decimal Valor,
     StatusPagamento Status,
     DateOnly? DataRecebimento,
-    string? Convenio,
+    Guid? ConvenioId,
+    string? ConvenioNome,
     string? NumeroGuia,
     int? Parcelas,
     decimal? ValorParcela,
@@ -18,11 +19,12 @@ public sealed record PagamentoDto(
     DateTime CriadoEm);
 
 /// <param name="DataRecebimento">Só para particular; nula usa hoje. Convênio nasce a receber.</param>
+/// <param name="ConvenioId">Obrigatório quando o método é convênio (cadastro).</param>
 public sealed record LancarPagamentoRequest(
     MetodoPagamento Metodo,
     decimal Valor,
     DateOnly? DataRecebimento,
-    string? Convenio,
+    Guid? ConvenioId,
     string? NumeroGuia,
     int? Parcelas,
     decimal? ValorParcela,
@@ -40,6 +42,7 @@ public sealed record FinanceiroExameDto(
     decimal Preco,
     decimal Desconto,
     string? MotivoDesconto,
+    decimal PrecoLimite,
     decimal ValorAPagar,
     decimal Recebido,
     decimal AReceber,
@@ -47,16 +50,20 @@ public sealed record FinanceiroExameDto(
     decimal Saldo,
     IReadOnlyList<PagamentoDto> Pagamentos);
 
-/// <summary>Linha de relatório, com paciente e exame já resolvidos na consulta.</summary>
+/// <summary>Linha de relatório, com paciente, exame, origem e convênio já resolvidos na consulta.</summary>
 public sealed record LinhaFinanceiraDto(
     Guid PagamentoId,
     Guid ExameId,
+    string ExameCodigo,
     string ExameNome,
     string PacienteNome,
     TipoDocumento PacienteTipoDocumento,
     string PacienteNumeroDocumento,
+    Guid OrigemId,
+    string OrigemNome,
     MetodoPagamento Metodo,
-    string? Convenio,
+    Guid? ConvenioId,
+    string? ConvenioNome,
     string? NumeroGuia,
     decimal Valor,
     DateOnly? DataRecebimento,
@@ -68,8 +75,11 @@ public sealed record TotalPorChaveDto(string Chave, decimal Total, int Quantidad
 public sealed record RelatorioFinanceiroDto(
     DateOnly De,
     DateOnly Ate,
+    Guid? ConvenioId,
+    Guid? OrigemId,
     decimal TotalRecebido,
     IReadOnlyList<TotalPorChaveDto> RecebidoPorMetodo,
+    IReadOnlyList<TotalPorChaveDto> RecebidoPorOrigem,
     IReadOnlyList<LinhaFinanceiraDto> Recebidos,
     decimal TotalAReceber,
     IReadOnlyList<TotalPorChaveDto> AReceberPorConvenio,

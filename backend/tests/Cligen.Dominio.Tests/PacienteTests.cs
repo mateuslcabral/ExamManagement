@@ -15,7 +15,7 @@ public class PacienteTests
     private static ResponsavelLegal Responsavel() => ResponsavelLegal.Criar("Maria Souza", CpfResponsavel, "Mãe");
 
     private static Paciente CriarAdulto() => Paciente.Criar(
-        " João Souza ", new DateOnly(1990, 5, 10), CpfPaciente, "Joao@Email.com", "(31) 99999-8888", null, Autor, Hoje);
+        " João Souza ", new DateOnly(1990, 5, 10), CpfPaciente, "Joao@Email.com", "(31) 99999-8888", null, null, Autor, Hoje);
 
     [Fact]
     public void Criar_Adulto_DeveNormalizarContatoERegistrarAutor()
@@ -34,12 +34,12 @@ public class PacienteTests
     [Fact]
     public void Criar_MenorSemResponsavel_DeveFalhar()
         => Assert.Throws<ValidacaoException>(() => Paciente.Criar(
-            "Ana", new DateOnly(2015, 1, 1), CpfPaciente, "mae@email.com", "31999998888", null, Autor, Hoje));
+            "Ana", new DateOnly(2015, 1, 1), CpfPaciente, "mae@email.com", "31999998888", null, null, Autor, Hoje));
 
     [Fact]
     public void Criar_MenorComResponsavel_DevePermitir()
     {
-        var p = Paciente.Criar("Ana", new DateOnly(2015, 1, 1), CpfPaciente, "mae@email.com", "31999998888", Responsavel(), Autor, Hoje);
+        var p = Paciente.Criar("Ana", new DateOnly(2015, 1, 1), CpfPaciente, "mae@email.com", "31999998888", Responsavel(), null, Autor, Hoje);
 
         Assert.True(p.EhMenorDeIdade(Hoje));
         Assert.Equal("Maria Souza", p.ResponsavelLegal!.Nome);
@@ -49,7 +49,7 @@ public class PacienteTests
     public void Criar_AdultoComResponsavel_DevePermitir()
     {
         // P9: paciente sem contato próprio usa o do responsável.
-        var p = Paciente.Criar("José", new DateOnly(1940, 1, 1), CpfPaciente, "filha@email.com", "31999998888", Responsavel(), Autor, Hoje);
+        var p = Paciente.Criar("José", new DateOnly(1940, 1, 1), CpfPaciente, "filha@email.com", "31999998888", Responsavel(), null, Autor, Hoje);
         Assert.NotNull(p.ResponsavelLegal);
     }
 
@@ -63,32 +63,43 @@ public class PacienteTests
     public void Criar_ResponsavelComMesmoDocumentoDoPaciente_DeveFalhar()
         => Assert.Throws<ValidacaoException>(() => Paciente.Criar(
             "Ana", new DateOnly(2015, 1, 1), CpfPaciente, "mae@email.com", "31999998888",
-            ResponsavelLegal.Criar("Maria", CpfPaciente, null), Autor, Hoje));
+            ResponsavelLegal.Criar("Maria", CpfPaciente, null), null, Autor, Hoje));
 
     [Theory]
     [InlineData(null, "31999998888")]
     [InlineData("joao@email.com", null)]
     public void Criar_SemEmailOuTelefone_DeveFalhar(string? email, string? telefone)
         => Assert.Throws<ValidacaoException>(() => Paciente.Criar(
-            "João", new DateOnly(1990, 1, 1), CpfPaciente, email, telefone, null, Autor, Hoje));
+            "João", new DateOnly(1990, 1, 1), CpfPaciente, email, telefone, null, null, Autor, Hoje));
 
     [Fact]
     public void Criar_ComNascimentoNoFuturo_DeveFalhar()
         => Assert.Throws<ValidacaoException>(() => Paciente.Criar(
-            "João", Hoje.AddDays(1), CpfPaciente, "joao@email.com", "31999998888", Responsavel(), Autor, Hoje));
+            "João", Hoje.AddDays(1), CpfPaciente, "joao@email.com", "31999998888", Responsavel(), null, Autor, Hoje));
 
     [Fact]
     public void Atualizar_DeveRegistrarAutorDaAlteracaoEPermitirRemoverResponsavelDeAdulto()
     {
-        var p = Paciente.Criar("José", new DateOnly(1940, 1, 1), CpfPaciente, "filha@email.com", "31999998888", Responsavel(), Autor, Hoje);
+        var p = Paciente.Criar("José", new DateOnly(1940, 1, 1), CpfPaciente, "filha@email.com", "31999998888", Responsavel(), null, Autor, Hoje);
         var outroAutor = Guid.NewGuid();
 
-        p.Atualizar("José", new DateOnly(1940, 1, 1), CpfPaciente, "jose@email.com", "31988887777", null, outroAutor, Hoje);
+        p.Atualizar("José", new DateOnly(1940, 1, 1), CpfPaciente, "jose@email.com", "31988887777", null, null, outroAutor, Hoje);
 
         Assert.Null(p.ResponsavelLegal);
         Assert.Equal(outroAutor, p.AtualizadoPorId);
         Assert.Equal(Autor, p.CriadoPorId);
         Assert.NotNull(p.AtualizadoEm);
+    }
+
+    [Fact]
+    public void Cidade_EhOpcionalEAparada()
+    {
+        var sem = CriarAdulto();
+        Assert.Null(sem.Cidade);
+
+        var com = Paciente.Criar("João", new DateOnly(1990, 5, 10), CpfPaciente, "j@e.com", "31999998888", null, " Belo Horizonte ", Autor, Hoje);
+        Assert.Equal("Belo Horizonte", com.Cidade);
+        Assert.Throws<ValidacaoException>(() => Paciente.Criar("João", new DateOnly(1990, 5, 10), CpfPaciente, "j@e.com", "31999998888", null, new string('a', 101), Autor, Hoje));
     }
 
     [Fact]

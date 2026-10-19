@@ -12,10 +12,13 @@ public interface IExameRepositorio
     /// <summary>Só para restaurar: ignora o filtro de exclusão lógica.</summary>
     Task<Exame?> ObterExcluidoPorIdAsync(Guid id, CancellationToken ct = default);
 
-    /// <param name="busca">Parte do nome do paciente ou do exame, ou início do documento do paciente.</param>
+    /// <param name="busca">Parte do nome do paciente ou do exame, código, ou início do documento do paciente.</param>
     /// <param name="excluidos">true lista apenas os excluídos (para restaurar); false, apenas os ativos.</param>
+    /// <param name="campoData">Com <paramref name="de"/>/<paramref name="ate"/>, restringe à data escolhida; exames sem essa data saem.</param>
     Task<(IReadOnlyList<ExameResumoDto> Itens, int Total)> BuscarAsync(
-        string? busca, Guid? pacienteId, EstadoExame? estado, bool excluidos, int pagina, int tamanhoPagina, CancellationToken ct = default);
+        string? busca, Guid? pacienteId, EstadoExame? estado, bool excluidos,
+        CampoDataExame? campoData, DateOnly? de, DateOnly? ate,
+        int pagina, int tamanhoPagina, CancellationToken ct = default);
 
     Task AdicionarAsync(Exame exame, CancellationToken ct = default);
     Task AtualizarAsync(Exame exame, CancellationToken ct = default);

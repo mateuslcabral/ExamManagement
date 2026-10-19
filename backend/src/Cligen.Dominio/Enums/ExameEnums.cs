@@ -19,13 +19,12 @@ public enum TipoEtapaLaudo
     LaudoRevisado = 5
 }
 
-/// <summary>Canal de entrada do exame — atributo do exame, não do paciente (D4).</summary>
-public enum OrigemExame
+/// <summary>O que é o anexo (pedido do cliente em 17/10/2026; antes sem nomeação — Q22).</summary>
+public enum TipoAnexo
 {
-    Cligen = 1,
-    ClinicaParceira = 2,
-    SiteCligen = 3,
-    Plataforma = 4
+    PedidoMedico = 1,
+    TermoConsentimento = 2,
+    Outro = 3
 }
 
 /// <summary>Define o modelo de mensagem na disponibilização do laudo (D11, D13).</summary>

@@ -10,8 +10,10 @@ public class PagamentoTests
     private static readonly Guid Autor = Guid.NewGuid();
     private static readonly Guid ExameId = Guid.NewGuid();
 
+    private static readonly Guid Unimed = Guid.NewGuid();
+
     private static Pagamento Lancar(MetodoPagamento metodo, decimal valor = 100m, DateOnly? data = null,
-        string? convenio = null, string? guia = null, int? parcelas = null, decimal? valorParcela = null)
+        Guid? convenio = null, string? guia = null, int? parcelas = null, decimal? valorParcela = null)
         => Pagamento.Lancar(ExameId, metodo, valor, data, convenio, guia, parcelas, valorParcela, null, Autor, Hoje);
 
     [Fact]
@@ -29,24 +31,27 @@ public class PagamentoTests
     [Fact]
     public void Convenio_NasceAReceberSemData()
     {
-        var p = Lancar(MetodoPagamento.Convenio, convenio: " Unimed ", guia: "G-123");
+        var p = Lancar(MetodoPagamento.Convenio, convenio: Unimed, guia: "G-123");
 
         Assert.Equal(StatusPagamento.AReceber, p.Status);
         Assert.Null(p.DataRecebimento);
-        Assert.Equal("Unimed", p.Convenio);
+        Assert.Equal(Unimed, p.ConvenioId);
         Assert.Equal("G-123", p.NumeroGuia);
         Assert.True(p.ContaComoAReceber);
         Assert.False(p.ContaComoRecebido);
     }
 
     [Fact]
-    public void Convenio_SemNome_DeveFalhar()
-        => Assert.Throws<ValidacaoException>(() => Lancar(MetodoPagamento.Convenio));
+    public void Convenio_SemOperadora_DeveFalhar()
+    {
+        Assert.Throws<ValidacaoException>(() => Lancar(MetodoPagamento.Convenio));
+        Assert.Throws<ValidacaoException>(() => Lancar(MetodoPagamento.Convenio, convenio: Guid.Empty));
+    }
 
     [Fact]
     public void Convenio_MarcarRecebido_EntraNoCaixaNaDataInformada()
     {
-        var p = Lancar(MetodoPagamento.Convenio, convenio: "Unimed");
+        var p = Lancar(MetodoPagamento.Convenio, convenio: Unimed);
         p.MarcarRecebido(Hoje.AddDays(-1), Autor, Hoje);
 
         Assert.Equal(StatusPagamento.Recebido, p.Status);
@@ -61,7 +66,7 @@ public class PagamentoTests
         var pix = Lancar(MetodoPagamento.Pix);
         Assert.Throws<ValidacaoException>(() => pix.Glosar("x", Autor));
 
-        var conv = Lancar(MetodoPagamento.Convenio, convenio: "Unimed");
+        var conv = Lancar(MetodoPagamento.Convenio, convenio: Unimed);
         Assert.Throws<ValidacaoException>(() => conv.Glosar(" ", Autor));
         conv.Glosar("Procedimento não coberto", Autor);
 
@@ -118,16 +123,17 @@ public class PagamentoTests
     public void Desconto_EmReais_NaoPodeExcederOPreco()
     {
         var catalogo = ExameCatalogo.Criar("Exoma", 30, 1000m);
-        var e = Exame.Criar(Guid.NewGuid(), catalogo, OrigemExame.Cligen, null, TipoMedico.Interno, null, null, Autor, Hoje);
+        var e = Exame.Criar(Guid.NewGuid(), catalogo, new DadosExame(Guid.NewGuid(), null, TipoMedico.Interno, null, null, null, null), Autor, Hoje);
 
-        e.AplicarDesconto(150m, " Cortesia ", Autor);
+        e.AplicarDesconto(150m, " Cortesia ", catalogo.PrecoLimite, Autor);
         Assert.Equal(850m, e.ValorAPagar);
         Assert.Equal("Cortesia", e.MotivoDesconto);
 
-        Assert.Throws<ValidacaoException>(() => e.AplicarDesconto(1000.01m, null, Autor));
-        Assert.Throws<ValidacaoException>(() => e.AplicarDesconto(-1m, null, Autor));
+        Assert.Throws<ValidacaoException>(() => e.AplicarDesconto(1000.01m, null, 0m, Autor));
+        Assert.Throws<ValidacaoException>(() => e.AplicarDesconto(-1m, null, 0m, Autor));
+        Assert.Throws<ValidacaoException>(() => e.AplicarDesconto(300m, null, 800m, Autor)); // 1000 − 300 < limite 800
 
-        e.AplicarDesconto(0m, "ignorado", Autor);
+        e.AplicarDesconto(0m, "ignorado", 0m, Autor);
         Assert.Equal(1000m, e.ValorAPagar);
         Assert.Null(e.MotivoDesconto);
     }

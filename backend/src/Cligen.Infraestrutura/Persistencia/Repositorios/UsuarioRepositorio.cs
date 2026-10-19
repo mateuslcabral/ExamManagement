@@ -18,6 +18,13 @@ public sealed class UsuarioRepositorio(CligenDbContext db) : IUsuarioRepositorio
     public async Task<IReadOnlyList<Usuario>> ListarAsync(CancellationToken ct = default)
         => await db.Usuarios.AsNoTracking().OrderBy(u => u.Nome).ToListAsync(ct);
 
+    public async Task<IReadOnlyDictionary<Guid, string>> ObterNomesAsync(IEnumerable<Guid> ids, CancellationToken ct = default)
+    {
+        var lista = ids.Distinct().ToList();
+        if (lista.Count == 0) return new Dictionary<Guid, string>();
+        return await db.Usuarios.AsNoTracking().Where(u => lista.Contains(u.Id)).ToDictionaryAsync(u => u.Id, u => u.Nome, ct);
+    }
+
     public async Task AdicionarAsync(Usuario usuario, CancellationToken ct = default)
     {
         db.Usuarios.Add(usuario);

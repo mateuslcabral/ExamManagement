@@ -27,7 +27,7 @@ public static class InjecaoDependencia
 
         services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
         services.AddScoped<IExameCatalogoRepositorio, ExameCatalogoRepositorio>();
-        services.AddScoped<IParametroRepositorio, ParametroRepositorio>();
+        services.AddScoped(typeof(ICadastroRepositorio<>), typeof(CadastroRepositorio<>));
         services.AddScoped<IPacienteRepositorio, PacienteRepositorio>();
         services.AddScoped<IExameRepositorio, ExameRepositorio>();
         services.AddScoped<IPagamentoRepositorio, PagamentoRepositorio>();

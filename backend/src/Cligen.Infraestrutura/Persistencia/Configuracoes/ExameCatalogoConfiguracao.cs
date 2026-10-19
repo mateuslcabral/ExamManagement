@@ -20,11 +20,18 @@ public sealed class ExameCatalogoConfiguracao : IEntityTypeConfiguration<ExameCa
         b.Property(e => e.Nome).HasMaxLength(ExameCatalogo.TamanhoMaximoNome).IsRequired();
         b.HasIndex(e => e.Nome).IsUnique();
 
-        b.Property(e => e.PrazoExecucaoDias).IsRequired();
+        b.Property(e => e.PrazoDias).IsRequired();
         b.Property(e => e.PrecoReferencia).HasPrecision(18, 2).IsRequired();
+        b.Property(e => e.PrecoLimite).HasPrecision(18, 2).IsRequired();
+        b.Property(e => e.NumeroGenes);
+        b.Property(e => e.Genes).HasMaxLength(ExameCatalogo.TamanhoMaximoTexto);
+        b.Property(e => e.InformacoesTecnicas).HasMaxLength(ExameCatalogo.TamanhoMaximoTexto);
+        b.HasOne<Destino>().WithMany().HasForeignKey(e => e.DestinoId).OnDelete(DeleteBehavior.Restrict);
 
         b.Property(e => e.Ativo).IsRequired();
         b.Property(e => e.CriadoEm).IsRequired();
+        b.HasOne<Usuario>().WithMany().HasForeignKey(e => e.CriadoPorId).OnDelete(DeleteBehavior.Restrict);
         b.Property(e => e.AtualizadoEm);
+        b.HasOne<Usuario>().WithMany().HasForeignKey(e => e.AtualizadoPorId).OnDelete(DeleteBehavior.Restrict);
     }
 }

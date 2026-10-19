@@ -27,23 +27,38 @@ public sealed class PagamentoRepositorio(CligenDbContext db) : IPagamentoReposit
         await db.SaveChangesAsync(ct);
     }
 
-    public Task<IReadOnlyList<LinhaFinanceiraDto>> RecebidosNoPeriodoAsync(DateOnly de, DateOnly ate, CancellationToken ct = default)
-        => Linhas(p => p.Status == StatusPagamento.Recebido && p.DataRecebimento >= de && p.DataRecebimento <= ate, ct);
+    public Task<IReadOnlyList<LinhaFinanceiraDto>> RecebidosNoPeriodoAsync(
+        DateOnly de, DateOnly ate, Guid? convenioId, Guid? origemId, CancellationToken ct = default)
+        => Linhas(p => p.Status == StatusPagamento.Recebido && p.DataRecebimento >= de && p.DataRecebimento <= ate, convenioId, origemId, ct);
 
-    public Task<IReadOnlyList<LinhaFinanceiraDto>> AReceberAsync(CancellationToken ct = default)
-        => Linhas(p => p.Status == StatusPagamento.AReceber, ct);
+    public Task<IReadOnlyList<LinhaFinanceiraDto>> AReceberAsync(Guid? convenioId, Guid? origemId, CancellationToken ct = default)
+        => Linhas(p => p.Status == StatusPagamento.AReceber, convenioId, origemId, ct);
 
     // A junção com Exame aplica o filtro de exclusão lógica do exame: pagamento de exame excluído some junto.
     private async Task<IReadOnlyList<LinhaFinanceiraDto>> Linhas(
-        System.Linq.Expressions.Expression<Func<Pagamento, bool>> filtro, CancellationToken ct)
-        => await (
+        System.Linq.Expressions.Expression<Func<Pagamento, bool>> filtro, Guid? convenioId, Guid? origemId, CancellationToken ct)
+    {
+        var consulta =
             from p in db.Pagamentos.AsNoTracking().Where(filtro)
             join e in db.Exames on p.ExameId equals e.Id
             join pac in db.Pacientes on e.PacienteId equals pac.Id
             join c in db.ExamesCatalogo on e.ExameCatalogoId equals c.Id
-            orderby p.DataRecebimento, p.CriadoEm
-            select new LinhaFinanceiraDto(
-                p.Id, e.Id, c.Nome, pac.Nome, pac.TipoDocumento, pac.NumeroDocumento,
-                p.Metodo, p.Convenio, p.NumeroGuia, p.Valor, p.DataRecebimento, e.DataEntrada))
+            join o in db.Origens on e.OrigemId equals o.Id
+            join cvj in db.Convenios on p.ConvenioId equals cvj.Id into cvg
+            from cv in cvg.DefaultIfEmpty()
+            select new { p, e, pac, c, o, cv };
+
+        if (convenioId is { } idConvenio) consulta = consulta.Where(x => x.p.ConvenioId == idConvenio);
+        if (origemId is { } idOrigem) consulta = consulta.Where(x => x.e.OrigemId == idOrigem);
+
+        return await consulta
+            .OrderBy(x => x.p.DataRecebimento).ThenBy(x => x.p.CriadoEm)
+            .Select(x => new LinhaFinanceiraDto(
+                x.p.Id, x.e.Id, "EX-" + x.e.Numero.ToString("D6"), x.c.Nome,
+                x.pac.Nome, x.pac.TipoDocumento, x.pac.NumeroDocumento,
+                x.o.Id, x.o.Nome,
+                x.p.Metodo, x.p.ConvenioId, x.cv != null ? x.cv.Nome : null, x.p.NumeroGuia,
+                x.p.Valor, x.p.DataRecebimento, x.e.DataEntrada))
             .ToListAsync(ct);
+    }
 }

@@ -26,7 +26,7 @@ public sealed class PagamentoConfiguracao : IEntityTypeConfiguration<Pagamento>
         b.Property(p => p.Status).HasConversion<int>().IsRequired();
         b.HasIndex(p => new { p.Status, p.DataRecebimento }); // relatório por regime de caixa
         b.Property(p => p.DataRecebimento);
-        b.Property(p => p.Convenio).HasMaxLength(Pagamento.TamanhoMaximoConvenio);
+        b.HasOne<Convenio>().WithMany().HasForeignKey(p => p.ConvenioId).OnDelete(DeleteBehavior.Restrict);
         b.Property(p => p.NumeroGuia).HasMaxLength(Pagamento.TamanhoMaximoGuia);
         b.Property(p => p.Parcelas);
         b.Property(p => p.ValorParcela).HasPrecision(18, 2);

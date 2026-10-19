@@ -35,11 +35,12 @@ public sealed class FinanceiroController(PagamentoService service) : ControllerB
 
     /// <summary>Regime de caixa (Q29). Sem período, usa o mês corrente (Brasília).</summary>
     [HttpGet("financeiro/relatorio")]
-    public async Task<ActionResult<RelatorioFinanceiroDto>> Relatorio([FromQuery] DateOnly? de, [FromQuery] DateOnly? ate, CancellationToken ct)
+    public async Task<ActionResult<RelatorioFinanceiroDto>> Relatorio(
+        [FromQuery] DateOnly? de, [FromQuery] DateOnly? ate, [FromQuery] Guid? convenioId, [FromQuery] Guid? origemId, CancellationToken ct)
     {
         var hoje = Cligen.Aplicacao.Comum.Relogio.Hoje();
         var inicio = de ?? new DateOnly(hoje.Year, hoje.Month, 1);
         var fim = ate ?? hoje;
-        return Ok(await service.RelatorioAsync(inicio, fim, ct));
+        return Ok(await service.RelatorioAsync(inicio, fim, convenioId, origemId, ct));
     }
 }

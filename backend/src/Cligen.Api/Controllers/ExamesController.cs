@@ -17,8 +17,9 @@ public sealed class ExamesController(ExameService service) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PaginaDto<ExameResumoDto>>> Buscar(
         [FromQuery] string? busca, [FromQuery] Guid? pacienteId, [FromQuery] EstadoExame? estado, [FromQuery] bool excluidos = false,
+        [FromQuery] CampoDataExame? campoData = null, [FromQuery] DateOnly? de = null, [FromQuery] DateOnly? ate = null,
         [FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 20, CancellationToken ct = default)
-        => Ok(await service.BuscarAsync(busca, pacienteId, estado, excluidos, pagina, tamanhoPagina, ct));
+        => Ok(await service.BuscarAsync(busca, pacienteId, estado, excluidos, campoData, de, ate, pagina, tamanhoPagina, ct));
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ExameDto>> Obter(Guid id, CancellationToken ct)
@@ -46,6 +47,10 @@ public sealed class ExamesController(ExameService service) : ControllerBase
     public async Task<ActionResult<ExameDto>> Restaurar(Guid id, CancellationToken ct)
         => Ok(await service.RestaurarAsync(id, ct));
 
+    [HttpPost("{id:guid}/comentarios")]
+    public async Task<ActionResult<ExameDto>> Comentar(Guid id, [FromBody] AdicionarComentarioRequest req, CancellationToken ct)
+        => Ok(await service.AdicionarComentarioAsync(id, req, ct));
+
     [HttpPost("{id:guid}/amostra/acolher")]
     public async Task<ActionResult<ExameDto>> AcolherAmostra(Guid id, [FromBody] AcolherAmostraRequest req, CancellationToken ct)
         => Ok(await service.AcolherAmostraAsync(id, req, ct));
@@ -57,11 +62,11 @@ public sealed class ExamesController(ExameService service) : ControllerBase
     [HttpPost("{id:guid}/anexos")]
     [RequestSizeLimit(LimiteUploadBytes)]
     [RequestFormLimits(MultipartBodyLengthLimit = LimiteUploadBytes)]
-    public async Task<ActionResult<AnexoDto>> EnviarAnexo(Guid id, IFormFile arquivo, CancellationToken ct)
+    public async Task<ActionResult<AnexoDto>> EnviarAnexo(Guid id, IFormFile arquivo, [FromForm] TipoAnexo tipo, CancellationToken ct)
     {
         // IFormFile acima de 64 KB é bufferizado em disco pelo ASP.NET Core: o stream permite Seek.
         await using var conteudo = arquivo.OpenReadStream();
-        return Ok(await service.AdicionarAnexoAsync(id, conteudo, arquivo.FileName, arquivo.Length, ct));
+        return Ok(await service.AdicionarAnexoAsync(id, tipo, conteudo, arquivo.FileName, arquivo.Length, ct));
     }
 
     [HttpGet("{id:guid}/anexos/{anexoId:guid}")]

@@ -22,6 +22,108 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Convenio", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("AtualizadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CriadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<long>("Seq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Seq"));
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("AtualizadoPorId");
+
+                    b.HasIndex("CriadoPorId");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.HasIndex("Seq")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
+
+                    b.ToTable("Convenio", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Destino", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("AtualizadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CriadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<long>("Seq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Seq"));
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("AtualizadoPorId");
+
+                    b.HasIndex("CriadoPorId");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.HasIndex("Seq")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
+
+                    b.ToTable("Destino", (string)null);
+                });
+
             modelBuilder.Entity("Cligen.Dominio.Entidades.Exame", b =>
                 {
                     b.Property<Guid>("Id")
@@ -40,6 +142,13 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     b.Property<Guid>("CriadoPorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CrmMedico")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateOnly?>("DataAcolhimento")
+                        .HasColumnType("date");
+
                     b.Property<DateOnly>("DataEntrada")
                         .HasColumnType("date");
 
@@ -50,11 +159,11 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                         .HasColumnType("date");
 
                     b.Property<decimal>("Desconto")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Destino")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<Guid?>("DestinoId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Estado")
                         .HasColumnType("int");
@@ -69,7 +178,8 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("MotivoDesconto")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("MotivoExclusao")
                         .HasMaxLength(500)
@@ -79,8 +189,15 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("Origem")
-                        .HasColumnType("int");
+                    b.Property<long>("Numero")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("Seq");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Numero"));
+
+                    b.Property<Guid>("OrigemId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("PacienteId")
                         .HasColumnType("uniqueidentifier");
@@ -89,14 +206,13 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<long>("Seq")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Seq"));
-
                     b.Property<int>("TipoMedico")
                         .HasColumnType("int");
+
+                    b.Property<string>("UfCrm")
+                        .HasMaxLength(2)
+                        .HasColumnType("nchar(2)")
+                        .IsFixedLength();
 
                     b.HasKey("Id");
 
@@ -106,18 +222,24 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
 
                     b.HasIndex("CriadoPorId");
 
+                    b.HasIndex("DataLiberacaoPrevista");
+
+                    b.HasIndex("DestinoId");
+
                     b.HasIndex("Estado");
 
                     b.HasIndex("ExameCatalogoId");
 
                     b.HasIndex("ExcluidoPorId");
 
-                    b.HasIndex("PacienteId");
-
-                    b.HasIndex("Seq")
+                    b.HasIndex("Numero")
                         .IsUnique();
 
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Numero"));
+
+                    b.HasIndex("OrigemId");
+
+                    b.HasIndex("PacienteId");
 
                     b.ToTable("Exame", (string)null);
                 });
@@ -134,16 +256,40 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     b.Property<DateTime?>("AtualizadoEm")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("AtualizadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CriadoEm")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CriadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DestinoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Genes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("InformacoesTecnicas")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("PrazoExecucaoDias")
+                    b.Property<int?>("NumeroGenes")
                         .HasColumnType("int");
+
+                    b.Property<int>("PrazoDias")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PrecoLimite")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("PrecoReferencia")
                         .HasPrecision(18, 2)
@@ -159,6 +305,12 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
+                    b.HasIndex("AtualizadoPorId");
+
+                    b.HasIndex("CriadoPorId");
+
+                    b.HasIndex("DestinoId");
+
                     b.HasIndex("Nome")
                         .IsUnique();
 
@@ -168,6 +320,57 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
 
                     b.ToTable("ExameCatalogo", (string)null);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Origem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("AtualizadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CriadoPorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<long>("Seq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Seq"));
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("AtualizadoPorId");
+
+                    b.HasIndex("CriadoPorId");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.HasIndex("Seq")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Seq"));
+
+                    b.ToTable("Origem", (string)null);
                 });
 
             modelBuilder.Entity("Cligen.Dominio.Entidades.Paciente", b =>
@@ -181,6 +384,10 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
 
                     b.Property<Guid?>("AtualizadoPorId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Cidade")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CriadoEm")
                         .HasColumnType("datetime2");
@@ -253,9 +460,8 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     b.Property<Guid?>("AtualizadoPorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Convenio")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                    b.Property<Guid?>("ConvenioId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CriadoEm")
                         .HasColumnType("datetime2");
@@ -320,6 +526,8 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
 
                     b.HasIndex("AtualizadoPorId");
 
+                    b.HasIndex("ConvenioId");
+
                     b.HasIndex("CriadoPorId");
 
                     b.HasIndex("ExameId");
@@ -334,32 +542,6 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     b.HasIndex("Status", "DataRecebimento");
 
                     b.ToTable("Pagamento", (string)null);
-                });
-
-            modelBuilder.Entity("Cligen.Dominio.Entidades.Parametro", b =>
-                {
-                    b.Property<string>("Chave")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("AtualizadoEm")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Valor")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Chave");
-
-                    b.ToTable("Parametro", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Chave = "DiasRevisao",
-                            Valor = "3"
-                        });
                 });
 
             modelBuilder.Entity("Cligen.Dominio.Entidades.Usuario", b =>
@@ -423,6 +605,32 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     b.ToTable("Usuario", (string)null);
                 });
 
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Convenio", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Destino", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("Cligen.Dominio.Entidades.Exame", b =>
                 {
                     b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
@@ -436,6 +644,11 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Cligen.Dominio.Entidades.Destino", null)
+                        .WithMany()
+                        .HasForeignKey("DestinoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Cligen.Dominio.Entidades.ExameCatalogo", null)
                         .WithMany()
                         .HasForeignKey("ExameCatalogoId")
@@ -446,6 +659,12 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                         .WithMany()
                         .HasForeignKey("ExcluidoPorId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cligen.Dominio.Entidades.Origem", null)
+                        .WithMany()
+                        .HasForeignKey("OrigemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Cligen.Dominio.Entidades.Paciente", null)
                         .WithMany()
@@ -464,9 +683,6 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                             b1.Property<DateOnly>("DataLiberacaoPrevista")
                                 .HasColumnType("date");
 
-                            b1.Property<int>("DiasRevisao")
-                                .HasColumnType("int");
-
                             b1.Property<Guid>("ExameId")
                                 .HasColumnType("uniqueidentifier");
 
@@ -474,7 +690,7 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                                 .HasMaxLength(500)
                                 .HasColumnType("nvarchar(500)");
 
-                            b1.Property<int>("PrazoExecucaoDias")
+                            b1.Property<int>("PrazoDias")
                                 .HasColumnType("int");
 
                             b1.Property<bool>("Recoleta")
@@ -557,6 +773,9 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                             b1.Property<long>("TamanhoBytes")
                                 .HasColumnType("bigint");
 
+                            b1.Property<int>("Tipo")
+                                .HasColumnType("int");
+
                             b1.Property<string>("TipoConteudo")
                                 .IsRequired()
                                 .HasMaxLength(100)
@@ -585,6 +804,43 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                                 .WithMany()
                                 .HasForeignKey("RemovidoPorId")
                                 .OnDelete(DeleteBehavior.Restrict);
+                        });
+
+                    b.OwnsMany("Cligen.Dominio.Entidades.Comentario", "Comentarios", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("AutorId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTime>("CriadoEm")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<Guid>("ExameId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Texto")
+                                .IsRequired()
+                                .HasMaxLength(2000)
+                                .HasColumnType("nvarchar(2000)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("AutorId");
+
+                            b1.HasIndex("ExameId");
+
+                            b1.ToTable("Comentario", (string)null);
+
+                            b1.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                                .WithMany()
+                                .HasForeignKey("AutorId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+
+                            b1.WithOwner()
+                                .HasForeignKey("ExameId");
                         });
 
                     b.OwnsMany("Cligen.Dominio.Entidades.EtapaAndamento", "Etapas", b1 =>
@@ -663,7 +919,40 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
 
                     b.Navigation("Anexos");
 
+                    b.Navigation("Comentarios");
+
                     b.Navigation("Etapas");
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.ExameCatalogo", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cligen.Dominio.Entidades.Destino", null)
+                        .WithMany()
+                        .HasForeignKey("DestinoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Cligen.Dominio.Entidades.Origem", b =>
+                {
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Cligen.Dominio.Entidades.Paciente", b =>
@@ -717,6 +1006,11 @@ namespace Cligen.Infraestrutura.Persistencia.Migrations
                     b.HasOne("Cligen.Dominio.Entidades.Usuario", null)
                         .WithMany()
                         .HasForeignKey("AtualizadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Cligen.Dominio.Entidades.Convenio", null)
+                        .WithMany()
+                        .HasForeignKey("ConvenioId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Cligen.Dominio.Entidades.Usuario", null)

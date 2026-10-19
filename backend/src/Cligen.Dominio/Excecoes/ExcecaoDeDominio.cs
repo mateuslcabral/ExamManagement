@@ -23,4 +23,8 @@ public sealed class DocumentoJaCadastradoException(string descricaoDocumento)
 public sealed class EstadoInvalidoException(string operacao, string estadoAtual)
     : ExcecaoDeDominio($"Não é possível {operacao} com o exame em '{estadoAtual}'.");
 
+/// <summary>Cadastro auxiliar (origem, destino, convênio) com nome repetido.</summary>
+public sealed class NomeJaCadastradoException(string rotulo, string nome)
+    : ExcecaoDeDominio($"Já existe {rotulo} com o nome '{nome}'.");
+
 public sealed class ValidacaoException(string mensagem) : ExcecaoDeDominio(mensagem);

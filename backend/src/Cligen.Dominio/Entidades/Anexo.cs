@@ -1,10 +1,11 @@
 using Cligen.Dominio.Comum;
+using Cligen.Dominio.Enums;
 using Cligen.Dominio.Excecoes;
 
 namespace Cligen.Dominio.Entidades;
 
 /// <summary>
-/// Arquivo anexado ao exame, sem nomeação semântica (Q22) e nunca visível ao paciente (Q23). O binário fica fora
+/// Arquivo anexado ao exame — pedido médico, termo de consentimento ou outro — nunca visível ao paciente (Q23). O binário fica fora
 /// do banco; aqui ficam caminho, nome original, tipo, tamanho e hash. Remoção é lógica: o arquivo é preservado.
 /// </summary>
 public class Anexo
@@ -12,6 +13,7 @@ public class Anexo
     public const int TamanhoMaximoNomeOriginal = 255;
 
     public Guid Id { get; private set; }
+    public TipoAnexo Tipo { get; private set; }
     public string NomeOriginal { get; private set; } = null!;
     public string TipoConteudo { get; private set; } = null!;
     public long TamanhoBytes { get; private set; }
@@ -32,8 +34,10 @@ public class Anexo
     private Anexo() { } // EF Core
 
     public static Anexo Criar(
-        string? nomeOriginal, FormatoArquivo formato, long tamanhoBytes, string hashSha256, string caminho, Guid autorId)
+        TipoAnexo tipo, string? nomeOriginal, FormatoArquivo formato, long tamanhoBytes, string hashSha256, string caminho, Guid autorId)
     {
+        if (!Enum.IsDefined(tipo))
+            throw new ValidacaoException("Informe o tipo do anexo: pedido médico, termo de consentimento ou outro.");
         if (string.IsNullOrWhiteSpace(hashSha256) || string.IsNullOrWhiteSpace(caminho))
             throw new ValidacaoException("Arquivo não armazenado.");
 
@@ -45,6 +49,7 @@ public class Anexo
         return new Anexo
         {
             Id = Guid.NewGuid(),
+            Tipo = tipo,
             NomeOriginal = nomeOriginal,
             TipoConteudo = formato.TipoConteudo,
             TamanhoBytes = tamanhoBytes,

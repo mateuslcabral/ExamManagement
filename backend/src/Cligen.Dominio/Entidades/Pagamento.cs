@@ -9,7 +9,6 @@ namespace Cligen.Dominio.Entidades;
 /// </summary>
 public class Pagamento
 {
-    public const int TamanhoMaximoConvenio = 150;
     public const int TamanhoMaximoGuia = 50;
     public const int TamanhoMaximoObservacao = 300;
     public const int TamanhoMaximoMotivo = 500;
@@ -24,8 +23,8 @@ public class Pagamento
     /// <summary>Preenchida quando o status vira recebido; é a data que conta para o faturamento (Q29).</summary>
     public DateOnly? DataRecebimento { get; private set; }
 
-    /// <summary>Operadora, como texto livre, até C4.5 decidir se vira cadastro. Só para <see cref="MetodoPagamento.Convenio"/>.</summary>
-    public string? Convenio { get; private set; }
+    /// <summary>Operadora (cadastro — C4.5). Só para <see cref="MetodoPagamento.Convenio"/>.</summary>
+    public Guid? ConvenioId { get; private set; }
 
     /// <summary>Número de guia/autorização, opcional (C4.2 pendente). Só para convênio.</summary>
     public string? NumeroGuia { get; private set; }
@@ -57,7 +56,7 @@ public class Pagamento
     /// </summary>
     public static Pagamento Lancar(
         Guid exameId, MetodoPagamento metodo, decimal valor, DateOnly? dataRecebimento,
-        string? convenio, string? numeroGuia, int? parcelas, decimal? valorParcela, string? observacao,
+        Guid? convenioId, string? numeroGuia, int? parcelas, decimal? valorParcela, string? observacao,
         Guid autorId, DateOnly hoje)
     {
         if (exameId == Guid.Empty) throw new ValidacaoException("O exame é obrigatório.");
@@ -77,8 +76,7 @@ public class Pagamento
 
         if (metodo == MetodoPagamento.Convenio)
         {
-            p.Convenio = Aparar(convenio, TamanhoMaximoConvenio, "O nome do convênio")
-                         ?? throw new ValidacaoException("Informe o convênio.");
+            p.ConvenioId = convenioId is { } id && id != Guid.Empty ? id : throw new ValidacaoException("Informe o convênio.");
             p.NumeroGuia = Aparar(numeroGuia, TamanhoMaximoGuia, "O número da guia");
             p.Status = StatusPagamento.AReceber;
         }

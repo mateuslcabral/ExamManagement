@@ -27,6 +27,7 @@ public sealed class PacienteConfiguracao : IEntityTypeConfiguration<Paciente>
 
         b.Property(p => p.Email).HasMaxLength(254).IsRequired();
         b.Property(p => p.Telefone).HasMaxLength(16).IsRequired();
+        b.Property(p => p.Cidade).HasMaxLength(Paciente.TamanhoMaximoCidade);
 
         b.OwnsOne(p => p.ResponsavelLegal, r =>
         {

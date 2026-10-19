@@ -13,6 +13,7 @@ public sealed record PacienteDto(
     string NumeroDocumento,
     string Email,
     string Telefone,
+    string? Cidade,
     ResponsavelLegalDto? ResponsavelLegal,
     DateTime CriadoEm,
     DateTime? AtualizadoEm);
@@ -25,6 +26,7 @@ public sealed record SalvarPacienteRequest(
     string NumeroDocumento,
     string Email,
     string Telefone,
+    string? Cidade,
     ResponsavelLegalDto? ResponsavelLegal);
 
 public sealed record PaginaDto<T>(IReadOnlyList<T> Itens, int Total, int Pagina, int TamanhoPagina);

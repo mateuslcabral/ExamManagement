@@ -11,6 +11,7 @@ namespace Cligen.Dominio.Entidades;
 public class Paciente
 {
     public const int TamanhoMaximoNome = 200;
+    public const int TamanhoMaximoCidade = 100;
     public const int MaioridadeAnos = 18;
     private static readonly DateOnly NascimentoMinimo = new(1900, 1, 1);
 
@@ -26,6 +27,9 @@ public class Paciente
     /// <summary>Formato internacional (+55...), destino do WhatsApp. Para menor, é o do responsável (P9).</summary>
     public string Telefone { get; private set; } = null!;
 
+    /// <summary>Opcional. Pedido do cliente em 17/10/2026 (Q9 previa sem endereço).</summary>
+    public string? Cidade { get; private set; }
+
     public ResponsavelLegal? ResponsavelLegal { get; private set; }
 
     public DateTime CriadoEm { get; private set; }
@@ -40,7 +44,7 @@ public class Paciente
     /// <param name="hoje">Data local da clínica, usada para decidir a menoridade.</param>
     public static Paciente Criar(
         string? nome, DateOnly dataNascimento, Documento documento, string? email, string? telefone,
-        ResponsavelLegal? responsavel, Guid autorId, DateOnly hoje)
+        ResponsavelLegal? responsavel, string? cidade, Guid autorId, DateOnly hoje)
     {
         var paciente = new Paciente
         {
@@ -48,15 +52,15 @@ public class Paciente
             CriadoEm = DateTime.UtcNow,
             CriadoPorId = autorId
         };
-        paciente.Aplicar(nome, dataNascimento, documento, email, telefone, responsavel, hoje);
+        paciente.Aplicar(nome, dataNascimento, documento, email, telefone, responsavel, cidade, hoje);
         return paciente;
     }
 
     public void Atualizar(
         string? nome, DateOnly dataNascimento, Documento documento, string? email, string? telefone,
-        ResponsavelLegal? responsavel, Guid autorId, DateOnly hoje)
+        ResponsavelLegal? responsavel, string? cidade, Guid autorId, DateOnly hoje)
     {
-        Aplicar(nome, dataNascimento, documento, email, telefone, responsavel, hoje);
+        Aplicar(nome, dataNascimento, documento, email, telefone, responsavel, cidade, hoje);
         AtualizadoEm = DateTime.UtcNow;
         AtualizadoPorId = autorId;
     }
@@ -71,8 +75,12 @@ public class Paciente
 
     private void Aplicar(
         string? nome, DateOnly dataNascimento, Documento documento, string? email, string? telefone,
-        ResponsavelLegal? responsavel, DateOnly hoje)
+        ResponsavelLegal? responsavel, string? cidade, DateOnly hoje)
     {
+        cidade = string.IsNullOrWhiteSpace(cidade) ? null : cidade.Trim();
+        if (cidade?.Length > TamanhoMaximoCidade)
+            throw new ValidacaoException($"A cidade deve ter no máximo {TamanhoMaximoCidade} caracteres.");
+
         if (string.IsNullOrWhiteSpace(nome))
             throw new ValidacaoException("O nome do paciente é obrigatório.");
         nome = nome.Trim();
@@ -101,5 +109,6 @@ public class Paciente
         Email = emailNormalizado;
         Telefone = telefoneNormalizado;
         ResponsavelLegal = responsavel;
+        Cidade = cidade;
     }
 }

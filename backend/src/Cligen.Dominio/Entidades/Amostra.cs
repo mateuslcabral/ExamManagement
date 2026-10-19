@@ -16,9 +16,8 @@ public class Amostra
     /// <summary>Data em que a amostra chegou ao laboratório — início da contagem do prazo (Q1).</summary>
     public DateOnly DataAcolhimento { get; private set; }
 
-    /// <summary>Prazo do catálogo e dias de revisão vigentes no acolhimento: explicam a data prevista gravada.</summary>
-    public int PrazoExecucaoDias { get; private set; }
-    public int DiasRevisao { get; private set; }
+    /// <summary>Prazo do catálogo vigente no acolhimento: explica a data prevista gravada.</summary>
+    public int PrazoDias { get; private set; }
 
     public DateOnly DataLiberacaoPrevista { get; private set; }
     public bool Recoleta { get; private set; }
@@ -35,15 +34,14 @@ public class Amostra
 
     private Amostra() { } // EF Core
 
-    internal static Amostra Acolher(DateOnly dataAcolhimento, int prazoExecucaoDias, int diasRevisao, bool recoleta, Guid autorId)
+    internal static Amostra Acolher(DateOnly dataAcolhimento, int prazoDias, bool recoleta, Guid autorId)
         => new()
         {
             Id = Guid.NewGuid(),
             DataAcolhimento = dataAcolhimento,
-            PrazoExecucaoDias = prazoExecucaoDias,
-            DiasRevisao = diasRevisao,
-            // Dias corridos, sem horário de corte (P7).
-            DataLiberacaoPrevista = dataAcolhimento.AddDays(prazoExecucaoDias + diasRevisao),
+            PrazoDias = prazoDias,
+            // Dias corridos, sem horário de corte (P7). O prazo do catálogo já inclui a revisão (reunião de 17/10/2026).
+            DataLiberacaoPrevista = dataAcolhimento.AddDays(prazoDias),
             Recoleta = recoleta,
             RegistradoEm = DateTime.UtcNow,
             RegistradoPorId = autorId

@@ -7,7 +7,9 @@ public sealed class CligenDbContext(DbContextOptions<CligenDbContext> options) :
 {
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<ExameCatalogo> ExamesCatalogo => Set<ExameCatalogo>();
-    public DbSet<Parametro> Parametros => Set<Parametro>();
+    public DbSet<Origem> Origens => Set<Origem>();
+    public DbSet<Destino> Destinos => Set<Destino>();
+    public DbSet<Convenio> Convenios => Set<Convenio>();
     public DbSet<Paciente> Pacientes => Set<Paciente>();
     public DbSet<Exame> Exames => Set<Exame>();
     public DbSet<Pagamento> Pagamentos => Set<Pagamento>();

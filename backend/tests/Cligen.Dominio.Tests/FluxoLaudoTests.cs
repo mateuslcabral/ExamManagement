@@ -12,8 +12,8 @@ public class FluxoLaudoTests
     private static Exame ExameComAmostra()
     {
         var catalogo = ExameCatalogo.Criar("Exoma", 30, 100m);
-        var exame = Exame.Criar(Guid.NewGuid(), catalogo, OrigemExame.Cligen, null, TipoMedico.Interno, null, null, Autor, Hoje);
-        exame.AcolherAmostra(Hoje, catalogo, 3, Autor, Hoje);
+        var exame = Exame.Criar(Guid.NewGuid(), catalogo, new DadosExame(Guid.NewGuid(), null, TipoMedico.Interno, null, null, null, null), Autor, Hoje);
+        exame.AcolherAmostra(Hoje, catalogo, Autor, Hoje);
         return exame;
     }
 
@@ -43,7 +43,7 @@ public class FluxoLaudoTests
     public void Etapa_SemAmostraAcolhida_DeveFalhar()
     {
         var catalogo = ExameCatalogo.Criar("Exoma", 30, 100m);
-        var e = Exame.Criar(Guid.NewGuid(), catalogo, OrigemExame.Cligen, null, TipoMedico.Interno, null, null, Autor, Hoje);
+        var e = Exame.Criar(Guid.NewGuid(), catalogo, new DadosExame(Guid.NewGuid(), null, TipoMedico.Interno, null, null, null, null), Autor, Hoje);
         Assert.Throws<EstadoInvalidoException>(() => Etapa(e, TipoEtapaLaudo.LaudoParceiroPronto));
     }
 
