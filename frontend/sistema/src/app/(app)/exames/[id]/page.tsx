@@ -53,8 +53,8 @@ export default async function PaginaExame({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/exames" className="text-sm text-teal hover:underline">
-        ← Exames
+      <Link href="/fluxos" className="text-sm text-teal hover:underline">
+        ← Fluxos
       </Link>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold text-primaria">{exame.exameNome}</h1>
@@ -64,7 +64,7 @@ export default async function PaginaExame({
         <EtiquetaEstado estado={exame.estado} />
       </div>
       <p className="mt-1 text-sm text-texto-suave">
-        <Link href={`/exames?pacienteId=${exame.pacienteId}`} className="text-teal hover:underline">
+        <Link href={`/fluxos?pacienteId=${exame.pacienteId}`} className="text-teal hover:underline">
           {exame.pacienteNome}
         </Link>{" "}
         · {formatarDocumento(exame.pacienteTipoDocumento, exame.pacienteNumeroDocumento)} · entrada em {formatarData(exame.dataEntrada)} ·{" "}

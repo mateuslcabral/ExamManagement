@@ -38,6 +38,11 @@ export function somarDias(iso: string, dias: number) {
   return d.toISOString().slice(0, 10);
 }
 
+/** Dias corridos de `de` até `ate` (ambas "yyyy-MM-dd"); negativo quando `ate` já passou. */
+export function diasEntre(de: string, ate: string) {
+  return Math.round((Date.UTC(+ate.slice(0, 4), +ate.slice(5, 7) - 1, +ate.slice(8, 10)) - Date.UTC(+de.slice(0, 4), +de.slice(5, 7) - 1, +de.slice(8, 10))) / 86_400_000);
+}
+
 /** Data civil de Brasília em "yyyy-MM-dd" — a mesma referência que a API usa para menoridade e prazos. */
 export function hojeEmBrasilia() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());

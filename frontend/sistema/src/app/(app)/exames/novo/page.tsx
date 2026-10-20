@@ -26,8 +26,8 @@ export default async function PaginaNovoExame({ searchParams }: { searchParams: 
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/exames" className="text-sm text-teal hover:underline">
-        ← Exames
+      <Link href="/fluxos" className="text-sm text-teal hover:underline">
+        ← Fluxos
       </Link>
       <h1 className="mt-2 text-2xl font-semibold text-primaria">Novo exame</h1>
       <p className="mt-1 mb-6 text-sm text-texto-suave">O exame nasce aguardando amostra. Os anexos são enviados na tela seguinte.</p>

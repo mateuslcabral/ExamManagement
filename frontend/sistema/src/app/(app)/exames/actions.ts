@@ -98,7 +98,7 @@ export async function excluirExame(_anterior: EstadoExcluirExame, dados: FormDat
   }
 
   revalidarExames();
-  redirect("/exames?excluido=1");
+  redirect("/fluxos?excluido=1");
 }
 
 export type EstadoComentario = { erro?: string; sucesso?: string };

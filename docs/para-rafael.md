@@ -246,7 +246,7 @@ O sistema foi demonstrado ao cliente em 17/10. Saíram 17 pedidos; todos foram i
 14. **"Dias de revisão" removidos** por completo: tabela, serviço, endpoint `/parametros` e o formulário na tela do catálogo. Previsão de liberação = data de acolhimento + prazo do catálogo.
 15. Data de acolhimento copiada para o exame (e apagada na rejeição) para os filtros; o resumo do exame traz código, origem, destino, acolhimento e data efetiva.
 16. Testes de domínio reescritos para o novo modelo: 124 passando.
-Os 17 pedidos do cliente estão cobertos pelos itens 1 a 14: o item 6 responde a três deles (renomear e inverter a ordem, incluir os Disponibilizados, filtrar por período) e o item 12 a dois (cadastros e listas suspensas). Os itens 15 e 16 são consequências internas. O menu ficou: Operação = Pacientes, Exames, Fluxos, Financeiro; Cadastros = Catálogo de exames, Cadastros auxiliares, Gestão de usuários.
+Os 17 pedidos do cliente estão cobertos pelos itens 1 a 14: o item 6 responde a três deles (renomear e inverter a ordem, incluir os Disponibilizados, filtrar por período) e o item 12 a dois (cadastros e listas suspensas). Os itens 15 e 16 são consequências internas. O menu ficou (ajuste de 20/10/2026): Operação = Pacientes, Fluxos, Catálogo (consulta), Financeiro; Cadastros = Novo exame, Catálogo de exames (gerenciar), Cadastros auxiliares, Gestão de usuários. A lista "Exames" foi absorvida por Fluxos (busca, exames por paciente, excluídos com restauração e coluna de dias para a entrega).
 
 **Confirmações do cliente**
 

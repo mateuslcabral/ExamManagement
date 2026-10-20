@@ -37,4 +37,4 @@ Sistema interno operacional de ponta a ponta (pacientes, catálogo, cadastros au
 
 ### Rotas do sistema interno (`frontend/sistema`)
 
-`/` · `/pacientes` · `/exames` (+ `/exames/[id]`, `?excluidos=1`) · `/fluxos` · `/financeiro` · `/catalogo` (consulta) · `/catalogo/gerenciar` (CRUD) · `/cadastros` (origens, destinos, convênios) · `/usuarios`. Endpoints da API em [`../backend/README.md`](../backend/README.md).
+`/` · `/pacientes` · `/fluxos` (fila, busca, `?pacienteId=`, `?excluidos=1`; `/exames` redireciona para cá) · `/exames/novo` · `/exames/[id]` · `/financeiro` · `/catalogo` (consulta) · `/catalogo/gerenciar` (CRUD) · `/cadastros` (origens, destinos, convênios) · `/usuarios`. Endpoints da API em [`../backend/README.md`](../backend/README.md).

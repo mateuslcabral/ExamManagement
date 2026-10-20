@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MENU, type ItemMenu } from "./menu";
+import { MENU, pesoAtivo, type ItemMenu } from "./menu";
 import { Icone } from "./icones";
 
 export function Sidebar() {
   const pathname = usePathname();
   const grupos = agrupar(MENU);
+  // Só um item fica ativo: o de maior prefixo casado (ex.: /catalogo/gerenciar acende "Catálogo de exames", não "Catálogo").
+  const maiorPeso = Math.max(...MENU.map((i) => pesoAtivo(i, pathname)));
 
   return (
     <nav aria-label="Menu principal" className="flex h-full flex-col gap-6 p-4">
@@ -18,7 +20,7 @@ export function Sidebar() {
           )}
           <ul className="space-y-0.5">
             {itens.map((item) => {
-              const ativo = item.href && (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)));
+              const ativo = maiorPeso > 0 && pesoAtivo(item, pathname) === maiorPeso;
               const base = "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition";
               if (!item.href) {
                 return (

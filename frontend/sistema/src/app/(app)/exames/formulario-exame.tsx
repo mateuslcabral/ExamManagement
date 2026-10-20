@@ -237,7 +237,7 @@ export function FormularioExame({
         <div className="flex flex-wrap justify-end gap-3">
           {!exame && (
             <Link
-              href={paciente ? `/exames?pacienteId=${paciente.id}` : "/exames"}
+              href={paciente ? `/fluxos?pacienteId=${paciente.id}` : "/fluxos"}
               className="inline-flex items-center rounded-pill border border-primaria bg-white px-5 py-2.5 text-sm font-semibold text-primaria transition hover:bg-fundo-alt"
             >
               Cancelar

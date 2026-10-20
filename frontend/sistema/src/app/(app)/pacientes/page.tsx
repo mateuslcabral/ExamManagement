@@ -128,7 +128,7 @@ export default async function PaginaPacientes({
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1 whitespace-nowrap">
                       {[
-                        { href: `/exames?pacienteId=${p.id}`, rotulo: "Exames" },
+                        { href: `/fluxos?pacienteId=${p.id}`, rotulo: "Exames" },
                         { href: `/exames/novo?pacienteId=${p.id}`, rotulo: "Novo exame" },
                         { href: `/pacientes/${p.id}`, rotulo: "Editar" },
                       ].map((l) => (
