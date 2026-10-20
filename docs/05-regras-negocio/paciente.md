@@ -9,7 +9,7 @@
 - A chave interna do paciente é um identificador aleatório do tipo `uniqueidentifier`, sem qualquer relação com o CPF (C1).
 - O documento — CPF ou passaporte (Q8) — possui **índice único**. A tentativa de cadastrar documento já existente é bloqueada com a mensagem *"Esse CPF já foi utilizado"* (Q11, Q12).
 - E-mail e telefone são **obrigatórios**. Sem eles não há acesso ao portal, e portanto não há cadastro (Q10).
-- Não são coletados sexo, nome social nem endereço (Q9).
+- Não são coletados sexo, nome social nem endereço (Q9). Em 17/10/2026 o cliente pediu apenas a **cidade** do paciente (campo opcional) — Q9 resolvida.
 - No cadastro, o sistema dispara automaticamente a mensagem de boas-vindas com as instruções de acesso ao portal (Q32) — ver [comunicação](comunicacao.md).
 
 ## Campos
@@ -22,16 +22,18 @@
 | Número do documento | sim | Índice único |
 | E-mail | sim | Destino dos disparos |
 | Telefone | sim | Destino dos disparos por WhatsApp |
+| Cidade | não | Texto até 100 caracteres; aparece no formulário e na lista (pedido do cliente em 17/10/2026) |
 | Responsável legal | condicional | Obrigatório para menor de idade (Q7) |
 
 ## Menor de idade
 
 O responsável legal é atribuído no momento do cadastro (Q7). O e-mail e o telefone registrados são os do responsável, e é para ele que vão todos os disparos e o acesso ao portal (**P9**).
 
-## Implementação (16/09/2026)
+## Implementação (16/09/2026, revisada em 19/10/2026)
 
 Decisões tomadas na implementação, onde a especificação não detalhava — **confirmar com o cliente** os itens marcados:
 
+- **Cidade** (19/10/2026): campo opcional `Cidade` (≤ 100), no formulário e na listagem.
 - **Responsável legal — campos (confirmar):** nome e documento (CPF ou passaporte) obrigatórios; parentesco livre e opcional. E-mail e telefone não se repetem: são os do cadastro (P9).
 - **Responsável para maior de idade:** opcional, para cobrir o paciente sem contato próprio (P9). Para menor é obrigatório (Q7), e a menoridade é calculada pela data de Brasília.
 - **CPF** validado pelos dígitos verificadores; **passaporte** aceita de 5 a 20 letras e números. Ambos gravados sem pontuação; a mensagem de duplicidade segue Q11 (*"Esse CPF já foi utilizado"* / *"Esse passaporte já foi utilizado"*).

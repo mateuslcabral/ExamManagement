@@ -39,10 +39,12 @@ backend/
 │   ├── Cligen.Api/
 │   │   ├── Controllers/
 │   │   │   ├── PacientesController.cs
-│   │   │   ├── ExamesController.cs
-│   │   │   ├── AmostrasController.cs
-│   │   │   ├── LaudosController.cs
-│   │   │   ├── PagamentosController.cs
+│   │   │   ├── ExamesController.cs      # inclui amostra, anexos, comentários
+│   │   │   ├── LaudosController.cs      # api/exames/{id}/laudo
+│   │   │   ├── CatalogoExamesController.cs
+│   │   │   ├── CadastrosController.cs   # origens, destinos, convênios (api/cadastros/*)
+│   │   │   ├── FinanceiroController.cs
+│   │   │   ├── UsuariosController.cs
 │   │   │   └── AutenticacaoController.cs
 │   │   └── Program.cs
 │   │
@@ -51,12 +53,13 @@ backend/
 │   │   │   ├── Repositorios/         # IPacienteRepositorio, IExameRepositorio, IPagamentoRepositorio, IUsuarioRepositorio...
 │   │   │   └── Servicos/             # IArmazenamentoArquivos, IEnvioEmail, IEnvioWhatsApp
 │   │   ├── DTOs/                     # PacienteDto, ExameSolicitadoDto, DisponibilizarLaudoRequest...
-│   │   └── Servicos/                 # PacienteService, ExameService, AcolhimentoService, LaudoService, FinanceiroService...
+│   │   └── Servicos/                 # PacienteService, ExameService, LaudoService, ExameCatalogoService, CadastroService, PagamentoService...
 │   │
 │   ├── Cligen.Dominio/
-│   │   ├── Entidades/                # Paciente, Exame, ExameCatalogo, Amostra, EtapaAndamento, Pagamento, Usuario...
+│   │   ├── Entidades/                # Paciente, Exame, Comentario, ExameCatalogo, Amostra, EtapaAndamento, Anexo, Pagamento,
+│   │   │                             # CadastroSimples (Origem, Destino, Convenio), Usuario...
 │   │   ├── Excecoes/                 # DocumentoJaCadastradoException, AmostraNaoAcolhidaException...
-│   │   └── Enums/                    # EstadoExame, StatusPagamento, TipoLogin...
+│   │   └── Enums/                    # EstadoExame, StatusPagamento, TipoAnexo, TipoLogin...
 │   │
 │   └── Cligen.Infraestrutura/
 │       ├── Persistencia/
@@ -73,6 +76,8 @@ backend/
     ├── Cligen.Aplicacao.Tests/
     └── Cligen.Infraestrutura.Tests/
 ```
+
+> Estado em 19/10/2026: na implementação, amostra, anexos e comentários são rotas do `ExamesController`/`ExameService` (não há `AmostrasController`); `Parametro`/`ParametroService`/`ParametrosController` (dias de revisão) existiram entre setembro e outubro e foram **removidos** em 19/10/2026; entraram `CadastrosController`/`CadastroService` e a base `CadastroSimples` (Origem, Destino, Convenio). Só o projeto `Cligen.Dominio.Tests` existe (124 testes).
 
 ## Onde a "Gestão de Usuários" e a autenticação entram
 

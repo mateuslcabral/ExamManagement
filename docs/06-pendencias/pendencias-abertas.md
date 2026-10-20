@@ -6,10 +6,18 @@
 
 | ID | Pergunta | O que trava |
 |---|---|---|
-| **C4.5** | Convênio será um **cadastro** (lista de operadoras, permitindo saber quanto cada uma deve) ou apenas texto digitado no pagamento? Recomendação: cadastro. **Implementado como texto livre, provisoriamente.** | [Modelo financeiro](../05-regras-negocio/financeiro.md) / entidade `Convenio` no [schema](../04-schema/modelo-de-dados.md) |
-| **C4.2** | É necessário registrar número de guia ou autorização do convênio? **Implementado como campo opcional.** | Campo da tela de pagamento |
-| **Q1.6.1** | Os 3 dias de revisão são iguais para todos os exames, ou algum tipo tem revisão mais longa? | Se variar por exame, vira campo do catálogo em vez de parâmetro global (assumido global — **P13**) |
 | **Q1.6.3** | O paciente vê a data prevista no portal, ou ela é interna à equipe? | Tela do portal (recomendado não exibir — **P15**) |
+
+### Resolvidas na reunião de 17/10/2026 (implementadas em 19/10/2026)
+
+| ID | Pergunta | Resolução |
+|---|---|---|
+| **C4.5** | Convênio: cadastro ou texto? | **Cadastro** — entidade `Convenio` (cadastro auxiliar, tela `/cadastros`). Textos já digitados convertidos pela migration. |
+| **C4.2** | Número de guia/autorização obrigatório? | **Opcional**, como já estava. |
+| **Q1.6.1** | Dias de revisão iguais para todos os exames? | **Não existe parcela de revisão separada**: o prazo de cada exame no catálogo já a inclui. Parâmetro removido; **P13 derrubada**. |
+| **Q22** | O que são os 3 anexos? | Anexo **tipado**: pedido médico, termo de consentimento ou outro. Limite de 3 mantido. |
+| **Q9** | Endereço do paciente? | Só a **cidade**, campo opcional. |
+| **Q38.1** | Destino como lista fechada? | **Cadastro auxiliar** `Destino`, com destino padrão por exame do catálogo. |
 
 ## 2. Derivadas do acolhimento da amostra
 
@@ -26,7 +34,6 @@ Ver detalhamento em [amostra-e-prazo.md](../05-regras-negocio/amostra-e-prazo.md
 | Q46 | Volume real de exames/mês e usuários simultâneos | Cliente não soube — premissa P2 (200/mês, 4 usuários) |
 | Q13.1 | CRM do Dr. Arsonval Lamounier Junior | Não informado |
 | Q19.1 | Confirmar leitura: rejeição zera o prazo e o exame volta a aguardar amostra; a recoleta, ao ser acolhida, reinicia o fluxo e recalcula a data | Interpretação a confirmar |
-| Q38.1 | Campo Destino segue como texto livre nesta versão; quando o dashboard entrar, será preciso lista fechada e higienização do já digitado | Diferido junto com o dashboard |
 | — | Hospedagem: nuvem, região e responsável pela contratação | Ver [stack](../01-stack/stack-tecnologica.md) |
 | — | Lista de exames pré-carregados para o seed inicial do catálogo | A fornecer |
 
@@ -34,7 +41,7 @@ Ver detalhamento em [amostra-e-prazo.md](../05-regras-negocio/amostra-e-prazo.md
 
 Identificado na revisão da especificação — não é pendência do cliente, é lacuna de planejamento de engenharia a fechar durante o desenho técnico.
 
-**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno, Gestão de Usuários, Catálogo de exames com o parâmetro global de dias de revisão, repasse da identidade do usuário à API, Cadastro de Pacientes, Exame solicitado com anexos e exclusão lógica, acolhimento de amostra com previsão de liberação, rejeição e recoleta, fluxo do laudo até a disponibilização (notificação em log), restauração de exame excluído, filas Amostras/Laudos e financeiro (desconto, lançamentos, convênio a receber/glosa, relatório por regime de caixa) (`frontend/sistema`, `backend/`). Faltam: portal do paciente, log de acesso, login Google e provedores reais. Resíduos que ainda faltam fechar:
+**Fechados em 22/08/2026:** framework de frontend (React + Next.js/BFF, dois apps, Tailwind), autenticação da equipe interna (OAuth próprio + Google), fluxo de provisionamento na Gestão de Usuários, mecanismo BFF → API (chave de serviço `X-Api-Key`), organização do backend (DDD, 4 projetos) e identidade visual (ação A8, extraída de cligen.com.br) — ver [stack](../01-stack/stack-tecnologica.md), [autenticação](../02-arquitetura/autenticacao.md) e [arquitetura do backend](../02-arquitetura/arquitetura-backend.md). **Implementado e validado:** login por senha, shell do sistema interno, Gestão de Usuários, Catálogo de exames (consulta em `/catalogo`, CRUD em `/catalogo/gerenciar`, com preço limite, genes, destino padrão e informações técnicas), Cadastros auxiliares (origens, destinos, convênios), repasse da identidade do usuário à API, Cadastro de Pacientes (com cidade), Exame solicitado com código `EX-000001`, anexos tipados, comentários e exclusão lógica, acolhimento de amostra com previsão de liberação, rejeição e recoleta, fluxo do laudo até a disponibilização (notificação em log), restauração de exame excluído, página Fluxos (seis grupos, filtro por data) e financeiro (desconto, lançamentos, convênio cadastrado a receber/glosa, relatório por regime de caixa com filtros por convênio e origem) (`frontend/sistema`, `backend/`). Faltam: portal do paciente, log de acesso, login Google e provedores reais. Resíduos que ainda faltam fechar:
 
 | Item | Nota |
 |---|---|
@@ -59,9 +66,9 @@ Identificado na revisão da especificação — não é pendência do cliente, �
 
 ## Encaminhamento (herdado de CLG-PEND-2026-001 §7)
 
-1. Decidir **C4.5** e **C4.2** — únicas pendências de negócio que ainda travam o modelo de dados.
+1. ~~Decidir **C4.5** e **C4.2**~~ — resolvidas em 17/10/2026 (cadastro de convênios; guia opcional). Nenhuma pendência de negócio trava mais o modelo de dados.
 2. Definir hospedagem: nuvem, região e responsável pela contratação.
-3. Aprovar **D2.1** e as premissas **P10** a **P15** (ver [premissas.md](premissas.md)).
+3. Aprovar **D2.1** e as premissas **P10** a **P15** (ver [premissas.md](premissas.md); P13 já derrubada).
 4. Responder o restante do bloco Q1.1–Q1.7 (regra de negócio, não trava a modelagem).
 5. Mateus: verificar DNS e domínio de envio (Q37) e obter o CRM do médico interno (Q13.1).
 6. Fechar as escolhas da seção 4 acima (planejamento técnico) antes de travar a arquitetura definitiva.

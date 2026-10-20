@@ -48,7 +48,7 @@ Outras decisões:
 - Cada etapa guarda quem registrou; a substituição guarda quem substituiu e quando.
 - As mensagens de disponibilização ainda só vão para o log (provedores e textos pendentes). O envio é síncrono, sem fila.
 - A **data prevista não é apagada** na disponibilização: a diferença entre prevista e efetiva é o que mede o atraso (A7).
-- Fila `/laudos`: exames dos estados 2 a 5 agrupados pela próxima ação; data prevista já passada aparece em destaque (não é o alarme de A7, só exibição).
+- Página **Fluxos** (`/fluxos`, antiga `/laudos`, renomeada em 19/10/2026): exames agrupados pelos seis estados, na ordem do fluxo (1 Aguardando amostra → 2 Amostra acolhida → 3 Laudo parceiro pronto → 4 Laudo Cligen para revisão → 5 Laudo revisado → 6 Disponibilizado), com contagem por grupo e total no período. Filtro por um campo de data (`campoData` = Acolhimento, Prevista ou Disponibilizado) com `de`/`ate` — `GET /api/exames?estado=&campoData=&de=&ate=`. Data prevista já passada aparece em destaque (não é o alarme de A7, só exibição). Mostra o código do exame (`EX-000001`).
 
 ## Fora de escopo (v1)
 

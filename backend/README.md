@@ -11,7 +11,7 @@ backend/
 │   ├── Cligen.Infraestrutura/   # DbContext, Migrations, Repositórios, integrações (e-mail, hash, token)
 │   └── Cligen.Api/              # Controllers, middlewares, Program.cs (composition root)
 └── tests/
-    └── Cligen.Dominio.Tests/    # xUnit — regras da entidade
+    └── Cligen.Dominio.Tests/    # xUnit — regras da entidade (124 testes)
 ```
 
 ## Pré-requisitos
@@ -59,28 +59,33 @@ Todos exigem o header `X-Api-Key`. Fora de `/api/auth`, exigem também `X-Usuari
 | `POST` | `/api/usuarios` | Criar — tipo decidido pelo e-mail (`@gmail.com` → Google ativo; demais → Local, envia e-mail) |
 | `PUT` | `/api/usuarios/{id}` | Renomear |
 | `POST` | `/api/usuarios/{id}/desativar` · `/reativar` · `/reenviar-definicao-senha` | Ações |
-| `GET` | `/api/catalogo-exames?apenasAtivos=` | Listar catálogo — cada item traz `prazoEntregaDias` (execução + dias de revisão) |
-| `POST` · `PUT` | `/api/catalogo-exames` · `/api/catalogo-exames/{id}` | Criar / editar (nome único, prazo ≥ 1 dia, preço ≥ 0 com 2 casas) |
+| `GET` | `/api/catalogo-exames?apenasAtivos=` | Listar catálogo — nome, `prazoDias` (entrega em dias corridos, já com revisão), `precoReferencia`, `precoLimite` (piso para desconto), `numeroGenes`, `genes`, `destinoId` (padrão), `informacoesTecnicas`, ativo, autoria |
+| `POST` · `PUT` | `/api/catalogo-exames` · `/api/catalogo-exames/{id}` | Criar / editar (nome único, prazo ≥ 1 dia, preços ≥ 0 com 2 casas, preço limite ≤ referência, nº de genes ≥ 0) |
 | `POST` | `/api/catalogo-exames/{id}/desativar` · `/reativar` | Sem exclusão: exame aposentado é desativado |
+| `GET` | `/api/cadastros/{origens\|destinos\|convenios}?apenasAtivos=` | Cadastros auxiliares (base `CadastroSimples`: nome único sem diferenciar maiúsculas, ativo, autoria) |
+| `GET` · `POST` · `PUT` | `/api/cadastros/{tipo}/{id}` · `/api/cadastros/{tipo}` | Obter / criar / renomear. Nome duplicado → 409 |
+| `POST` | `/api/cadastros/{tipo}/{id}/desativar` · `/reativar` | Nunca apagados: desativar tira das listas e preserva o histórico |
 | `GET` | `/api/pacientes?busca=&pagina=&tamanhoPagina=` | Buscar por parte do nome ou início do documento (paginado) |
-| `GET` · `POST` · `PUT` | `/api/pacientes/{id}` · `/api/pacientes` | Obter / cadastrar (dispara boas-vindas) / editar. Sem exclusão |
-| `GET` | `/api/exames?busca=&pacienteId=&estado=&excluidos=&pagina=&tamanhoPagina=` | Buscar (paciente, documento ou nome do exame). Excluídos não aparecem |
-| `GET` · `POST` · `PUT` | `/api/exames/{id}` · `/api/exames` | Obter / cadastrar / editar |
+| `GET` · `POST` · `PUT` | `/api/pacientes/{id}` · `/api/pacientes` | Obter / cadastrar (dispara boas-vindas; campo opcional `cidade`) / editar. Sem exclusão |
+| `GET` | `/api/exames?busca=&pacienteId=&estado=&campoData=&de=&ate=&excluidos=&pagina=&tamanhoPagina=` | Buscar (código `EX-000001`, paciente, documento ou nome do exame). `campoData` ∈ Acolhimento, Prevista, Disponibilizado. Excluídos não aparecem |
+| `GET` · `POST` · `PUT` | `/api/exames/{id}` · `/api/exames` | Obter / cadastrar / editar. `origemId` obrigatório, `destinoId` opcional (pré-preenchido pelo catálogo); médico externo com `crmMedico` e `ufCrm` opcionais |
 | `POST` | `/api/exames/{id}/excluir` | Exclusão lógica — corpo `{ motivo }` obrigatório |
-| `POST` | `/api/exames/{id}/amostra/acolher` | Corpo `{ dataAcolhimento }`. Grava a previsão (acolhimento + execução + revisão) e avança o estado |
+| `POST` | `/api/exames/{id}/comentarios` | Corpo `{ texto }` (≤ 2000). Só inserção: comentário nunca é editado nem apagado |
+| `POST` | `/api/exames/{id}/amostra/acolher` | Corpo `{ dataAcolhimento }`. Grava a previsão (acolhimento + `prazoDias` do catálogo) e avança o estado |
 | `POST` | `/api/exames/{id}/amostra/rejeitar` | Corpo `{ motivo }`. Zera a previsão; exame volta a aguardar amostra |
-| `POST` | `/api/exames/{id}/anexos` | Upload multipart (campo `arquivo`), PDF/JPG/PNG até 50 MB, máx. 3 ativos |
+| `POST` | `/api/exames/{id}/anexos` | Upload multipart (campos `arquivo` e `tipo` — PedidoMedico, TermoConsentimento ou Outro), PDF/JPG/PNG até 50 MB, máx. 3 ativos |
 | `GET` · `POST` | `/api/exames/{id}/anexos/{anexoId}` · `…/remover` | Download / remoção lógica |
 | `POST` | `/api/exames/{id}/restaurar` | Desfaz a exclusão lógica |
 | `POST` | `/api/exames/{id}/laudo/{etapa}` | Multipart `arquivo` (só PDF). Registra a etapa (`LaudoParceiroPronto` → `LaudoCligenParaRevisao` → `LaudoRevisado`, sem pular) ou substitui o arquivo dela |
 | `GET` | `/api/exames/{id}/laudo/{etapa}/arquivo` | Download do PDF da etapa |
 | `POST` | `/api/exames/{id}/laudo/disponibilizar` | 5→6: grava a data efetiva e dispara e-mail + WhatsApp (log) |
 | `GET` | `/api/exames/{id}/financeiro` | Preço, desconto, a pagar, recebido, a receber, saldo e lançamentos |
-| `POST` | `/api/exames/{id}/pagamentos` | Lançar (particular nasce recebido; convênio nasce a receber). Total lançado ≤ valor a pagar |
-| `PUT` | `/api/exames/{id}/desconto` | Desconto em R$ + motivo opcional |
+| `POST` | `/api/exames/{id}/pagamentos` | Lançar (particular nasce recebido; convênio nasce a receber, `convenioId` obrigatório, guia opcional). N lançamentos por exame; total lançado ≤ valor a pagar |
+| `PUT` | `/api/exames/{id}/desconto` | Desconto em R$ + motivo opcional; valor a pagar não pode ficar abaixo do preço limite do catálogo |
 | `POST` | `/api/pagamentos/{id}/receber` · `/glosar` · `/excluir` | Convênio pago (data) · glosa (motivo) · exclusão lógica (motivo) |
-| `GET` | `/api/financeiro/relatorio?de=&ate=` | Regime de caixa; sem período, mês corrente |
-| `GET` · `PUT` | `/api/parametros/dias-revisao` | Dias de revisão globais (P13), semeados com 3 pela migration |
+| `GET` | `/api/financeiro/relatorio?de=&ate=&convenioId=&origemId=` | Regime de caixa; sem período, mês corrente. Linhas com código do exame, origem e convênio; totais por método, por origem e por convênio |
+
+Removido em 19/10/2026: `/api/parametros/dias-revisao` (tabela `Parametro` dropada pela migration `20261019174706_CadastrosCatalogoEAjustesCliente`, que também criou os cadastros auxiliares, semeou as 4 origens e converteu destinos/convênios digitados em linhas).
 
 ## Seeds
 

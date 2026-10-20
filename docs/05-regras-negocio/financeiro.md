@@ -10,7 +10,7 @@ O módulo é **registro interno**, sem emissão fiscal e sem integração contá
 valor pago = valor do exame − desconto
 ```
 
-O desconto é sempre em **reais**, nunca percentual (C5). O motivo do desconto é campo livre e opcional (**P12**).
+O desconto é sempre em **reais**, nunca percentual (C5). O motivo do desconto é campo livre e opcional (**P12**). O **preço limite** do exame no catálogo é o **piso** (confirmado pelo cliente em 17/10/2026): após o desconto, o valor a pagar não pode ficar abaixo dele.
 
 ## Pagamentos
 
@@ -40,20 +40,21 @@ A recusa de pagamento pelo convênio é tratada pelo status `glosado`, que retir
 
 **Não existe saldo em aberto do paciente** (Q26). O paciente particular quita no ato; o que pode ficar pendente é o valor a receber de convênio, que é outra coisa.
 
-> **Pendente — C4.5:** convênio vira **cadastro** (lista de operadoras, permitindo saber quanto cada uma deve) ou apenas texto digitado no pagamento? Recomendação registrada: cadastro — sem ele não há como responder "quanto a Unimed tem a pagar". Impacta diretamente o [modelo de dados](../04-schema/modelo-de-dados.md) (entidade `Convenio`).
+> **Resolvida — C4.5 (17/10/2026):** convênio é **cadastro** (entidade `Convenio`, cadastro auxiliar — ver [exame solicitado](exame-solicitado.md#cadastros-auxiliares)). O relatório agrupa pela operadora cadastrada.
 >
-> **Pendente — C4.2:** é necessário registrar número de guia ou autorização do convênio?
+> **Resolvida — C4.2 (17/10/2026):** número de guia/autorização permanece **campo opcional** do lançamento.
 
-## Implementação (16/10/2026)
+## Implementação (16/10/2026, revisada em 19/10/2026)
 
-- **Desconto** fica no exame, em reais, com motivo opcional; não pode exceder o preço. `valor a pagar = preço − desconto`.
+- **Desconto** fica no exame, em reais, com motivo opcional; não pode exceder o preço nem levar o valor a pagar abaixo do **preço limite** do catálogo. `valor a pagar = preço − desconto`.
 - **Lançamentos** (`Pagamento`) são agregado próprio, N por exame, com autoria. Particular (Pix, cartões, dinheiro, boleto, transferência) **nasce recebido** na data informada (hoje por padrão) — o paciente quita no ato (Q26). **Convênio nasce a receber** (C4) e só entra no caixa quando marcado como recebido, na data em que o dinheiro chegou.
-- **Convênio como texto livre** + campo opcional de guia/autorização, até C4.5/C4.2. O relatório agrupa pelo nome digitado — grafias diferentes viram convênios diferentes; promover a cadastro depois é migration simples.
+- **Vários meios por exame** já funcionavam (N lançamentos); desde 19/10/2026 a tela diz isso explicitamente e destaca "Lançar pagamento (falta R$ X)" enquanto houver saldo.
+- **Convênio como cadastro** (`Pagamento.ConvenioId`, obrigatório quando o método é Convênio) + campo opcional de guia/autorização. A migration de 19/10/2026 converteu os nomes antes digitados em linhas do cadastro.
 - **Glosa** (P11): só em lançamento de convênio a receber, com motivo; sai da previsão, lançamento permanece.
 - **Cartão parcelado** (Q27, C6): guarda número de parcelas e valor de cada uma (calculado se não informado), só como informação; o valor entra integral na data.
 - **Limite:** o total lançado (recebido + a receber) não pode passar do valor a pagar; aumentar o desconto também respeita isso. Não existe saldo em aberto do paciente (Q26): a tela mostra "Falta lançar" até o saldo zerar.
 - **Exclusão** de lançamento errado é lógica, com motivo (P4). Lançamentos de exame excluído somem do relatório e voltam ao restaurar.
-- **Relatório `/financeiro`** por regime de caixa (Q29): recebidos pela data de recebimento no período (padrão: mês corrente), totais por método; a receber de convênio sem corte de data, totais por convênio. Sem emissão fiscal nem exportação.
+- **Relatório `/financeiro`** por regime de caixa (Q29): recebidos pela data de recebimento no período (padrão: mês corrente), totais por método e **por origem**; a receber de convênio sem corte de data, totais por convênio. Filtros por **convênio** e por **origem** (`GET /api/financeiro/relatorio?de&ate&convenioId&origemId`, dois selects na tela); cada linha traz o código do exame, a origem e o convênio. Sem emissão fiscal nem exportação.
 - **Não implementado:** relatório por exame/paciente, exportação (CSV/Excel), caixa diário, baixa em lote de convênio.
 
 ## Reconhecimento de receita

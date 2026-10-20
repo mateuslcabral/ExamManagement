@@ -1,6 +1,6 @@
 # Próximos passos de desenvolvimento
 
-> Atualizado em 17/09/2026. Ordem sugerida de construção, o que cada etapa depende e quais pendências (Q/C) precisam ser fechadas com o cliente. Detalhe de cada item em [`../06-pendencias/`](../06-pendencias/); decisões já tomadas e dúvidas consolidadas em [`../para-rafael.md`](../para-rafael.md).
+> Atualizado em 19/10/2026 (após a reunião com o cliente em 17/10). Ordem sugerida de construção, o que cada etapa depende e quais pendências (Q/C) precisam ser fechadas com o cliente. Detalhe de cada item em [`../06-pendencias/`](../06-pendencias/); decisões já tomadas e dúvidas consolidadas em [`../para-rafael.md`](../para-rafael.md).
 
 ## Onde estamos
 
@@ -8,31 +8,32 @@
 |---|---|
 | Login por senha, shell, Gestão de Usuários | ✅ |
 | Identidade do usuário na API (autoria em tudo) | ✅ |
-| Pacientes + responsável legal | ✅ |
-| Catálogo de exames + dias de revisão (+ 3 exemplos semeados) | ✅ |
-| Exames + anexos (storage em disco, provisório) + exclusão lógica com restauração | ✅ |
-| Acolhimento de amostra, rejeição, recoleta + fila Amostras | ✅ |
-| Fluxo do laudo + disponibilização (notificações em log) + fila Laudos | ✅ |
-| Financeiro: desconto, lançamentos, convênio (texto livre) a receber/glosa, relatório por regime de caixa | ✅ (convênio vira cadastro quando C4.5 responder) |
+| Pacientes + responsável legal + cidade | ✅ |
+| Catálogo de exames: consulta (`/catalogo`) + CRUD (`/catalogo/gerenciar`) com preço limite, genes, destino padrão, informações técnicas, autoria (+ 3 exemplos semeados) | ✅ |
+| Cadastros auxiliares: origens, destinos, convênios (`/cadastros`) | ✅ |
+| Exames + código `EX-000001` + anexos tipados (storage em disco, provisório) + comentários + edição com confirmação + exclusão lógica com restauração | ✅ |
+| Acolhimento de amostra, rejeição, recoleta (no detalhe do exame) | ✅ |
+| Fluxo do laudo + disponibilização (notificações em log) + página Fluxos (6 grupos, filtro por data) | ✅ |
+| Financeiro: desconto com piso (preço limite), lançamentos, convênio cadastrado a receber/glosa, relatório por regime de caixa com filtros por convênio e origem | ✅ |
 | Portal do paciente | ⬜ regras do código de uso único |
 | Log de acesso / LGPD | ⬜ escopo do log |
 | Login Google | ⬜ credenciais OAuth; Gmail pessoal × Workspace |
 | Provedores reais (e-mail, WhatsApp, storage) | ⬜ Q36, Q37, hospedagem |
 
-**Testes:** 114 de domínio (`dotnet test`). Não há testes de Aplicação/Infraestrutura nem de frontend. Todos os módulos foram validados por chamadas à API e abrindo as telas; **ninguém da Cligen usou o sistema ainda.**
+**Testes:** 124 de domínio (`dotnet test`). Não há testes de Aplicação/Infraestrutura nem de frontend. Todos os módulos foram validados por chamadas à API e abrindo as telas.
 
 ---
 
 ## Fase 1 — Fechar o ciclo operacional
 
-### 1.1 Demonstração com a Cligen
-Antes do financeiro: uma sessão com alguém da recepção e alguém do laboratório usando as telas de paciente, exame, amostra e laudo. É a única forma de validar as decisões de tela.
+### 1.1 Demonstração com a Cligen — feita em 17/10
+Reunião com o cliente gerou 17 pedidos, todos implementados em 19/10 (ver [`para-rafael.md`](../para-rafael.md), seção "Reunião de 17/10/2026"). Resolvidas: C4.5, C4.2, Q1.6.1 (P13 derrubada), Q22, Q9, Q38.1.
 
-### 1.2 Financeiro — feito em 16/10
-Falta só o que depende do cliente: promover convênio a cadastro (C4.5) e decidir se a guia é obrigatória (C4.2). Pedidos prováveis depois do uso: exportar o relatório (CSV/Excel) e relatório por paciente.
+### 1.2 Financeiro — feito em 16/10, ajustado em 19/10
+Convênio virou cadastro; guia continua opcional; relatório filtra por convênio e origem. Pedidos prováveis depois do uso: exportar o relatório (CSV/Excel) e relatório por paciente.
 
-### 1.3 Rodada de pendências com o cliente
-Levar de uma vez: **C4.5, C4.2** (convênio) · **Q19.1 / Q1.7** (rejeição e recoleta) · **Q1.2 / Q1.3** (data de acolhimento digitável, sem corte) · matriz de transições do laudo · campos do responsável legal · **D2.1** · lista oficial do catálogo · **Q13.1**. Lista completa em [`para-rafael.md`](../para-rafael.md).
+### 1.3 Próxima rodada de pendências com o cliente
+Levar de uma vez: **Q19.1 / Q1.7** (rejeição e recoleta) · **Q1.2 / Q1.3** (data de acolhimento digitável, sem corte) · matriz de transições do laudo · campos do responsável legal · **D2.1** · lista oficial do catálogo (agora com preço limite, genes e destino padrão) · **Q13.1**. Lista completa em [`para-rafael.md`](../para-rafael.md).
 
 ---
 
@@ -75,11 +76,9 @@ Bloqueado por regras finas ainda não escritas. Proposta a registrar antes de co
 ## Dívidas técnicas conhecidas
 
 - **Testes**: só domínio. Adicionar testes de Aplicação (repositórios fake), integração da Infraestrutura (SQL Server em container) e smoke de frontend (Playwright).
-- **Autorização por perfil** diferida (Q41/R3): qualquer usuário faz tudo, inclusive mudar os dias de revisão.
-- **`Destino` texto livre** (Q38.1): higienizar e converter em lista quando o dashboard entrar.
+- **Autorização por perfil** diferida (Q41/R3): qualquer usuário faz tudo, inclusive gerenciar catálogo e cadastros auxiliares.
 - **Arquivo substituído de etapa do laudo** fica no disco sem referência e sem tela: guardar o hash antigo em log de auditoria quando o log de acesso existir.
-- **Catálogo sem autoria** (criado antes da identidade na API): acrescentar `CriadoPorId`/`AtualizadoPorId`.
-- **Fila de amostras** some a linha ao acolher sem mensagem de confirmação.
+- **Cadastros auxiliares duplicados** pela conversão dos textos livres (grafias diferentes do mesmo destino/convênio): conferir e desativar as sobras na tela `/cadastros`.
 
 ## Como retomar o ambiente
 

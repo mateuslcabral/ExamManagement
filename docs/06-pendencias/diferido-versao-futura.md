@@ -10,7 +10,7 @@
 | Perfis de acesso internos e restrição de campos por perfil | Q41, Q42 |
 | Laudo retificado e laudo complementar | Q17 |
 | Cadastro estruturado de médico externo e vínculo com clínica parceira | Q14, Q15 |
-| Nomeação semântica dos três anexos do cadastro do exame | Q22 |
+| ~~Nomeação semântica dos três anexos do cadastro do exame~~ — resolvida em 17/10/2026 e implementada em 19/10/2026 (tipo obrigatório: pedido médico, termo de consentimento, outro) | Q22 |
 | Gateway de pagamento e emissão fiscal | Q30, Q31 |
 
 **Sobre os perfis (Q41).** Com o dashboard fora da v1, a única separação de acesso indispensável é a do **paciente** — vê apenas os próprios exames e apenas o laudo revisado. A separação entre funções da equipe pode esperar, com a ressalva registrada em [decisões e conflitos — C2](decisoes-e-conflitos.md#c2--exclusão-de-exame).

@@ -23,7 +23,7 @@
 | Alarme de vencimento de prazo e critério de atraso (ação A7) | Q40 |
 | Laudo retificado e laudo complementar | Q17 |
 | Cadastro estruturado de médico externo e vínculo com clínica parceira | Q14, Q15 |
-| Nomeação semântica dos anexos do exame | Q22 |
+| ~~Nomeação semântica dos anexos do exame~~ — entrou na v1 em 19/10/2026 (tipo do anexo: pedido médico, termo de consentimento, outro) | Q22 |
 | Gateway de pagamento e emissão fiscal | Q30, Q31 |
 
 **Sobre os perfis.** Com o dashboard fora da primeira versão, a única separação de acesso indispensável é a do **paciente**, que enxerga apenas os próprios exames e apenas o laudo revisado. A separação entre funções da equipe interna pode esperar — na prática, os 4 usuários internos têm as mesmas permissões na v1 (inclusive exclusão de qualquer exame — ver risco R3 em [pendências](../06-pendencias/riscos-aceitos.md)).

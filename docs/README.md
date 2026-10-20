@@ -31,6 +31,10 @@ Cada regra de negócio nos documentos formais traz entre parênteses a referênc
 `D` = decisão da ata · `Q` = resposta do questionário · `C` = resolução de conflito · `P` = premissa técnica adotada.
 Essa referência foi preservada nos documentos divididos abaixo sempre que relevante, para rastreabilidade.
 
-## Status do projeto (22/08/2026)
+## Status do projeto (19/10/2026)
 
-Especificação funcional, stack de backend, **frontend e autenticação da equipe interna** fechados (React + Next.js/BFF por superfície; OAuth próprio + Google — ver [`02-arquitetura/autenticacao.md`](02-arquitetura/autenticacao.md)). Seguem pendentes: modelo de convênio (C4.5/C4.2), regras finas de acolhimento de amostra (Q1.1–Q1.7), hospedagem, provedores de storage/e-mail/WhatsApp, e demais itens de planejamento técnico (ambientes, testes, backup/DR). Ver [`06-pendencias/`](06-pendencias/) e [`02-arquitetura/`](02-arquitetura/).
+Sistema interno operacional de ponta a ponta (pacientes, catálogo, cadastros auxiliares, exames, amostra, laudo, fluxos, financeiro, usuários) — ver [`08-apresentacao/o-que-temos.md`](08-apresentacao/o-que-temos.md). Reunião com o cliente em 17/10/2026 fechou C4.5/C4.2 (convênio como cadastro), Q1.6.1 (sem dias de revisão; P13 derrubada), Q22, Q9 e Q38.1; os 17 pedidos foram implementados em 19/10 — resumo em [`para-rafael.md`](para-rafael.md). Seguem pendentes: regras finas de acolhimento de amostra (Q1.1–Q1.7), hospedagem, provedores de storage/e-mail/WhatsApp, portal do paciente, log de acesso e demais itens de planejamento técnico. Ver [`06-pendencias/`](06-pendencias/) e [`07-roadmap/`](07-roadmap/).
+
+### Rotas do sistema interno (`frontend/sistema`)
+
+`/` · `/pacientes` · `/exames` (+ `/exames/[id]`, `?excluidos=1`) · `/fluxos` · `/financeiro` · `/catalogo` (consulta) · `/catalogo/gerenciar` (CRUD) · `/cadastros` (origens, destinos, convênios) · `/usuarios`. Endpoints da API em [`../backend/README.md`](../backend/README.md).

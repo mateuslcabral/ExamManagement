@@ -1,11 +1,13 @@
 # Roteiro de apresentação para a Cligen
 
 > Duração sugerida: 60 min (40 de demonstração, 20 de perguntas). Público: direção, recepção e laboratório da Cligen. Objetivo: mostrar o ciclo completo funcionando e **sair da reunião com as respostas da seção 6**.
+>
+> Usado na reunião de 17/10/2026; atualizado em 19/10 para refletir as telas atuais (Fluxos, Cadastros auxiliares, catálogo de consulta) e retirar as perguntas já respondidas, para servir à próxima demonstração.
 
 ## Antes da reunião
 
 - [ ] Subir API e frontend; entrar com o usuário inicial.
-- [ ] Banco com: catálogo com 3 ou 4 exames **com nomes reais da Cligen** (pedir a lista antes; se não vier, avisar que os nomes são exemplo), 2 pacientes (um adulto, um menor com responsável), 1 exame já disponibilizado (para mostrar o fim do fluxo) e 1 exame aguardando amostra (para acolher ao vivo).
+- [ ] Banco com: catálogo com 3 ou 4 exames **com nomes reais da Cligen** (pedir a lista antes; se não vier, avisar que os nomes são exemplo), cadastros auxiliares com 2 destinos e 2 convênios, 2 pacientes (um adulto, um menor com responsável), 1 exame já disponibilizado (para mostrar o fim do fluxo) e 1 exame aguardando amostra (para acolher ao vivo).
 - [ ] Um PDF de laudo real ou de exemplo, e um JPG, na área de trabalho.
 - [ ] Abrir o log da API numa janela ao lado, para mostrar as mensagens "disparadas".
 - [ ] Imprimir ou abrir `pendencias.md` (seção 1) para a rodada de perguntas.
@@ -30,27 +32,26 @@
 
 ## 3. Exame solicitado (6 min) — recepção
 
-1. Na linha do paciente, **Novo exame**. Escolher o exame do catálogo: o preço vem preenchido; mostrar que pode ser ajustado. Origem, médico interno/externo.
-   - **Perguntar:** "O campo Destino: vocês têm uma lista fixa de laboratórios? Se sim, vira lista."
-2. Salvar. Mostrar o estado "Aguardando amostra" e que **não há data prevista ainda** — explicar que o prazo só começa quando a amostra chega.
-3. Anexar o JPG e tentar anexar um arquivo renomeado (opcional): o sistema confere o conteúdo.
-4. Mostrar a exclusão com motivo e a lista de excluídos com Restaurar — reforçar: nada é apagado, é prontuário.
+1. Na linha do paciente, **Novo exame**. Escolher o exame do catálogo: o preço e o destino padrão vêm preenchidos; mostrar que ambos podem ser ajustados. Origem e destino vêm dos **Cadastros auxiliares**; médico interno/externo (externo com CRM e UF).
+2. Salvar. Mostrar o **código** (`EX-000001`) no cabeçalho, o estado "Aguardando amostra" e que **não há data prevista ainda** — explicar que o prazo só começa quando a amostra chega.
+3. Anexar o JPG escolhendo o tipo (pedido médico, termo de consentimento, outro) e tentar anexar um arquivo renomeado (opcional): o sistema confere o conteúdo.
+4. Escrever um **comentário**; mostrar que não há como editá-lo nem apagá-lo. Clicar em **Editar** nos dados do exame: a confirmação antes de liberar os campos.
+5. Mostrar a exclusão com motivo e a lista de excluídos com Restaurar — reforçar: nada é apagado, é prontuário.
 
 ## 4. Amostra e prazo (7 min) — laboratório
 
-1. Menu **Amostras**: a fila do que ainda não chegou. Na linha, a data vem com hoje; mudar para ontem e mostrar a previsão recalculando antes de confirmar. **Acolher**.
-   - Explicar a conta: acolhimento + prazo do exame + 3 dias de revisão.
-   - **Perguntar:** "Quem registra a chegada da amostra e onde? A data é digitada (amostra de sábado lançada na segunda) ou automática?"
+1. Menu **Fluxos**: o grupo 1 lista o que ainda não chegou. Abrir o exame; na seção Amostra a data vem com hoje; mudar para ontem e mostrar a previsão recalculando antes de confirmar. **Acolher**.
+   - Explicar a conta: acolhimento + prazo do exame (que já inclui a revisão da Cligen, como combinado em 17/10).
+   - **Perguntar:** "Quem registra a chegada da amostra? A data é digitada (amostra de sábado lançada na segunda) ou automática?"
    - **Perguntar:** "Existe horário de corte?"
    - **Perguntar:** "Uma coleta pode servir para mais de um exame? Um exame pode precisar de duas amostras?"
-2. Abrir o exame: seção Amostra mostra a data, a previsão e quem lançou. Mostrar **Rejeitar amostra** com motivo: a previsão some e o exame volta para a fila; o próximo acolhimento aparece como "recoleta" com data nova.
+2. Seção Amostra mostra a data, a previsão e quem lançou. Mostrar **Rejeitar amostra** com motivo: a previsão some e o exame volta para o grupo 1 de Fluxos; o próximo acolhimento aparece como "recoleta" com data nova.
    - **Perguntar (importante):** "Quando a amostra é rejeitada e recoletada, a data prometida ao paciente é a nova, certo? A antiga deixa de valer?"
-3. Catálogo → mostrar os **dias de revisão** editáveis e que mudar não altera datas já prometidas.
-   - **Perguntar:** "Os 3 dias valem para todos os exames?"
+3. Menu **Catálogo**: a visão de consulta (cards com prazo, preços, genes, destino padrão, informações técnicas). Em **Gerenciar**, mostrar que mudar o prazo não altera datas já prometidas.
 
 ## 5. Fluxo do laudo (10 min) — laboratório e direção
 
-1. Menu **Laudos**: a fila agrupada pela próxima ação; data prevista vencida fica em vermelho.
+1. Menu **Fluxos**: os seis grupos na ordem do fluxo, com contagem; filtrar por data de acolhimento; data prevista vencida fica em vermelho.
 2. Abrir o exame acolhido: **Registrar etapa** com o PDF → "Laudo parceiro pronto", data automática. Tentar pular para a etapa 5: o sistema recusa.
    - **Perguntar:** "A etapa do parceiro existe mesmo quando o exame é feito internamente? Hoje é obrigatória."
 3. **Substituir arquivo** da etapa: data e estado não mudam; o contador registra.
@@ -61,18 +62,16 @@
 
 ## 6. Financeiro (7 min) — recepção e direção
 
-1. No exame: aplicar um desconto com motivo; valor a pagar muda. Lançar parte em Pix e parte em cartão 3x — "Quitado".
-2. Em outro exame: lançar convênio "Unimed" com guia → fica **a receber**; marcar **Receber** com a data; mostrar **Glosar** com motivo.
-3. Menu **Financeiro**: relatório do mês, totais por método, a receber por convênio. Mudar o período.
-   - **Perguntar (decisivo):** "Convênio precisa ser um cadastro (Unimed, Bradesco…) para o relatório somar certo, ou texto basta?"
-   - **Perguntar:** "O número da guia é obrigatório?"
+1. No exame: aplicar um desconto com motivo; valor a pagar muda. Tentar descer abaixo do **preço limite**: o sistema recusa. Lançar parte em Pix e parte em cartão 3x (o botão mostra "falta R$ X" até fechar) — "Quitado".
+2. Em outro exame: lançar convênio (escolhido do cadastro) com guia → fica **a receber**; marcar **Receber** com a data; mostrar **Glosar** com motivo.
+3. Menu **Financeiro**: relatório do mês, totais por método e por origem, a receber por convênio. Mudar o período; filtrar por convênio e por origem.
    - **Perguntar:** "Paciente particular sempre paga no ato? Nunca fica devendo?"
    - **Perguntar:** "Precisam exportar para Excel?"
 
 ## 7. Usuários e segurança (3 min) — direção
 
-1. **Gestão de Usuários**: criar um usuário local (recebe link para definir a própria senha), desativar/reativar. Explicar: desativado cai na hora.
-2. Dizer com clareza: nesta versão **todos os usuários fazem tudo** (excluir exame, mudar dias de revisão). Confirmar que é aceitável até os perfis entrarem.
+1. **Gestão de Usuários**: criar um usuário local (recebe link para definir a própria senha), desativar/reativar. Explicar: desativado cai na hora. **Cadastros auxiliares**: criar um destino, renomear, desativar (some das listas, histórico fica).
+2. Dizer com clareza: nesta versão **todos os usuários fazem tudo** (excluir exame, gerenciar catálogo e cadastros). Confirmar que é aceitável até os perfis entrarem.
    - **Perguntar:** "O login com Google é com Gmail pessoal de cada um ou a Cligen tem Google Workspace?"
    - **Perguntar:** "Regras de senha: tamanho, troca periódica, bloqueio por tentativas?"
 
@@ -83,7 +82,7 @@ Mostrar a lista curta:
 **Falta construir:** portal do paciente · envio real de e-mail e WhatsApp · arquivos em nuvem · log de acesso a laudos · login Google · ambiente de produção com backup.
 
 **Precisamos de vocês (levar impresso):**
-1. Lista oficial dos exames: nome, prazo, preço.
+1. Lista oficial dos exames: nome, prazo de entrega, preço de referência, preço limite, genes, destino padrão, informações técnicas. Lista inicial de destinos e convênios.
 2. Textos das três mensagens (boas-vindas, laudo com médico interno, laudo com médico externo).
 3. Acesso à conta do WhatsApp Business e ao DNS de cligen.com.br (ou quem tem).
 4. Hospedagem: quem contrata e onde (recomendação: nuvem no Brasil).

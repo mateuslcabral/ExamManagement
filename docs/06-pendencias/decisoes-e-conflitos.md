@@ -35,7 +35,7 @@ Implicações no modelo financeiro:
 - Coparticipação resolvida sem regra nova: dois lançamentos no mesmo exame (convênio `a receber` + cartão do paciente `recebido`).
 - **Premissa P11:** recusa de pagamento pelo convênio (glosa) tratada como status `glosado`, que retira o valor da previsão sem apagar o lançamento. **Confirmar com o cliente.**
 
-Segue em aberto: **C4.2** (número de guia/autorização) e **C4.5** (convênio como cadastro ou texto livre) — ver [pendências abertas](pendencias-abertas.md).
+Resolvidas em 17/10/2026: **C4.5** — convênio é **cadastro** (entidade `Convenio`, cadastro auxiliar); **C4.2** — número de guia/autorização permanece **opcional**. Ver [pendências abertas](pendencias-abertas.md) e [financeiro](../05-regras-negocio/financeiro.md).
 
 ## C5 — Desconto
 

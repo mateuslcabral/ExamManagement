@@ -16,7 +16,7 @@
 | P10 | Motivo da exclusão obrigatório | C2 |
 | P11 | Glosa tratada como status `glosado` do lançamento | C4 |
 | P12 | Motivo do desconto livre e opcional | C5 |
-| P13 | Os 3 dias de revisão valem para todos os exames e são parâmetro global editável | Q1.6 |
+| ~~P13~~ | ~~Os 3 dias de revisão valem para todos os exames e são parâmetro global editável~~ — **derrubada em 17/10/2026**: o prazo de cada exame no catálogo já inclui a revisão; não há parâmetro de dias de revisão (Q1.6.1 resolvida) | Q1.6 |
 | P14 | O exame carrega duas datas independentes — prevista (fixa, gravada no acolhimento) e efetiva (gravada na disponibilização) | Q1.6.2 |
 | P15 | A data prevista não é exibida ao paciente na v1 | Q1.6.3 pendente |
 

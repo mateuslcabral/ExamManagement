@@ -1,6 +1,6 @@
 # Para Rafael — decisões tomadas, dúvidas e dilemas
 
-> Situação em 17/09/2026 (atualizado após a unificação com o repositório do GitHub — ver a última seção). Escrito por Mateus.
+> Situação em 17/09/2026, com a nota da unificação do GitHub e, no fim, a seção **"Reunião de 17/10/2026: o que mudou"** (adicionada em 19/10/2026) — ela prevalece sobre os itens marcados como *superados* abaixo. Escrito por Mateus.
 
 Rafael, este documento reúne tudo que foi decidido durante a construção do sistema da Cligen nos pontos em que a especificação não dizia o que fazer, e tudo que continua em aberto. Preciso que você leia e me diga onde concorda, onde discorda e quem responde o que eu não sei responder.
 
@@ -30,8 +30,8 @@ Tudo foi testado por mim na API e nas telas, mas ninguém da Cligen usou o siste
 |---|---|---|---|
 | 1.1 | Não podem existir dois exames com o mesmo nome. "Exoma" e "exoma" contam como iguais. | Evita o mesmo exame cadastrado duas vezes com preços diferentes. | Mudança pequena. |
 | 1.2 | Exame do catálogo nunca é apagado, só desativado. Desativado não aparece para novas solicitações e pode ser reativado. | Os exames já realizados precisam continuar apontando para ele. | Não recomendo mudar. |
-| 1.3 | A tela mostra o "prazo de execução" e, ao lado, a entrega ao paciente já somada com os dias de revisão (ex.: 30 + 3 = 33). | A especificação pede isso para ninguém prometer 30 dias quando são 33. | — |
-| 1.4 | Os 3 dias de revisão podem ser alterados pela equipe, na tela do catálogo. Mudar esse número **não altera** a data já prometida de exames com amostra acolhida. | Premissas P13 e P14. | Se a revisão variar por tipo de exame (Q1.6.1), vira um campo do catálogo. Mudança média. |
+| 1.3 | ~~A tela mostra o "prazo de execução" e, ao lado, a entrega ao paciente já somada com os dias de revisão.~~ **Superado em 17/10:** o prazo do catálogo é o prazo de entrega e já inclui a revisão. | — | — |
+| 1.4 | ~~Os 3 dias de revisão podem ser alterados pela equipe.~~ **Superado em 17/10:** não existem dias de revisão (P13 derrubada). Mudar o prazo do catálogo continua **não alterando** a data já prometida (P14). | — | — |
 
 ### Pacientes
 
@@ -55,7 +55,7 @@ Tudo foi testado por mim na API e nas telas, mas ninguém da Cligen usou o siste
 | 1.15 | O preço vem do catálogo ao escolher o exame e pode ser alterado. | Está na especificação. | — |
 | 1.16 | O paciente de um exame não pode ser trocado. Se foi lançado no paciente errado, exclui-se com motivo e cadastra-se de novo. | Fica o rastro do erro, o que importa num prontuário. | Permitir a troca é simples, mas perde-se o rastro. |
 | 1.17 | O exame do catálogo só pode ser trocado antes de a amostra ser acolhida. | Depois disso, o prazo daquele exame já entrou na data prometida. | — |
-| 1.18 | "Destino" é opcional. Médico externo exige o nome digitado. | A especificação trata o destino como descritivo. | — |
+| 1.18 | "Destino" é opcional. Médico externo exige o nome digitado. **Atualizado em 17/10:** destino vem de um cadastro (pré-preenchido pelo catálogo); médico externo pode ter CRM e UF. | A especificação tratava o destino como descritivo; o cliente pediu lista. | — |
 | 1.19 | Anexos: o sistema confere o formato pelo conteúdo do arquivo. Um arquivo renomeado para ".pdf" é recusado. | O nome do arquivo é controlado por quem envia. | — |
 | 1.20 | "Remover" um anexo só o tira da tela e libera a vaga. O arquivo continua guardado. | Nada do prontuário é apagado. | — |
 | 1.21 | Exame excluído some das telas. A lista "Exames excluídos" mostra motivo e data e tem o botão Restaurar. | O documento C2 diz que a exclusão é reversível. | — |
@@ -66,13 +66,13 @@ Estas são as mais importantes, porque respondem por conta própria perguntas qu
 
 | # | Pergunta pendente | O que implementei | Se a resposta for outra |
 |---|---|---|---|
-| 1.22 | Q1.1 — quem registra e em que tela? | Qualquer usuário. Há uma fila "Amostras" com os exames aguardando, e também dá para registrar dentro do exame. | Se for uma tela só do laboratório, depende dos perfis de acesso, que estão fora da v1. |
+| 1.22 | Q1.1 — quem registra e em que tela? | Qualquer usuário, dentro do exame. **Atualizado em 19/10:** a fila "Amostras" foi removida a pedido do cliente; os exames aguardando aparecem no grupo 1 da página Fluxos. | Se for uma tela só do laboratório, depende dos perfis de acesso, que estão fora da v1. |
 | 1.23 | Q1.2 — a data é automática ou digitada? | Digitada, com "hoje" já preenchido. Não pode ser futura nem anterior ao cadastro do exame. O sistema guarda separadamente quando e quem lançou. | Se for automática, é só travar o campo. |
 | 1.24 | Q1.3 — há horário de corte? | Não. Vale a data informada (P7). | Com horário de corte, passamos a pedir hora também. Mudança média. |
 | 1.25 | Q1.4 e Q1.5 — várias amostras por exame, ou uma coleta para vários exames? | Uma amostra por exame (P8). O banco já foi desenhado para aceitar mais de uma sem perda de dados. | Mudança de tela e de cálculo, sem retrabalho no banco. |
 | 1.26 | Q1.7 e Q19.1 — o que acontece na rejeição e na recoleta? | A rejeição exige motivo, apaga a data prevista e o exame volta a aguardar amostra. A amostra rejeitada fica no histórico. O acolhimento seguinte aparece marcado como "recoleta" e gera data nova. | Se a data original tiver de ser mantida, é outra regra. **Dilema 4.4.** |
 | 1.27 | (sem código) — até quando se pode rejeitar? | Só enquanto o exame está em "amostra acolhida", antes de qualquer laudo. | Coerente com a matriz implementada (dúvida 3.7, a confirmar). |
-| 1.28 | P14 — a data prevista muda? | Nunca. É gravada uma vez no acolhimento. Mudar o catálogo ou os dias de revisão depois não a altera. A amostra guarda os números usados no cálculo. | Não recomendo mudar: sem isso nenhum exame apareceria atrasado. |
+| 1.28 | P14 — a data prevista muda? | Nunca. É gravada uma vez no acolhimento. Mudar o prazo do catálogo depois não a altera. A amostra guarda o prazo usado no cálculo. | Não recomendo mudar: sem isso nenhum exame apareceria atrasado. |
 
 ### Fluxo do laudo
 
@@ -83,13 +83,13 @@ Estas são as mais importantes, porque respondem por conta própria perguntas qu
 | 1.34 | Substituir o laudo **depois de disponibilizado** é permitido, não avisa o paciente e não guarda a versão anterior na tela. A tela pede confirmação. | Risco R2, aceito pelo cliente. O arquivo antigo continua no disco, sem referência. | Se o cliente quiser histórico, vira o "laudo retificado" que ficou para a v2. |
 | 1.35 | Só PDF nas etapas, conferido pelo conteúdo. Anexos comuns aceitam PDF, JPG e PNG. | Laudo assinado é PDF. | — |
 | 1.36 | Disponibilizar exige o laudo revisado e é um botão com confirmação. Não há como "desdisponibilizar". | D10. | Voltar de 6 para 5 depende da matriz de transições (dúvida 3.7). |
-| 1.37 | A fila "Laudos" destaca em vermelho a data prevista que já passou. Não é o alarme de atraso (A7, fora da v1), é só exibição. | Custo zero e ajuda a equipe. | Basta tirar o destaque. |
+| 1.37 | A página "Fluxos" (antiga fila "Laudos", renomeada em 19/10) destaca em vermelho a data prevista que já passou. Não é o alarme de atraso (A7, fora da v1), é só exibição. | Custo zero e ajuda a equipe. | Basta tirar o destaque. |
 
 ### Financeiro
 
 | # | Decisão | Por quê | Se a resposta for outra |
 |---|---|---|---|
-| 1.38 | Convênio é digitado como texto (ex.: "Unimed"), com um campo opcional para número de guia. O relatório agrupa pelo texto digitado. | C4.5 e C4.2 continuam sem resposta e eu não quis travar o módulo. | Virar cadastro é uma migration simples; os nomes já digitados precisariam ser padronizados. |
+| 1.38 | ~~Convênio é digitado como texto.~~ **Superado em 17/10:** convênio é cadastro (C4.5); guia continua opcional (C4.2). Os nomes já digitados foram convertidos pela migration. | Resposta do cliente. | — |
 | 1.39 | Pagamento particular (Pix, cartão, dinheiro...) já nasce como **recebido**, na data informada (hoje por padrão). Convênio nasce **a receber** e só entra no caixa quando alguém marca "Receber" com a data em que o dinheiro chegou. | Q26 ("o paciente quita no ato") e C4. | — |
 | 1.40 | O total lançado não pode passar do valor a pagar (preço − desconto). A tela mostra "Falta lançar R$ X" até fechar. | Q26: não existe saldo em aberto do paciente; lançar a mais é erro. | Se houver caso legítimo de receber a mais (ex.: taxa), vira só aviso. |
 | 1.41 | Glosa só em convênio a receber, com motivo; o valor sai da previsão e o lançamento fica. | P11. | — |
@@ -130,8 +130,8 @@ Estas são as mais importantes, porque respondem por conta própria perguntas qu
 
 | # | Dúvida | O que trava | Quem responde |
 |---|---|---|---|
-| 3.1 | **C4.5** — convênio é um cadastro de operadoras ou um texto digitado? Recomendo cadastro: sem ele não dá para saber quanto cada operadora deve. | Implementei como texto (item 1.38); a resposta define se vira cadastro. | Cliente |
-| 3.2 | **C4.2** — é preciso registrar número de guia ou de autorização? | Implementei como opcional; a resposta define se vira obrigatório. | Cliente |
+| 3.1 | ~~**C4.5** — convênio é um cadastro de operadoras ou um texto digitado?~~ **Respondido em 17/10:** cadastro. Implementado em 19/10. | — | Cliente |
+| 3.2 | ~~**C4.2** — é preciso registrar número de guia ou de autorização?~~ **Respondido em 17/10:** opcional, como estava. | — | Cliente |
 | 3.3 | **Q37** — qual e-mail e domínio de envio, e quem tem acesso ao DNS de `cligen.com.br`? Qual provedor de e-mail? | Nenhuma mensagem sai do sistema até isso existir. | Eu levanto o DNS. A escolha do provedor é nossa. |
 | 3.4 | **C7** — texto da mensagem de boas-vindas e dos dois avisos de laudo. Os modelos de WhatsApp precisam ser aprovados pela Meta, e isso demora. | Disponibilização do laudo. | Eu proponho o rascunho; o cliente aprova. |
 
@@ -161,9 +161,9 @@ Estas são as mais importantes, porque respondem por conta própria perguntas qu
 
 ### 4.1 Os 4 usuários podem tudo
 
-A especificação aceita isso na v1 (risco R3). Com o que já está pronto, "tudo" inclui excluir qualquer exame, rejeitar qualquer amostra, mudar os dias de revisão de todos os exames e alterar o documento de qualquer paciente. Cada uma dessas ações guarda autor e data, mas nenhuma pede uma segunda pessoa.
+A especificação aceita isso na v1 (risco R3). Com o que já está pronto, "tudo" inclui excluir qualquer exame, rejeitar qualquer amostra, mudar o prazo e os preços de qualquer exame do catálogo, gerenciar os cadastros auxiliares e alterar o documento de qualquer paciente. Cada uma dessas ações guarda autor e data, mas nenhuma pede uma segunda pessoa.
 
-**Minha posição:** mantenho como está, porque perfis estão fora do escopo. Se você achar que mudar os dias de revisão é sensível demais, posso restringir só isso.
+**Minha posição:** mantenho como está, porque perfis estão fora do escopo. Se você achar que mexer no catálogo e nos cadastros é sensível demais, posso restringir só isso.
 
 ### 4.2 Arquivos em disco local
 
@@ -201,11 +201,13 @@ Testei tudo por chamadas à API e abrindo as telas, mas não cliquei em cada bot
 
 **Minha posição:** fazer uma demonstração com alguém da Cligen antes de começar o financeiro.
 
+**Atualização 19/10:** a demonstração aconteceu em 17/10 — ver a última seção. A fila de amostras foi um dos itens derrubados pelo cliente. Falta ainda o uso no dia a dia pela recepção e pelo laboratório.
+
 ---
 
 ## Parte 5 — O que eu preciso de você
 
-1. **Confirmar o financeiro:** C4.5 e C4.2 (dúvidas 3.1 e 3.2) e os itens 1.38 a 1.44.
+1. **Confirmar o financeiro:** ~~C4.5 e C4.2 (dúvidas 3.1 e 3.2)~~ — resolvidos em 17/10; restam os itens 1.39 a 1.44.
 2. **Urgente, trava as mensagens reais:** os textos (3.4) e o provedor de e-mail (3.3). A matriz de transições (3.7) já está implementada; precisa só de confirmação.
 3. **Confirmar com o cliente:** os itens 1.5, 1.22 a 1.27 e o dilema 4.4.
 4. **Sua opinião:** dilemas 4.1, 4.5 e 4.7, e o item 1.34 (substituir laudo já liberado).
@@ -219,3 +221,42 @@ Tudo que está neste documento também está detalhado, por módulo, em `docs/05
 ## Nota sobre o repositório no GitHub
 
 Em 22/08 existia no GitHub uma outra implementação destes mesmos módulos (commit "Módulos de pacientes, catálogo, exames, amostra e fluxo do laudo"), feita a partir do seu "First Commit". A cópia local em que trabalhei nas últimas semanas partiu de um clone anterior e evoluiu separadamente, com desenho diferente. Em 17/09 as duas foram unificadas: **prevaleceu a versão local** (validação do usuário na API, upload em stream, paginação, mais testes), e o que só existia no GitHub — fluxo do laudo, restauração de exame, exemplos no catálogo, roadmap — foi reimplementado nela. O histórico do GitHub foi preservado no merge, então nada se perdeu; só deixou de ser a versão vigente. Os documentos de premissas P16–P36 daquela versão foram substituídos pelas seções "Implementação" de cada módulo em `docs/05-regras-negocio/`.
+
+---
+
+## Reunião de 17/10/2026: o que mudou
+
+O sistema foi demonstrado ao cliente em 17/10. Saíram 17 pedidos; todos foram implementados em 19/10/2026 (migration `20261019174706_CadastrosCatalogoEAjustesCliente`; 124 testes de domínio passando).
+
+**Pedidos implementados**
+
+1. **Médico externo** ganhou CRM (até 20 caracteres) e UF do CRM (2 letras, validada), ambos opcionais; aparecem ao lado do nome no cabeçalho do exame.
+2. **Tela "Amostras" removida** (com o item de menu). O acolhimento acontece só dentro do exame; os exames aguardando amostra são o grupo 1 da página Fluxos.
+3. **Anexos tipados**: Pedido médico, Termo de consentimento ou Outro — tipo obrigatório no envio; os anexos antigos viraram "Outro". Limite de 3 por exame mantido (o cliente confirmou). PDF/JPG/PNG, 50 MB.
+4. **Dados do exame somente leitura** por padrão: "Editar" pede confirmação antes de liberar os campos e "Salvar alterações" confirma de novo. Um componente de diálogo próprio substituiu todos os `confirm` do navegador (anexos, laudo, restaurar, disponibilizar).
+5. **Vários meios de pagamento** por exame já funcionavam; a tela agora diz isso e destaca "Lançar pagamento (falta R$ X)" enquanto houver saldo.
+6. **Página "Laudos" virou "Fluxos"** (`/fluxos`), com os seis estados na ordem do fluxo (Aguardando amostra → Amostra acolhida → Laudo parceiro pronto → Laudo Cligen para revisão → Laudo revisado → Disponibilizado, este agora incluído), contagem por grupo e total no período, e filtro por data de acolhimento, prevista ou de disponibilização (de/até).
+7. **Paciente** ganhou o campo opcional **Cidade**, no formulário e na lista.
+8. **Catálogo** (`/catalogo`) virou **visão de consulta** de todos os exames oferecidos (cards com nome, prazo, destino padrão, preços, nº de genes, genes, informações técnicas; inativos à parte). O CRUD foi para `/catalogo/gerenciar`.
+9. **Comentários no exame**: lista cronológica com autor e data, só inserção — nunca editado nem apagado (prontuário).
+10. **Código interno do exame** (`EX-000001`, sequencial), exibido em listas, detalhe, Fluxos e financeiro; a busca aceita o código.
+11. **Novos campos do catálogo**: prazo de entrega em dias corridos (já incluindo a revisão), preço de referência, **preço limite**, número de genes, genes (texto), **destino padrão**, informações técnicas. O catálogo passou a guardar quem criou/alterou (fecha o item 2.3 acima).
+12. **Cadastros auxiliares** para Origens, Destinos e Convênios (`/cadastros`, menu "Cadastros"): nome único, ativo/inativo, nunca apagados — desativar some das listas e preserva o histórico. O exame referencia origem (obrigatória) e destino (opcional, pré-preenchido pelo catálogo); o pagamento por convênio referencia a operadora. A migration semeou as 4 origens e converteu os destinos e convênios já digitados em linhas.
+13. **Relatório financeiro** com filtros por convênio e por origem, código do exame em cada linha e total "Por origem".
+14. **"Dias de revisão" removidos** por completo: tabela, serviço, endpoint `/parametros` e o formulário na tela do catálogo. Previsão de liberação = data de acolhimento + prazo do catálogo.
+15. Data de acolhimento copiada para o exame (e apagada na rejeição) para os filtros; o resumo do exame traz código, origem, destino, acolhimento e data efetiva.
+16. Testes de domínio reescritos para o novo modelo: 124 passando.
+Os 17 pedidos do cliente estão cobertos pelos itens 1 a 14: o item 6 responde a três deles (renomear e inverter a ordem, incluir os Disponibilizados, filtrar por período) e o item 12 a dois (cadastros e listas suspensas). Os itens 15 e 16 são consequências internas. O menu ficou: Operação = Pacientes, Exames, Fluxos, Financeiro; Cadastros = Catálogo de exames, Cadastros auxiliares, Gestão de usuários.
+
+**Confirmações do cliente**
+
+- "Preço limite" é o **piso para desconto**: o valor a pagar não pode ficar abaixo dele.
+- "Quais genes" é **texto livre**, não lista.
+- O destino no catálogo é o **laboratório padrão**, pré-preenchido no exame e trocável.
+- A aba de catálogo é **visão de consulta**; a gestão fica em tela separada.
+- Filtros de data usam a **data de acolhimento** — não existe "data de coleta".
+- Limite de **3 anexos** mantido.
+
+**Pendências fechadas:** C4.5 (convênio é cadastro), C4.2 (guia opcional), Q1.6.1 (sem dias de revisão — **P13 derrubada**), Q22 (anexos tipados), Q9 (cidade), Q38.1 (destino é cadastro). Itens 1.3, 1.4, 1.38, 3.1 e 3.2 acima ficam superados; 1.18 e 1.22 atualizados.
+
+**O que continua em aberto:** tudo o mais da Parte 3 — em especial Q1.1–Q1.7 e Q19.1 (amostra), matriz de transições (3.7), textos e provedores (3.3, 3.4), hospedagem (3.8), D2.1, Q13.1 e a lista oficial do catálogo (agora com os campos novos). Sugestão de cuidado pós-migration: conferir em `/cadastros` se a conversão dos textos livres gerou destinos ou convênios duplicados por grafia e desativar as sobras.

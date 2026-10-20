@@ -8,11 +8,10 @@ A contagem do prazo começa no **acolhimento da amostra no laboratório**, não 
 
 ```
 data de liberação prevista = data de acolhimento da amostra
-                           + prazo de execução do exame (dias corridos)
-                           + 3 dias de revisão da Cligen
+                           + prazo do exame no catálogo (dias corridos, já incluindo a revisão)
 ```
 
-Os 3 dias de revisão valem para todos os exames, inclusive os executados internamente, e são armazenados como **parâmetro global editável** — a Cligen pode alterá-los sem nova versão do sistema (**P13**).
+Não existe parcela separada de "dias de revisão": o cliente confirmou em 17/10/2026 que o prazo informado por exame já embute o tempo de revisão da Cligen. A premissa **P13** (3 dias globais editáveis) foi derrubada nessa data e o parâmetro removido do sistema — ver [catálogo](catalogo-exames.md).
 
 Enquanto a amostra não for acolhida, **a data de liberação não existe**. A tela de cadastro do exame exibe apenas o prazo em dias; a data aparece depois do acolhimento.
 
@@ -35,13 +34,13 @@ A rejeição da amostra zera o prazo, e o exame retorna à condição de aguarda
 
 > **Pendente — Q19.1:** confirmar com o cliente a leitura exata desta regra (rejeição zera o prazo; recoleta reinicia o fluxo e recalcula a data).
 
-## Implementação (17/09/2026)
+## Implementação (17/09/2026, revisada em 19/10/2026)
 
-Implementado com as premissas **P7**, **P8**, **P13** e **P14**. Onde a regra ainda depende do cliente, adotou-se a opção mais conservadora — **confirmar**:
+Implementado com as premissas **P7**, **P8** e **P14** (P13 derrubada em 17/10/2026). Onde a regra ainda depende do cliente, adotou-se a opção mais conservadora — **confirmar**:
 
 | Pendência | Adotado na implementação |
 |---|---|
-| Q1.1 — quem registra, em que tela | Qualquer usuário, em dois lugares: fila **Amostras** (exames aguardando, registro direto na linha) e no detalhe do exame. Sem perfil próprio (perfis diferidos). |
+| Q1.1 — quem registra, em que tela | Qualquer usuário, **só no detalhe do exame** (seção Amostra). A tela `/amostras` foi removida em 19/10/2026; os exames aguardando amostra aparecem como grupo 1 da página **Fluxos** (`/fluxos`). Sem perfil próprio (perfis diferidos). |
 | Q1.2 — data automática ou digitável | **Digitável**, com hoje como padrão. Não pode ser futura nem anterior à entrada do exame. O sistema guarda à parte quando e por quem o acolhimento foi lançado, então data retroativa fica visível. |
 | Q1.3 — horário de corte | Sem horário de corte (P7): vale a data informada. |
 | Q1.4 / Q1.5 — várias amostras ou vários exames | Um acolhimento vigente por exame (P8). `Amostra` é tabela própria, então a resposta cabe sem migration destrutiva. |
@@ -49,7 +48,8 @@ Implementado com as premissas **P7**, **P8**, **P13** e **P14**. Onde a regra ai
 
 Outras decisões:
 
-- A previsão é gravada no exame **uma única vez** por acolhimento e não muda se o prazo do catálogo ou os dias de revisão forem alterados depois. A amostra guarda o prazo de execução e os dias de revisão usados, para que a data possa ser explicada mais tarde.
+- A previsão é gravada no exame **uma única vez** por acolhimento e não muda se o prazo do catálogo for alterado depois. A amostra guarda o prazo usado (`Amostra.PrazoDias`), para que a data possa ser explicada mais tarde. O campo `DiasRevisao` da amostra foi removido em 19/10/2026.
+- `Exame.DataAcolhimento` é gravada no acolhimento e apagada na rejeição (desnormalização para os filtros por data da página Fluxos). Os filtros de data do sistema usam a **data de acolhimento** — o cliente confirmou que não existe "data de coleta".
 - A rejeição só é possível no estado *Amostra acolhida*, antes das etapas do laudo. Rejeitar depois de um laudo de parceiro já enviado não está previsto — entra na matriz de transições, ainda pendente.
 - Depois do acolhimento, o exame do catálogo não pode mais ser trocado (o prazo dele já compôs a previsão).
 
