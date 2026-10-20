@@ -17,8 +17,8 @@ export const MENU: ItemMenu[] = [
   { rotulo: "Fluxos", href: "/fluxos", tambemAtivoEm: ["/exames"], icone: "laudos", grupo: "Operação" },
   { rotulo: "Catálogo", href: "/catalogo", icone: "catalogo", grupo: "Operação" },
   { rotulo: "Financeiro", href: "/financeiro", icone: "financeiro", grupo: "Operação" },
-  { rotulo: "Novo exame", href: "/exames/novo", icone: "exames", grupo: "Cadastros" },
-  { rotulo: "Catálogo de exames", href: "/catalogo/gerenciar", icone: "catalogo", grupo: "Cadastros" },
+  { rotulo: "Novo exame", href: "/exames/novo", icone: "exames", grupo: "Operação" },
+  { rotulo: "Cadastros de exames", href: "/catalogo/gerenciar", icone: "catalogo", grupo: "Cadastros" },
   { rotulo: "Cadastros auxiliares", href: "/cadastros", icone: "amostras", grupo: "Cadastros" },
   { rotulo: "Gestão de Usuários", href: "/usuarios", icone: "usuarios", grupo: "Cadastros" },
 ];
